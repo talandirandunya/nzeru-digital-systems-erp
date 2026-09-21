@@ -1,11 +1,11 @@
-{% load i18n %}
+{% load i18n static %}
 {% load role_tags %}
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}{{ company.name }} — NZERU ERP{% endblock %}</title>
+  <title>{% block title %}{{ company.name }} — Nzeru Digital ERP{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -14,7 +14,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
   <style>
-    /* ── Zentral Design Tokens ── */
+    /* ── Nzeru Digital Design Tokens ── */
     :root {
       --bg:         #0d1117;
       --surface:    #161b22;
@@ -25,17 +25,17 @@
       --muted:      #a6b0bd;
       --muted-dim:  #69717d;
       --sidebar-bg: #080d12;
-      --accent:     oklch(0.70 0.17 162);
-      --accent-dim: oklch(0.70 0.17 162 / 0.15);
-      --red:        oklch(0.62 0.20 25);
+      --accent:     #12808d;
+      --accent-dim: rgba(18, 128, 141, 0.16);
+      --red:        #97171d;
       --amber:      oklch(0.78 0.17 75);
       --blue:       oklch(0.65 0.17 245);
       --purple:     oklch(0.68 0.17 300);
       --glass-sidebar: rgba(8, 13, 18, 0.82);
       --glass-topbar: rgba(22, 27, 34, 0.82);
       --glass-card: rgba(22, 27, 34, 0.65);
-      --glow-teal: rgba(13, 148, 136, 0.08);
-      --glow-indigo: rgba(99, 102, 241, 0.08);
+      --glow-teal: rgba(18, 128, 141, 0.10);
+      --glow-indigo: rgba(151, 23, 29, 0.06);
     }
     [data-bs-theme="light"] {
       --bg:         #f3f4f6;
@@ -50,8 +50,8 @@
       --glass-sidebar: rgba(255, 255, 255, 0.85);
       --glass-topbar: rgba(255, 255, 255, 0.85);
       --glass-card: rgba(255, 255, 255, 0.7);
-      --glow-teal: rgba(13, 148, 136, 0.04);
-      --glow-indigo: rgba(99, 102, 241, 0.04);
+      --glow-teal: rgba(18, 128, 141, 0.05);
+      --glow-indigo: rgba(151, 23, 29, 0.04);
     }
 
     /* ── Reset & Base ── */
@@ -111,13 +111,9 @@
       padding: 0 20px; border-bottom: 1px solid var(--border); gap: 10px;
       text-decoration: none;
     }
-    .brand-icon {
-      width: 32px; height: 32px; border-radius: 8px;
-      background: var(--accent); display: flex; align-items: center;
-      justify-content: center; flex-shrink: 0;
-    }
-    .brand-icon i { color: #0d1117; font-size: 14px; }
-    .brand-name { font-weight: 800; font-size: 18px; color: var(--text); letter-spacing: -.5px; }
+    .brand-icon { width: 34px; height: 34px; flex-shrink: 0; object-fit: contain; }
+    .brand-name { font-weight: 800; font-size: 16px; color: var(--text); letter-spacing: -.3px; }
+    .brand-name small { display: block; color: var(--red); font-size: 9px; letter-spacing: 2px; line-height: 1; font-weight: 600; }
 
     .sidebar-nav { flex: 1; padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
     .nav-item-inner {
@@ -456,6 +452,9 @@
     .text-zentral-amber  { color: var(--amber) !important; }
     .text-zentral-blue   { color: var(--blue) !important; }
 
+    /* Currency and brand utilities */
+    .currency-code { color: var(--accent); font-weight: 650; }
+
     /* Misc */
     .border-zentral { border-color: var(--border) !important; }
     .bg-surface   { background: var(--surface) !important; }
@@ -518,8 +517,8 @@
   <aside class="zentral-sidebar {% if request.COOKIES.sidebar_collapsed == '1' %}collapsed{% endif %}" id="zentral-sidebar">
 
     <a class="sidebar-brand" href="{% url 'core:dashboard' %}">
-      <div class="brand-icon"><i class="fas fa-bolt"></i></div>
-      <span class="brand-name">NZERU ERP</span>
+      <img class="brand-icon" src="{% static 'branding/nzeru-digital-logo.svg' %}" alt="Nzeru Digital" />
+      <span class="brand-name">Nzeru ERP<small>Digital</small></span>
     </a>
 
     <nav class="sidebar-nav">
@@ -894,11 +893,25 @@
           }
           html += '<li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="/notifications/preferences/"><i class="fas fa-cog me-2"></i>Paramètres de notifications</a></li>';
           notifDropdown.innerHTML = html;
+          applyMwkCurrency();
         }
       })
       .catch(err => console.error('Notification polling error:', err));
   }
   setInterval(pollNotifications, 10000);
+
+  function applyMwkCurrency() {
+    const currencyPattern = /MWK|MWK|MWK|\$(?=\s*[\d.,])/g;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node => {
+      if (node.parentElement && !['SCRIPT', 'STYLE'].includes(node.parentElement.tagName)) {
+        node.nodeValue = node.nodeValue.replace(currencyPattern, 'MWK');
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded', applyMwkCurrency);
 
 })();
 </script>

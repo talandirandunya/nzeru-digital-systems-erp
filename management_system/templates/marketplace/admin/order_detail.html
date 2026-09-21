@@ -140,28 +140,28 @@
                                     <strong>{{ item.item_name }}</strong><br>
                                     <small class="text-muted">{{ item.item_code }}</small>
                                 </td>
-                                <td>FCFA {{ item.unit_price }}</td>
+                                <td>MWK {{ item.unit_price }}</td>
                                 <td>{{ item.quantity }}</td>
-                                <td class="text-end"><strong>FCFA {{ item.subtotal|floatformat:2 }}</strong></td>
+                                <td class="text-end"><strong>MWK {{ item.subtotal|floatformat:2 }}</strong></td>
                             </tr>
                             {% endfor %}
                         </tbody>
                         <tfoot class="table-secondary">
                             <tr>
                                 <td colspan="3" class="text-end"><strong>{% trans "Subtotal:" %}</strong></td>
-                                <td class="text-end">FCFA {{ order.subtotal|floatformat:2 }}</td>
+                                <td class="text-end">MWK {{ order.subtotal|floatformat:2 }}</td>
                             </tr>
                             <tr>
                                 <td colspan="3" class="text-end"><strong>{% trans "Tax:" %}</strong></td>
-                                <td class="text-end">FCFA {{ order.tax|floatformat:2 }}</td>
+                                <td class="text-end">MWK {{ order.tax|floatformat:2 }}</td>
                             </tr>
                             <tr>
                                 <td colspan="3" class="text-end"><strong>{% trans "Shipping:" %}</strong></td>
-                                <td class="text-end">FCFA {{ order.shipping|floatformat:2 }}</td>
+                                <td class="text-end">MWK {{ order.shipping|floatformat:2 }}</td>
                             </tr>
                             <tr class="table-primary">
                                 <td colspan="3" class="text-end"><h5 class="mb-0">{% trans "TOTAL:" %}</h5></td>
-                                <td class="text-end"><h5 class="mb-0">FCFA {{ order.total|floatformat:2 }}</h5></td>
+                                <td class="text-end"><h5 class="mb-0">MWK {{ order.total|floatformat:2 }}</h5></td>
                             </tr>
                         </tfoot>
                     </table>

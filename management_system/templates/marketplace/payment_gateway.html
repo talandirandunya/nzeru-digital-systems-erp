@@ -22,7 +22,7 @@
                                 <h6 class="mb-0 fw-bold">{% trans "Total Payable Amount" %}</h6>
                                 <small class="text-muted">{{ order.items.count }} {% trans "item(s)" %}</small>
                             </div>
-                            <h3 class="mb-0 text-primary fw-bold">FCFA {{ order.total|floatformat:0 }}</h3>
+                            <h3 class="mb-0 text-primary fw-bold">MWK {{ order.total|floatformat:0 }}</h3>
                         </div>
                     </div>
 
@@ -36,8 +36,8 @@
                                 <h6 class="fw-bold text-success mb-1"><i class="fab fa-whatsapp me-2 fs-5"></i>{% trans "Contact via WhatsApp" %}</h6>
                                 <p class="mb-0 text-muted small">{% trans "Message the seller directly to pay or confirm transfer" %}: <strong>{{ payment_settings.whatsapp_number }}</strong></p>
                             </div>
-                            <a href="https://wa.me/{{ payment_settings.whatsapp_number|cut:' '|cut:'+'|cut:'-' }}?text=Hello%2C%20I%20have%20placed%20Order%20%23{{ order.order_number }}%20(Total%3A%20FCFA%20{{ order.total|floatformat:0 }}).%20I%20would%20like%20to%20complete%20my%20payment." 
-                               target="_blank" 
+                                     <a href="https://wa.me/{{ payment_settings.whatsapp_number|cut:' '|cut:'+'|cut:'-' }}?text=Hello%2C%20I%20have%20placed%20Order%20%23{{ order.order_number }}%20(Total%3A%20MWK%20{{ order.total|floatformat:0 }}).%20I%20would%20like%20to%20complete%20my%20payment."
+                                         target="_blank"
                                class="btn btn-success px-4 py-2 fw-bold text-white shadow-sm">
                                 <i class="fab fa-whatsapp me-2"></i>{% trans "Chat on WhatsApp" %}
                             </a>

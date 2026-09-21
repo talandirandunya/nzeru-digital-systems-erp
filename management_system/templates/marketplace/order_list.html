@@ -104,7 +104,7 @@
                             </span>
                         </div>
                         <p class="card-text mb-2 mt-2">
-                            <strong>FCFA {{ order.total|floatformat:0 }}</strong> · {{ order.items.count }} item{{ order.items.count|pluralize }}
+                            <strong>MWK {{ order.total|floatformat:0 }}</strong> · {{ order.items.count }} item{{ order.items.count|pluralize }}
                         </p>
                         <a href="{% url 'marketplace:order_detail' order.pk %}" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-eye me-1"></i>{% trans "View Details" %}
@@ -142,7 +142,7 @@
                         <td><strong>{{ order.order_number }}</strong></td>
                         <td>{{ order.created_at|date:"M d, Y" }}</td>
                         <td>{{ order.items.count }} item{{ order.items.count|pluralize }}</td>
-                        <td><strong>FCFA {{ order.total|floatformat:0 }}</strong></td>
+                        <td><strong>MWK {{ order.total|floatformat:0 }}</strong></td>
                         <td>
                             <span class="badge
                                 {% if order.status == 'pending' %}bg-warning

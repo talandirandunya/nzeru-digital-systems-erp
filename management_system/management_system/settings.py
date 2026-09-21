@@ -127,6 +127,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'accounts.context_processors.company_context',
+                    'management_system.context_processors.branding',
             ],
         },
     },
@@ -217,6 +218,11 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Business display currency. Database values remain numeric Decimal amounts.
+CURRENCY_CODE = os.getenv('CURRENCY_CODE', 'MWK').upper()
+CURRENCY_SYMBOL = os.getenv('CURRENCY_SYMBOL', 'MK')
+CURRENCY_NAME = os.getenv('CURRENCY_NAME', 'Malawian Kwacha')
 
 LOGGING = {
     'version': 1,

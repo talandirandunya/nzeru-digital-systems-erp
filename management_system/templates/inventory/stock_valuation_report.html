@@ -41,7 +41,7 @@
     <div class="col-md-3">
         <div class="card bg-info text-white">
             <div class="card-body text-center">
-                <h3 class="mb-0">FCFA  {{ total_value|floatformat:0}}</h3>
+                <h3 class="mb-0">MWK  {{ total_value|floatformat:0}}</h3>
                 <small>{% trans "Total Value" %}</small>
             </div>
         </div>
@@ -49,7 +49,7 @@
     <div class="col-md-3">
         <div class="card bg-warning text-white">
             <div class="card-body text-center">
-                <h3 class="mb-0">FCFA  {{ avg_cost_price|floatformat:0 }}</h3>
+                <h3 class="mb-0">MWK  {{ avg_cost_price|floatformat:0 }}</h3>
                 <small>{% trans "Avg Cost Price" %}</small>
             </div>
         </div>
@@ -84,7 +84,7 @@
                         <td>{{ category.count }}</td>
                         <td>{{ category.total_quantity }}</td>
                         <td class="text-success">
-                            <strong>FCFA  {{ category.total_value|floatformat:0 }}</strong>
+                            <strong>MWK  {{ category.total_value|floatformat:0 }}</strong>
                         </td>
                         <td>
                             {% widthratio category.total_value total_value 100 %}%
@@ -104,7 +104,7 @@
                         <th>{% trans "Total" %}</th>
                         <th>{{ total_items }}</th>
                         <th>{{ total_quantity }}</th>
-                        <th>FCFA  {{ total_value|floatformat:0 }}</th>
+                        <th>MWK  {{ total_value|floatformat:0 }}</th>
                         <th>100%</th>
                         <td></td>
                     </tr>
@@ -146,9 +146,9 @@
                                 </td>
                                 <td>{{ item.category.name|default:"—" }}</td>
                                 <td>{{ item.quantity }}</td>
-                                <td>FCFA  {{ item.cost_price|floatformat:0 }}</td>
+                                <td>MWK  {{ item.cost_price|floatformat:0 }}</td>
                                 <td class="text-success">
-                                    <strong>FCFA  {{ item.calculated_total_value|floatformat:0 }}</strong>
+                                    <strong>MWK  {{ item.calculated_total_value|floatformat:0 }}</strong>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -190,9 +190,9 @@
                                 </td>
                                 <td>{{ item.category.name|default:"—" }}</td>
                                 <td>{{ item.quantity }}</td>
-                                <td>FCFA  {{ item.cost_price|floatformat:0 }}</td>
+                                <td>MWK  {{ item.cost_price|floatformat:0 }}</td>
                                 <td class="text-warning">
-                                    <strong>FCFA  {{ item.calculated_total_value|floatformat:0 }}</strong>
+                                    <strong>MWK  {{ item.calculated_total_value|floatformat:0 }}</strong>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -233,10 +233,10 @@
                         <td>{{ stock.name }}</td>
                         <td>{{ stock.category.name|default:"—" }}</td>
                         <td>{{ stock.quantity }}</td>
-                        <td>FCFA  {{ stock.cost_price|floatformat:0 }}</td>
+                        <td>MWK  {{ stock.cost_price|floatformat:0 }}</td>
                         <td>
                             <strong class="{% if stock.calculated_total_value > 1000 %}text-success{% endif %}">
-                                FCFA  {{ stock.calculated_total_value|floatformat:0 }}
+                                MWK  {{ stock.calculated_total_value|floatformat:0 }}
                             </strong>
                         </td>
                         <td>
@@ -252,7 +252,7 @@
                 <tfoot class="table-light">
                     <tr>
                         <th colspan="5" class="text-end">{% trans "Grand Total:" %}</th>
-                        <th colspan="2">FCFA  {{ total_value|floatformat:0 }}</th>
+                        <th colspan="2">MWK  {{ total_value|floatformat:0 }}</th>
                     </tr>
                 </tfoot>
             </table>

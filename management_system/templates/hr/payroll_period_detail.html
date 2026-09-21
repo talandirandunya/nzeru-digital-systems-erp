@@ -34,7 +34,7 @@
                             <div class="card bg-light">
                                 <div class="card-body text-center">
                                     <h6>{% trans "Total Earnings" %}</h6>
-                                    <h4 class="text-success">₱{{ period.total_earnings|floatformat:2 }}</h4>
+                                    <h4 class="text-success">MWK{{ period.total_earnings|floatformat:2 }}</h4>
                                 </div>
                             </div>
                         </div>
@@ -42,7 +42,7 @@
                             <div class="card bg-light">
                                 <div class="card-body text-center">
                                     <h6>{% trans "Total Deductions" %}</h6>
-                                    <h4 class="text-danger">₱{{ period.total_deductions|floatformat:2 }}</h4>
+                                    <h4 class="text-danger">MWK{{ period.total_deductions|floatformat:2 }}</h4>
                                 </div>
                             </div>
                         </div>
@@ -50,7 +50,7 @@
                             <div class="card bg-light">
                                 <div class="card-body text-center">
                                     <h6>{% trans "Total Net Pay" %}</h6>
-                                    <h4 class="text-primary">₱{{ period.total_net_pay|floatformat:2 }}</h4>
+                                    <h4 class="text-primary">MWK{{ period.total_net_pay|floatformat:2 }}</h4>
                                 </div>
                             </div>
                         </div>
@@ -84,10 +84,10 @@
                                     {% for entry in entries %}
                                     <tr>
                                         <td>{{ entry.employee.full_name }}</td>
-                                        <td class="text-end">₱{{ entry.base_salary|floatformat:2 }}</td>
-                                        <td class="text-end text-success">₱{{ entry.gross_earnings|floatformat:2 }}</td>
-                                        <td class="text-end text-danger">₱{{ entry.total_deductions|floatformat:2 }}</td>
-                                        <td class="text-end text-primary"><strong>₱{{ entry.net_pay|floatformat:2 }}</strong></td>
+                                        <td class="text-end">MWK{{ entry.base_salary|floatformat:2 }}</td>
+                                        <td class="text-end text-success">MWK{{ entry.gross_earnings|floatformat:2 }}</td>
+                                        <td class="text-end text-danger">MWK{{ entry.total_deductions|floatformat:2 }}</td>
+                                        <td class="text-end text-primary"><strong>MWK{{ entry.net_pay|floatformat:2 }}</strong></td>
                                         <td>
                                             <a href="{% url 'hr:payroll_entry_edit' entry.pk %}" class="btn btn-sm btn-outline-primary">
                                                 <i class="fas fa-edit"></i> {% trans "Edit" %}

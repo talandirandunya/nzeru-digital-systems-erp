@@ -61,9 +61,9 @@ function ScreenDashboard() {
           <CardHeader icon="fa-wallet" iconColor={ACCENT_COLORS.purple.main} title="Finance — This Month" actionLabel="Open Finance" action={() => {}} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 0 }}>
             {[
-              { label: 'Total Balance', value: 'FCFA 4,280,000', color: T.text },
-              { label: 'Credits In', value: '+FCFA 480,000', color: ACCENT_COLORS.emerald.main },
-              { label: 'Debits Out', value: '-FCFA 200,000', color: ACCENT_COLORS.red.main },
+              { label: 'Total Balance', value: 'MWK 4,280,000', color: T.text },
+              { label: 'Credits In', value: '+MWK 480,000', color: ACCENT_COLORS.emerald.main },
+              { label: 'Debits Out', value: '-MWK 200,000', color: ACCENT_COLORS.red.main },
             ].map((f, i) => (
               <div key={i} style={{
                 padding: '20px 24px',
@@ -240,7 +240,7 @@ function ScreenEmployees() {
               <span style={{ fontSize: 12, color: T.muted }}>{r.role}</span>
             )},
             { label: 'Status', render: r => <Badge status={r.status} /> },
-            { label: 'Salary', right: true, render: r => <span style={{ fontFamily: 'monospace', fontSize: 13 }}>FCFA {r.salary}</span> },
+            { label: 'Salary', right: true, render: r => <span style={{ fontFamily: 'monospace', fontSize: 13 }}>MWK {r.salary}</span> },
             { label: 'Joined', render: r => <span style={{ fontSize: 12, color: T.muted }}>{r.joined}</span> },
             { label: '', render: r => (
               <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
@@ -635,7 +635,7 @@ function ScreenMarketplace() {
               </div>
             )},
             { label: 'Items', render: r => <span style={{ color: T.muted, fontSize: 12 }}>{r.items} item{r.items > 1 ? 's' : ''}</span> },
-            { label: 'Total', right: true, render: r => <span style={{ fontWeight: 700, color: T.text }}>FCFA {r.total}</span> },
+            { label: 'Total', right: true, render: r => <span style={{ fontWeight: 700, color: T.text }}>MWK {r.total}</span> },
             { label: 'Status', render: r => <Badge status={r.status} /> },
             { label: 'Date', render: r => <span style={{ fontSize: 12, color: T.muted }}>{r.date}</span> },
             { label: '', render: r => (

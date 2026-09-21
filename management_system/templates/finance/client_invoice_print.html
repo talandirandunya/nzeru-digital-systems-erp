@@ -297,8 +297,8 @@
           <tr>
             <td>{{ line.description }}</td>
             <td class="text-end">{{ line.quantity }}</td>
-            <td class="text-end">FCFA {{ line.unit_price|floatformat:0 }}</td>
-            <td class="text-end fw-semibold">FCFA {{ line.line_total|floatformat:0 }}</td>
+            <td class="text-end">MWK {{ line.unit_price|floatformat:0 }}</td>
+            <td class="text-end fw-semibold">MWK {{ line.line_total|floatformat:0 }}</td>
           </tr>
         {% empty %}
           <tr>
@@ -313,17 +313,17 @@
       <table class="totals-table">
         <tr>
           <td class="label">{% trans "Subtotal" %}</td>
-          <td class="value">FCFA {{ invoice.subtotal|floatformat:0 }}</td>
+          <td class="value">MWK {{ invoice.subtotal|floatformat:0 }}</td>
         </tr>
         {% if invoice.tax_amount > 0 %}
           <tr>
             <td class="label">{% trans "Tax" %} ({{ invoice.tax_rate }}%)</td>
-            <td class="value">FCFA {{ invoice.tax_amount|floatformat:0 }}</td>
+            <td class="value">MWK {{ invoice.tax_amount|floatformat:0 }}</td>
           </tr>
         {% endif %}
         <tr class="grand-total">
           <td class="label">{% trans "Total" %}</td>
-          <td class="value">FCFA {{ invoice.total|floatformat:0 }}</td>
+          <td class="value">MWK {{ invoice.total|floatformat:0 }}</td>
         </tr>
       </table>
     </div>

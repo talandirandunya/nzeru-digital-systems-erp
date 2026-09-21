@@ -508,7 +508,7 @@ def client_invoice_create(request):
                     user=user,
                     notification_type='client_invoice_created',
                     title=f'New Client Invoice: {invoice.invoice_number}',
-                    message=f'Client invoice "{invoice.invoice_number}" for {invoice.client.name} has been created. Amount: ${invoice.total_amount}.',
+                    message=f'Client invoice "{invoice.invoice_number}" for {invoice.client.name} has been created. Amount: MWK {invoice.total_amount}.',
                     related_object=invoice
                 )
 
@@ -632,7 +632,7 @@ def supplier_invoice_create(request):
                     user=accountant,
                     notification_type='supplier_invoice_created',
                     title=f'New Supplier Invoice: {invoice.invoice_number}',
-                    message=f'Supplier invoice "{invoice.invoice_number}" from {invoice.supplier.name} requires payment. Amount: ${invoice.total_amount}.',
+                    message=f'Supplier invoice "{invoice.invoice_number}" from {invoice.supplier.name} requires payment. Amount: MWK {invoice.total_amount}.',
                     related_object=invoice
                 )
 

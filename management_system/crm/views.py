@@ -436,7 +436,7 @@ def opportunity_mark_paid(request, pk):
             opp.save(update_fields=['payment_status', 'revenue_transaction', 'updated_at'])
             messages.success(
                 request,
-                f'"{opp.title}" marked as paid. FCFA {opp.value:,.0f} credited to {account.name}.',
+                f'"{opp.title}" marked as paid. MWK {opp.value:,.0f} credited to {account.name}.',
             )
             return redirect('crm:opportunity_list')
     else:

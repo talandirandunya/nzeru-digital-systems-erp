@@ -25,7 +25,7 @@
         <div class="col-md-6">
             <h2>{{ stock.name }}</h2>
             <p class="text-muted">{{ stock.item_code }}</p>
-            <h3 class="text-primary mb-3">FCFA {{ stock.selling_price|floatformat:0 }}</h3>
+            <h3 class="text-primary mb-3">MWK {{ stock.selling_price|floatformat:0 }}</h3>
             <p><strong>{% trans "Category:" %}</strong> {{ stock.category.name|default:"Uncategorized" }}</p>
             <p><strong>{% trans "Available:" %}</strong> <span class="badge bg-success">{{ stock.quantity }} {{ stock.get_unit_display }}</span></p>
             {% if stock.description %}

@@ -23,7 +23,7 @@
                     <dd class="col-7">{{ opportunity.get_stage_display }}</dd>
 
                     <dt class="col-5 text-muted fw-normal">{% trans "Value" %}</dt>
-                    <dd class="col-7">FCFA {{ opportunity.value|floatformat:0 }}</dd>
+                    <dd class="col-7">MWK {{ opportunity.value|floatformat:0 }}</dd>
 
                     {% if opportunity.expected_close_date %}
                     <dt class="col-5 text-muted fw-normal">{% trans "Close Date" %}</dt>

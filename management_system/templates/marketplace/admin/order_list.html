@@ -67,7 +67,7 @@
                             </td>
                             <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
                             <td>{{ order.items.count }}</td>
-                            <td><strong>FCFA {{ order.total|floatformat:2 }}</strong></td>
+                            <td><strong>MWK {{ order.total|floatformat:2 }}</strong></td>
                             <td>
                                 <span class="badge 
                                     {% if order.status == 'pending' %}bg-warning

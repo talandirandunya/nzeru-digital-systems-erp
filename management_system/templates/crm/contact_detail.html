@@ -112,7 +112,7 @@
                 {% elif opp.stage == 'qualified' %}<span class="badge bg-info text-dark">{% trans "Qualified" %}</span>
                 {% else %}<span class="badge bg-secondary">{% trans "Prospect" %}</span>{% endif %}
               </td>
-              <td>FCFA {{ opp.value|floatformat:0 }}</td>
+              <td>MWK {{ opp.value|floatformat:0 }}</td>
               <td>
                 {% if opp.follow_up_date %}
                   {% if opp.is_overdue_followup %}

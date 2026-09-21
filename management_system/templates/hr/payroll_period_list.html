@@ -39,7 +39,7 @@
                                                 {{ period.get_status_display }}
                                             </span>
                                         </td>
-                                        <td class="text-end">₱{{ period.total_net_pay|floatformat:2 }}</td>
+                                        <td class="text-end">MWK{{ period.total_net_pay|floatformat:2 }}</td>
                                         <td>
                                             <a href="{% url 'hr:payroll_period_detail' period.pk %}" class="btn btn-sm btn-outline-primary">
                                                 <i class="fas fa-eye"></i> {% trans "View" %}

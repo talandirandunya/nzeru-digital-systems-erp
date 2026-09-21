@@ -68,7 +68,7 @@
                 <tfoot>
                   <tr class="table-light fw-bold">
                     <td colspan="3" class="text-end">{% trans "Total Order Value" %}:</td>
-                    <td colspan="2" class="text-success fs-5" id="grand-total-display">FCFA 0</td>
+                    <td colspan="2" class="text-success fs-5" id="grand-total-display">MWK 0</td>
                   </tr>
                 </tfoot>
               </table>
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <option value="">-- {% trans "Select Product" %} --</option>
     {% for stock in form.stock_queryset %}
     <option value="{{ stock.pk }}" data-price="{{ stock.selling_price|default:0 }}" data-stock="{{ stock.quantity }}">
-      {{ stock.name }} (FCFA {{ stock.selling_price|default:0|floatformat:0 }} | {{ stock.quantity }} in stock)
+      {{ stock.name }} (MWK {{ stock.selling_price|default:0|floatformat:0 }} | {{ stock.quantity }} in stock)
     </option>
     {% endfor %}
   `;
@@ -119,11 +119,11 @@ document.addEventListener('DOMContentLoaded', function() {
           ${stockOptionsHTML}
         </select>
       </td>
-      <td class="unit-price-cell text-muted">FCFA 0</td>
+      <td class="unit-price-cell text-muted">MWK 0</td>
       <td>
         <input type="number" name="quantity" class="form-control qty-input" value="1" min="1" required>
       </td>
-      <td class="subtotal-cell fw-bold text-dark">FCFA 0</td>
+      <td class="subtotal-cell fw-bold text-dark">MWK 0</td>
       <td class="text-center">
         <button type="button" class="btn btn-outline-danger btn-sm remove-row-btn" title="Remove Product">
           <i class="fas fa-trash"></i>
@@ -175,11 +175,11 @@ document.addEventListener('DOMContentLoaded', function() {
       const subtotal = price * qty;
       grandTotal += subtotal;
 
-      unitPriceCell.textContent = `FCFA ${price.toLocaleString()}`;
-      subtotalCell.textContent = `FCFA ${subtotal.toLocaleString()}`;
+      unitPriceCell.textContent = `MWK ${price.toLocaleString()}`;
+      subtotalCell.textContent = `MWK ${subtotal.toLocaleString()}`;
     });
 
-    grandTotalDisplay.textContent = `FCFA ${grandTotal.toLocaleString()}`;
+    grandTotalDisplay.textContent = `MWK ${grandTotal.toLocaleString()}`;
   }
 
   addBtn.addEventListener('click', createRow);

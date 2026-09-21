@@ -29,7 +29,7 @@
         <div class="card stat-card bg-success text-white">
             <div class="card-body text-center">
                 <i class="fas fa-dollar-sign fa-2x mb-2"></i>
-                <h3>FCFA {{ total_value|floatformat:0 }}</h3>
+                <h3>MWK {{ total_value|floatformat:0 }}</h3>
                 <p>{% trans "Total Value" %}</p>
             </div>
         </div>
@@ -79,7 +79,7 @@
                             <tr>
                                 <td>{{ category.category__name|default:"Uncategorized" }}</td>
                                 <td>{{ category.item_count }}</td>
-                                <td class="text-success">FCFA {{ category.total_value|floatformat:0 }}</td>
+                                <td class="text-success">MWK {{ category.total_value|floatformat:0 }}</td>
                                 <td>
                                     <div class="progress" style="height: 10px;">
                                         <div class="progress-bar" role="progressbar" 
@@ -172,7 +172,7 @@
                             {% endif %}
                             {% endwith %}
                         </td>
-                        <td class="text-danger">FCFA {{ item.total_value|floatformat:0}}</td>
+                        <td class="text-danger">MWK {{ item.total_value|floatformat:0}}</td>
                         <td>
                             <a href="{% url 'inventory:stock_transaction' item.pk %}" class="btn btn-sm btn-primary">
                                 <i class="fas fa-exchange-alt"></i>

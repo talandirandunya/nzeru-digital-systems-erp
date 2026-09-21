@@ -111,8 +111,8 @@
                 </div>
                 <div>
                     <p class="text-muted small mb-0">{% trans "Total Balance" %}</p>
-                    <h3 class="mb-0 fw-bold">FCFA {{ total_balance|floatformat:0|default:"0" }}</h3>
-                    <small class="text-success">+FCFA {{ monthly_credits|floatformat:0|default:"0" }} {% trans "this month" %}</small>
+                    <h3 class="mb-0 fw-bold">MWK {{ total_balance|floatformat:0|default:"0" }}</h3>
+                    <small class="text-success">+MWK {{ monthly_credits|floatformat:0|default:"0" }} {% trans "this month" %}</small>
                 </div>
             </div>
         </div>
@@ -302,11 +302,11 @@
             <div class="card-body">
                 <dl class="row mb-0">
                     <dt class="col-7 fw-normal text-muted">{% trans "Total balance" %}</dt>
-                    <dd class="col-5 text-end fw-semibold">FCFA {{ total_balance|floatformat:0|default:"0.00" }}</dd>
+                    <dd class="col-5 text-end fw-semibold">MWK {{ total_balance|floatformat:0|default:"0.00" }}</dd>
                     <dt class="col-7 fw-normal text-muted">{% trans "Credits in" %}</dt>
-                    <dd class="col-5 text-end text-success fw-semibold">+FCFA {{ monthly_credits|floatformat:0|default:"0.00" }}</dd>
+                    <dd class="col-5 text-end text-success fw-semibold">+MWK {{ monthly_credits|floatformat:0|default:"0.00" }}</dd>
                     <dt class="col-7 fw-normal text-muted">{% trans "Debits out" %}</dt>
-                    <dd class="col-5 text-end text-danger fw-semibold">-FCFA {{ monthly_debits|floatformat:0|default:"0.00" }}</dd>
+                    <dd class="col-5 text-end text-danger fw-semibold">-MWK {{ monthly_debits|floatformat:0|default:"0.00" }}</dd>
                 </dl>
             </div>
         </div>

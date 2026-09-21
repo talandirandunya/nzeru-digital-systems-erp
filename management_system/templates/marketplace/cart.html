@@ -17,7 +17,7 @@
                             <p class="text-muted small mb-0">{{ item.stock.item_code }}</p>
                         </div>
                         <div class="col-md-2">
-                            <p class="mb-0"><strong>FCFA {{ item.stock.selling_price }}</strong></p>
+                            <p class="mb-0"><strong>MWK {{ item.stock.selling_price }}</strong></p>
                         </div>
                         <div class="col-md-2">
                             <form method="post" action="{% url 'marketplace:update_cart_item' item.pk %}" class="d-inline">
@@ -26,7 +26,7 @@
                             </form>
                         </div>
                         <div class="col-md-2 text-end">
-                            <p class="mb-2"><strong>FCFA {{ item.subtotal|floatformat:0 }}</strong></p>
+                            <p class="mb-2"><strong>MWK {{ item.subtotal|floatformat:0 }}</strong></p>
                             <form method="post" action="{% url 'marketplace:remove_from_cart' item.pk %}" class="d-inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-sm btn-danger">
@@ -45,12 +45,12 @@
                     <h5 class="mb-3">{% trans "Order Summary" %}</h5>
                     <div class="d-flex justify-content-between mb-2">
                         <span>Items ({{ cart.total_items }})</span>
-                        <span>FCFA {{ cart.total_price|floatformat:0 }}</span>
+                        <span>MWK {{ cart.total_price|floatformat:0 }}</span>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-3">
                         <strong>{% trans "Total" %}</strong>
-                        <strong class="text-primary">FCFA {{ cart.total_price|floatformat:0 }}</strong>
+                        <strong class="text-primary">MWK {{ cart.total_price|floatformat:0 }}</strong>
                     </div>
                     <a href="{% url 'marketplace:checkout' %}" class="btn btn-primary w-100 mb-2">
                         <i class="fas fa-lock me-2"></i>{% trans "Proceed to Checkout" %}

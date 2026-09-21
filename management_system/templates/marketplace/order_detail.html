@@ -209,32 +209,32 @@
                                             <small class="text-muted">Code: {{ item.item_code }}</small>
                                         </div>
                                     </td>
-                                    <td>FCFA {{ item.unit_price|floatformat:0 }}</td>
+                                    <td>MWK {{ item.unit_price|floatformat:0 }}</td>
                                     <td>{{ item.quantity }}</td>
-                                    <td class="text-end"><strong>FCFA {{ item.subtotal|floatformat:0 }}</strong></td>
+                                    <td class="text-end"><strong>MWK {{ item.subtotal|floatformat:0 }}</strong></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                             <tfoot class="table-group-divider">
                                 <tr>
                                     <td colspan="3" class="text-end"><strong>{% trans "Subtotal:" %}</strong></td>
-                                    <td class="text-end">FCFA {{ order.subtotal|floatformat:0 }}</td>
+                                    <td class="text-end">MWK {{ order.subtotal|floatformat:0 }}</td>
                                 </tr>
                                 {% if order.tax %}
                                 <tr>
                                     <td colspan="3" class="text-end"><strong>{% trans "Tax:" %}</strong></td>
-                                    <td class="text-end">FCFA {{ order.tax|floatformat:0 }}</td>
+                                    <td class="text-end">MWK {{ order.tax|floatformat:0 }}</td>
                                 </tr>
                                 {% endif %}
                                 {% if order.shipping %}
                                 <tr>
                                     <td colspan="3" class="text-end"><strong>{% trans "Shipping:" %}</strong></td>
-                                    <td class="text-end">FCFA {{ order.shipping|floatformat:0 }}</td>
+                                    <td class="text-end">MWK {{ order.shipping|floatformat:0 }}</td>
                                 </tr>
                                 {% endif %}
                                 <tr class="table-primary">
                                     <td colspan="3" class="text-end"><h5 class="mb-0 fw-bold">{% trans "TOTAL:" %}</h5></td>
-                                    <td class="text-end"><h5 class="mb-0 fw-bold">FCFA {{ order.total|floatformat:0 }}</h5></td>
+                                    <td class="text-end"><h5 class="mb-0 fw-bold">MWK {{ order.total|floatformat:0 }}</h5></td>
                                 </tr>
                             </tfoot>
                         </table>

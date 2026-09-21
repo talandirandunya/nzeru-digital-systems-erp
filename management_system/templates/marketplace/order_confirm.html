@@ -34,7 +34,7 @@
                                 <p class="mb-1"><strong>{% trans "Order Date:" %}</strong> {{ order.created_at|date:"M d, Y H:i" }}</p>
                             </div>
                             <div class="col-sm-6">
-                                <p class="mb-1"><strong>{% trans "Total Amount:" %}</strong> FCFA {{ order.total }}</p>
+                                <p class="mb-1"><strong>{% trans "Total Amount:" %}</strong> MWK {{ order.total }}</p>
                                 <p class="mb-1"><strong>{% trans "Payment Status:" %}</strong> 
                                     <span class="badge bg-{% if order.payment_status == 'paid' %}success{% elif order.payment_status == 'pending' %}warning{% elif order.payment_status == 'refunded' %}info{% else %}danger{% endif %}">
                                         {{ order.get_payment_status_display }}
@@ -66,31 +66,31 @@
                                         <td>{{ item.item_name }}</td>
                                         <td>{{ item.item_code }}</td>
                                         <td>{{ item.quantity }}</td>
-                                        <td>FCFA {{ item.unit_price }}</td>
-                                        <td>FCFA {{ item.subtotal }}</td>
+                                        <td>MWK {{ item.unit_price }}</td>
+                                        <td>MWK {{ item.subtotal }}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
                             <tfoot>
                                 <tr>
                                     <td colspan="4" class="text-end"><strong>{% trans "Subtotal:" %}</strong></td>
-                                    <td>FCFA {{ order.subtotal }}</td>
+                                    <td>MWK {{ order.subtotal }}</td>
                                 </tr>
                                 {% if order.tax > 0 %}
                                     <tr>
                                         <td colspan="4" class="text-end"><strong>{% trans "Tax:" %}</strong></td>
-                                        <td>FCFA {{ order.tax }}</td>
+                                        <td>MWK {{ order.tax }}</td>
                                     </tr>
                                 {% endif %}
                                 {% if order.shipping > 0 %}
                                     <tr>
                                         <td colspan="4" class="text-end"><strong>{% trans "Shipping:" %}</strong></td>
-                                        <td>FCFA {{ order.shipping }}</td>
+                                        <td>MWK {{ order.shipping }}</td>
                                     </tr>
                                 {% endif %}
                                 <tr>
                                     <td colspan="4" class="text-end"><strong>{% trans "Total:" %}</strong></td>
-                                    <td><strong>FCFA {{ order.total }}</strong></td>
+                                    <td><strong>MWK {{ order.total }}</strong></td>
                                 </tr>
                             </tfoot>
                         </table>

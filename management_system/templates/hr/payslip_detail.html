@@ -41,7 +41,7 @@
                             <tbody>
                                 <tr>
                                     <td><strong>{% trans "Base Salary" %}</strong></td>
-                                    <td class="text-end">₱{{ entry.base_salary|floatformat:2 }}</td>
+                                    <td class="text-end">MWK{{ entry.base_salary|floatformat:2 }}</td>
                                 </tr>
                                 <tr>
                                     <td><strong>{% trans "Working Days" %}</strong></td>
@@ -71,7 +71,7 @@
                                             {{ component.component.get_component_type_display }}
                                         </span>
                                     </td>
-                                    <td class="text-end">₱{{ component.amount|floatformat:2 }}</td>
+                                    <td class="text-end">MWK{{ component.amount|floatformat:2 }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -85,15 +85,15 @@
                                 <tbody>
                                     <tr class="fw-bold">
                                         <td>{% trans "Gross Earnings" %}</td>
-                                        <td class="text-end text-success">₱{{ entry.gross_earnings|floatformat:2 }}</td>
+                                        <td class="text-end text-success">MWK{{ entry.gross_earnings|floatformat:2 }}</td>
                                     </tr>
                                     <tr class="fw-bold">
                                         <td>{% trans "Total Deductions" %}</td>
-                                        <td class="text-end text-danger">₱{{ entry.total_deductions|floatformat:2 }}</td>
+                                        <td class="text-end text-danger">MWK{{ entry.total_deductions|floatformat:2 }}</td>
                                     </tr>
                                     <tr class="fw-bold border-top border-2 pt-2">
                                         <td>{% trans "NET PAY" %}</td>
-                                        <td class="text-end text-primary h5 mb-0">₱{{ entry.net_pay|floatformat:2 }}</td>
+                                        <td class="text-end text-primary h5 mb-0">MWK{{ entry.net_pay|floatformat:2 }}</td>
                                     </tr>
                                 </tbody>
                             </table>

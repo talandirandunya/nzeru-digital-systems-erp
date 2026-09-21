@@ -87,7 +87,7 @@
                                 <div class="card bg-light">
                                     <div class="card-body text-center">
                                         <h6>{% trans "Gross Earnings" %}</h6>
-                                        <p class="h5 text-success">₱{{ entry.gross_earnings|floatformat:2 }}</p>
+                                        <p class="h5 text-success">MWK{{ entry.gross_earnings|floatformat:2 }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -95,7 +95,7 @@
                                 <div class="card bg-light">
                                     <div class="card-body text-center">
                                         <h6>{% trans "Deductions" %}</h6>
-                                        <p class="h5 text-danger">₱{{ entry.total_deductions|floatformat:2 }}</p>
+                                        <p class="h5 text-danger">MWK{{ entry.total_deductions|floatformat:2 }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -103,7 +103,7 @@
                                 <div class="card bg-light">
                                     <div class="card-body text-center">
                                         <h6>{% trans "Taxes" %}</h6>
-                                        <p class="h5 text-warning">₱{{ entry.tax_amount|floatformat:2 }}</p>
+                                        <p class="h5 text-warning">MWK{{ entry.tax_amount|floatformat:2 }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -111,7 +111,7 @@
                                 <div class="card bg-light">
                                     <div class="card-body text-center">
                                         <h6>{% trans "Net Pay" %}</h6>
-                                        <p class="h5 text-primary"><strong>₱{{ entry.net_pay|floatformat:2 }}</strong></p>
+                                        <p class="h5 text-primary"><strong>MWK{{ entry.net_pay|floatformat:2 }}</strong></p>
                                     </div>
                                 </div>
                             </div>

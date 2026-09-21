@@ -34,9 +34,9 @@
                                         <td><strong>{{ payslip.payslip_number }}</strong></td>
                                         <td>{{ payslip.payroll_entry.employee.full_name }}</td>
                                         <td>{{ payslip.payroll_entry.payroll_period.start_date|date:"M d" }} - {{ payslip.payroll_entry.payroll_period.end_date|date:"M d, Y" }}</td>
-                                        <td class="text-end text-success">₱{{ payslip.payroll_entry.gross_earnings|floatformat:2 }}</td>
-                                        <td class="text-end text-danger">₱{{ payslip.payroll_entry.total_deductions|floatformat:2 }}</td>
-                                        <td class="text-end text-primary"><strong>₱{{ payslip.payroll_entry.net_pay|floatformat:2 }}</strong></td>
+                                        <td class="text-end text-success">MWK{{ payslip.payroll_entry.gross_earnings|floatformat:2 }}</td>
+                                        <td class="text-end text-danger">MWK{{ payslip.payroll_entry.total_deductions|floatformat:2 }}</td>
+                                        <td class="text-end text-primary"><strong>MWK{{ payslip.payroll_entry.net_pay|floatformat:2 }}</strong></td>
                                         <td>{{ payslip.issued_date|date:"M d, Y" }}</td>
                                         <td>
                                             {% if payslip.email_sent %}

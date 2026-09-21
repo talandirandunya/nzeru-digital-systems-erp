@@ -8,7 +8,7 @@ const ErpisData = {
       { label: "Total Employees", value: "142", sub: "128 active", icon: "fa-users", color: "emerald" },
       { label: "Active Projects", value: "18", sub: "3 overdue", icon: "fa-project-diagram", color: "blue" },
       { label: "Stock Items", value: "864", sub: "12 low stock", icon: "fa-boxes", color: "amber" },
-      { label: "Total Balance", value: "FCFA 4.2M", sub: "+FCFA 280K this month", icon: "fa-wallet", color: "purple" },
+      { label: "Total Balance", value: "MWK 4.2M", sub: "+MWK 280K this month", icon: "fa-wallet", color: "purple" },
     ],
     recentProjects: [
       { name: "Website Redesign", status: "in_progress", progress: 68 },
@@ -38,10 +38,10 @@ const ErpisData = {
 
   finance: {
     stats: [
-      { label: "Total Balance", value: "FCFA 4,280,000", sub: "across 6 accounts", icon: "fa-wallet", color: "emerald" },
-      { label: "Total Credits", value: "FCFA 1,820,000", sub: "all time", icon: "fa-arrow-down", color: "emerald" },
-      { label: "Total Debits", value: "FCFA 940,000", sub: "all time", icon: "fa-arrow-up", color: "red" },
-      { label: "Net This Month", value: "+FCFA 280,000", sub: "↑ 480K · ↓ 200K", icon: "fa-calendar-alt", color: "emerald" },
+      { label: "Total Balance", value: "MWK 4,280,000", sub: "across 6 accounts", icon: "fa-wallet", color: "emerald" },
+      { label: "Total Credits", value: "MWK 1,820,000", sub: "all time", icon: "fa-arrow-down", color: "emerald" },
+      { label: "Total Debits", value: "MWK 940,000", sub: "all time", icon: "fa-arrow-up", color: "red" },
+      { label: "Net This Month", value: "+MWK 280,000", sub: "↑ 480K · ↓ 200K", icon: "fa-calendar-alt", color: "emerald" },
     ],
     transactions: [
       { date: "29 Apr 2026", account: "Operations", description: "Office supplies purchase", credit: null, debit: "45,000" },
@@ -73,7 +73,7 @@ const ErpisData = {
   inventory: {
     stats: [
       { label: "Total Items", value: "864", sub: "across 14 categories", icon: "fa-boxes", color: "blue" },
-      { label: "Total Value", value: "FCFA 8.4M", sub: "at cost price", icon: "fa-dollar-sign", color: "emerald" },
+      { label: "Total Value", value: "MWK 8.4M", sub: "at cost price", icon: "fa-dollar-sign", color: "emerald" },
       { label: "Low Stock", value: "12", sub: "need reorder", icon: "fa-exclamation-triangle", color: "amber" },
       { label: "Out of Stock", value: "3", sub: "urgent", icon: "fa-times-circle", color: "red" },
     ],
@@ -134,7 +134,7 @@ const ErpisData = {
       { label: "Orders Today", value: "24", sub: "+12% vs yesterday", icon: "fa-shopping-cart", color: "blue" },
       { label: "Pending", value: "8", sub: "need processing", icon: "fa-clock", color: "amber" },
       { label: "Shipped", value: "13", sub: "in transit", icon: "fa-truck", color: "emerald" },
-      { label: "Revenue Today", value: "FCFA 184,000", sub: "12 paid orders", icon: "fa-money-bill-wave", color: "purple" },
+      { label: "Revenue Today", value: "MWK 184,000", sub: "12 paid orders", icon: "fa-money-bill-wave", color: "purple" },
     ],
     orders: [
       { id: "#ORD-1081", customer: "Marie Dupont", items: 3, total: "24,500", status: "pending", date: "29 Apr, 14:32" },

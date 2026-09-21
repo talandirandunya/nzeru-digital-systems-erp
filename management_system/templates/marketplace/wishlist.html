@@ -13,7 +13,7 @@
                 <div class="card-body">
                     <h5>{{ item.stock.name }}</h5>
                     <p class="text-muted">{{ item.stock.item_code }}</p>
-                    <h4 class="text-primary">FCFA {{ item.stock.selling_price|floatformat:0 }}</h4>
+                    <h4 class="text-primary">MWK {{ item.stock.selling_price|floatformat:0 }}</h4>
                     <p><span class="badge bg-success">{{ item.stock.quantity }} available</span></p>
                     <form method="post" action="{% url 'marketplace:add_to_cart' item.stock.pk %}">
                         {% csrf_token %}

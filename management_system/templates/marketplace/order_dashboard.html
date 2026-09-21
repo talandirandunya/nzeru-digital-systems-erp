@@ -98,7 +98,7 @@
                     </div>
                     <div>
                         <p class="text-muted small mb-0">{% trans "Revenue" %}</p>
-                        <h3 class="mb-0 fw-bold" style="font-size:1.1rem">FCFA {{ total_revenue|floatformat:0 }}</h3>
+                        <h3 class="mb-0 fw-bold" style="font-size:1.1rem">MWK {{ total_revenue|floatformat:0 }}</h3>
                     </div>
                 </div>
             </div>
@@ -130,7 +130,7 @@
                                         <small class="text-muted">{{ order.client.email }}</small>
                                     </div>
                                     <div class="col-md-2">
-                                        <h5 class="mb-0 text-primary">FCFA {{ order.total|floatformat:0 }}</h5>
+                                        <h5 class="mb-0 text-primary">MWK {{ order.total|floatformat:0 }}</h5>
                                         <small class="text-muted">{{ order.items.count }} item{{ order.items.count|pluralize }}</small>
                                     </div>
                                     <div class="col-md-3 text-end">
@@ -181,7 +181,7 @@
                                 {% else %}bg-secondary{% endif %}">
                                 {{ order.get_status_display }}
                             </span>
-                            <div class="small text-muted">FCFA {{ order.total|floatformat:0 }}</div>
+                            <div class="small text-muted">MWK {{ order.total|floatformat:0 }}</div>
                         </div>
                     </div>
                     {% endfor %}

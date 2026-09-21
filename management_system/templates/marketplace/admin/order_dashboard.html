@@ -110,7 +110,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h2 class="mb-0">FCFA {{ total_revenue|floatformat:2 }}</h2>
+                            <h2 class="mb-0">MWK {{ total_revenue|floatformat:2 }}</h2>
                             <small>{% trans "Total Revenue" %}</small>
                         </div>
                         <div class="stat-icon bg-white bg-opacity-25">
@@ -147,7 +147,7 @@
                                         <small class="text-muted">{{ order.client.email }}</small>
                                     </div>
                                     <div class="col-md-2">
-                                        <h5 class="mb-0 text-primary">FCFA {{ order.total|floatformat:2 }}</h5>
+                                        <h5 class="mb-0 text-primary">MWK {{ order.total|floatformat:2 }}</h5>
                                         <small class="text-muted">{{ order.items.count }} item{{ order.items.count|pluralize }}</small>
                                     </div>
                                     <div class="col-md-3 text-end">
@@ -201,7 +201,7 @@
                                 {% else %}bg-secondary{% endif %}">
                                 {{ order.get_status_display }}
                             </span>
-                            <div class="small text-muted">FCFA {{ order.total|floatformat:2 }}</div>
+                            <div class="small text-muted">MWK {{ order.total|floatformat:2 }}</div>
                         </div>
                     </div>
                     {% endfor %}

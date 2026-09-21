@@ -57,7 +57,7 @@
                                         {{ order.get_payment_status_display }}
                                     </span>
                                 </p>
-                                <p class="mb-1"><strong>{% trans "Total Amount:" %}</strong> FCFA {{ order.total }}</p>
+                                <p class="mb-1"><strong>{% trans "Total Amount:" %}</strong> MWK {{ order.total }}</p>
                             </div>
                         </div>
                     </div>
@@ -83,15 +83,15 @@
                                         <td>
                                             <span class="badge bg-info">{{ item.quantity }}</span>
                                         </td>
-                                        <td>FCFA {{ item.unit_price }}</td>
-                                        <td>FCFA {{ item.subtotal }}</td>
+                                        <td>MWK {{ item.unit_price }}</td>
+                                        <td>MWK {{ item.subtotal }}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
                             <tfoot>
                                 <tr>
                                     <td colspan="4" class="text-end"><strong>{% trans "Total:" %}</strong></td>
-                                    <td><strong>FCFA {{ order.total }}</strong></td>
+                                    <td><strong>MWK {{ order.total }}</strong></td>
                                 </tr>
                             </tfoot>
                         </table>

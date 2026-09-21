@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" role="img" aria-labelledby="title desc">
+  <title id="title">Nzeru Digital</title>
+  <desc id="desc">Nzeru Digital teal and burgundy mark and wordmark</desc>
+  <path fill="#12808d" d="M230 244 293 125c14-27 54-27 68 0l108 205c-39-25-59-45-78-82-28-54-68-67-119-61l-42 57Z"/>
+  <path fill="#97171d" d="M147 356c48-72 91-113 153-113 61 0 91 26 125 69 20 25 42 38 82 46-57 2-88-10-113-38-25-28-49-51-92-51-41 0-67 25-94 87h-61Z"/>
+  <text x="96" y="466" fill="#12808d" font-family="Arial, Helvetica, sans-serif" font-size="92" font-weight="700" letter-spacing="-5">Nzeru</text>
+  <text x="224" y="528" fill="#97171d" font-family="Arial, Helvetica, sans-serif" font-size="36" letter-spacing="12">Digital</text>
+</svg>

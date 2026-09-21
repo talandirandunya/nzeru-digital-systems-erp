@@ -26,9 +26,9 @@
                             <ul class="list-unstyled">
                                 <li><strong>{% trans "Employee:" %}</strong> {{ entry.employee.full_name }}</li>
                                 <li><strong>{% trans "Period:" %}</strong> {{ entry.payroll_period.start_date|date:"M d" }} - {{ entry.payroll_period.end_date|date:"M d, Y" }}</li>
-                                <li><strong>{% trans "Base Salary:" %}</strong> ₱{{ entry.base_salary|floatformat:2 }}</li>
-                                <li><strong>{% trans "Gross Earnings:" %}</strong> ₱{{ entry.gross_earnings|floatformat:2 }}</li>
-                                <li><strong>{% trans "Net Pay:" %}</strong> ₱{{ entry.net_pay|floatformat:2 }}</li>
+                                <li><strong>{% trans "Base Salary:" %}</strong> MWK{{ entry.base_salary|floatformat:2 }}</li>
+                                <li><strong>{% trans "Gross Earnings:" %}</strong> MWK{{ entry.gross_earnings|floatformat:2 }}</li>
+                                <li><strong>{% trans "Net Pay:" %}</strong> MWK{{ entry.net_pay|floatformat:2 }}</li>
                             </ul>
                         </div>
                     </div>
