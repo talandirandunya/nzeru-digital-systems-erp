@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% block title %}Salary Components{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">{% trans "Salary Components" %}</h3>
+                    <a href="{% url 'hr:salary_component_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> {% trans "Add Component" %}
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if components %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans "Name" %}</th>
+                                        <th>{% trans "Type" %}</th>
+                                        <th>{% trans "Description" %}</th>
+                                        <th>{% trans "Status" %}</th>
+                                        <th>{% trans "Actions" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for component in components %}
+                                    <tr>
+                                        <td><strong>{{ component.name }}</strong></td>
+                                        <td>
+                                            <span class="badge bg-{% if component.component_type == 'earning' %}success{% elif component.component_type == 'deduction' %}warning{% else %}danger{% endif %}">
+                                                {{ component.get_component_type_display }}
+                                            </span>
+                                        </td>
+                                        <td>{{ component.description|truncatechars:50 }}</td>
+                                        <td>
+                                            {% if component.is_active %}
+                                                <span class="badge bg-success">{% trans "Active" %}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{% trans "Inactive" %}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'hr:salary_component_edit' component.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i> {% trans "Edit" %}
+                                            </a>
+                                            <a href="{% url 'hr:salary_component_delete' component.pk %}" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i> {% trans "Delete" %}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-coins fa-3x text-muted mb-3"></i>
+                            <h4>{% trans "No Salary Components" %}</h4>
+                            <p class="text-muted">{% trans "Create salary components (base salary, allowances, deductions) to use in payroll." %}</p>
+                            <a href="{% url 'hr:salary_component_create' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> {% trans "Create Component" %}
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

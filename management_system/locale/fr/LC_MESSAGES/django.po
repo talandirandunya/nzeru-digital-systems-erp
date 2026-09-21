@@ -1,0 +1,5479 @@
+# French translations for ERP Management System
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+# Navigation
+msgid "Management System"
+msgstr "Zentral"
+
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+msgid "Employees"
+msgstr "Employés"
+
+msgid "Projects"
+msgstr "Projets"
+
+msgid "Inventory"
+msgstr "Inventaire"
+
+msgid "Finance"
+msgstr "Finance"
+
+msgid "HR"
+msgstr "RH"
+
+msgid "My Leaves"
+msgstr "Mes congés"
+
+msgid "CRM"
+msgstr "CRM"
+
+msgid "Meetings"
+msgstr "Réunions"
+
+msgid "Manage Orders"
+msgstr "Gérer les commandes"
+
+msgid "Company Settings"
+msgstr "Paramètres entreprise"
+
+msgid "Platform Admin"
+msgstr "Admin plateforme"
+
+msgid "Notifications"
+msgstr "Notifications"
+
+msgid "View All Notifications"
+msgstr "Voir toutes les notifications"
+
+msgid "No new notifications"
+msgstr "Aucune nouvelle notification"
+
+msgid "Notification Settings"
+msgstr "Paramètres de notifications"
+
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Logout"
+msgstr "Déconnexion"
+
+msgid "Language"
+msgstr "Langue"
+
+msgid "English"
+msgstr "Anglais"
+
+msgid "French"
+msgstr "Français"
+
+# Auth
+msgid "Login"
+msgstr "Connexion"
+
+msgid "Company Login"
+msgstr "Connexion entreprise"
+
+msgid "Register"
+msgstr "S'inscrire"
+
+msgid "Register Company"
+msgstr "Enregistrer l'entreprise"
+
+msgid "Register New Company"
+msgstr "Nouvelle entreprise"
+
+msgid "Set up your company management system"
+msgstr "Configurez votre système de gestion"
+
+msgid "Join Company"
+msgstr "Rejoindre l'entreprise"
+
+msgid "Back to Login"
+msgstr "Retour à la connexion"
+
+msgid "Company Information"
+msgstr "Informations entreprise"
+
+msgid "Admin Account"
+msgstr "Compte administrateur"
+
+msgid "Company password"
+msgstr "Mot de passe entreprise"
+
+msgid "Company domain"
+msgstr "Domaine entreprise"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Confirm Password"
+msgstr "Confirmer le mot de passe"
+
+msgid "Forgot password?"
+msgstr "Mot de passe oublié ?"
+
+msgid "Reset Password"
+msgstr "Réinitialiser le mot de passe"
+
+msgid "Change Password"
+msgstr "Changer le mot de passe"
+
+msgid "Password changed successfully."
+msgstr "Mot de passe modifié avec succès."
+
+msgid "Edit Profile"
+msgstr "Modifier le profil"
+
+msgid "My Profile"
+msgstr "Mon profil"
+
+# Common actions
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "Save Changes"
+msgstr "Enregistrer les modifications"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+msgid "Edit"
+msgstr "Modifier"
+
+msgid "Create"
+msgstr "Créer"
+
+msgid "Add"
+msgstr "Ajouter"
+
+msgid "Search"
+msgstr "Rechercher"
+
+msgid "Filter"
+msgstr "Filtrer"
+
+msgid "Clear"
+msgstr "Effacer"
+
+msgid "Export"
+msgstr "Exporter"
+
+msgid "Import"
+msgstr "Importer"
+
+msgid "View all"
+msgstr "Voir tout"
+
+msgid "View"
+msgstr "Voir"
+
+msgid "Back"
+msgstr "Retour"
+
+msgid "Confirm"
+msgstr "Confirmer"
+
+msgid "Submit"
+msgstr "Soumettre"
+
+msgid "Close"
+msgstr "Fermer"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "Yes"
+msgstr "Oui"
+
+msgid "No"
+msgstr "Non"
+
+msgid "Back to Home"
+msgstr "Retour à l'accueil"
+
+# Status labels
+msgid "Active"
+msgstr "Actif"
+
+msgid "Inactive"
+msgstr "Inactif"
+
+msgid "Pending"
+msgstr "En attente"
+
+msgid "Approved"
+msgstr "Approuvé"
+
+msgid "Rejected"
+msgstr "Rejeté"
+
+msgid "Completed"
+msgstr "Terminé"
+
+msgid "In Progress"
+msgstr "En cours"
+
+msgid "Cancelled"
+msgstr "Annulé"
+
+msgid "On Hold"
+msgstr "En pause"
+
+msgid "Draft"
+msgstr "Brouillon"
+
+msgid "Published"
+msgstr "Publié"
+
+msgid "Won"
+msgstr "Gagné"
+
+msgid "Lost"
+msgstr "Perdu"
+
+msgid "Paid"
+msgstr "Payé"
+
+msgid "Unpaid"
+msgstr "Non payé"
+
+msgid "Invoiced"
+msgstr "Facturé"
+
+# Dashboard
+msgid "Welcome,"
+msgstr "Bienvenue,"
+
+msgid "Total Employees"
+msgstr "Total employés"
+
+msgid "active"
+msgstr "actif(s)"
+
+msgid "Active Projects"
+msgstr "Projets actifs"
+
+msgid "overdue"
+msgstr "en retard"
+
+msgid "completed"
+msgstr "terminé(s)"
+
+msgid "Stock Items"
+msgstr "Articles en stock"
+
+msgid "low stock"
+msgstr "stock bas"
+
+msgid "All levels OK"
+msgstr "Tous les niveaux OK"
+
+msgid "Total Balance"
+msgstr "Solde total"
+
+msgid "this month"
+msgstr "ce mois"
+
+msgid "item"
+msgstr "article"
+
+msgid "below reorder level:"
+msgstr "sous le niveau de réapprovisionnement :"
+
+msgid "left"
+msgstr "restant"
+
+msgid "Recent Projects"
+msgstr "Projets récents"
+
+msgid "Recent Employees"
+msgstr "Employés récents"
+
+msgid "Finance (this month)"
+msgstr "Finance (ce mois)"
+
+msgid "Total balance"
+msgstr "Solde total"
+
+msgid "Credits in"
+msgstr "Crédits entrants"
+
+msgid "Debits out"
+msgstr "Débits sortants"
+
+msgid "Online Now"
+msgstr "En ligne"
+
+msgid "No one else online"
+msgstr "Personne d'autre en ligne"
+
+msgid "No projects yet."
+msgstr "Aucun projet."
+
+msgid "No employees yet."
+msgstr "Aucun employé."
+
+# Table headers
+msgid "Name"
+msgstr "Nom"
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "Progress"
+msgstr "Progression"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Amount"
+msgstr "Montant"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Role"
+msgstr "Rôle"
+
+msgid "Department"
+msgstr "Département"
+
+msgid "Position"
+msgstr "Poste"
+
+msgid "Phone"
+msgstr "Téléphone"
+
+msgid "Address"
+msgstr "Adresse"
+
+msgid "Company"
+msgstr "Entreprise"
+
+msgid "Created"
+msgstr "Créé"
+
+msgid "Updated"
+msgstr "Modifié"
+
+# Employees
+msgid "Employee List"
+msgstr "Liste des employés"
+
+msgid "New Employee"
+msgstr "Nouvel employé"
+
+msgid "Employee Details"
+msgstr "Détails de l'employé"
+
+msgid "First Name"
+msgstr "Prénom"
+
+msgid "Last Name"
+msgstr "Nom de famille"
+
+msgid "Employee ID"
+msgstr "ID employé"
+
+msgid "Date of Birth"
+msgstr "Date de naissance"
+
+msgid "Hire Date"
+msgstr "Date d'embauche"
+
+msgid "On Leave"
+msgstr "En congé"
+
+msgid "Terminated"
+msgstr "Licencié"
+
+msgid "Departments"
+msgstr "Départements"
+
+msgid "New Department"
+msgstr "Nouveau département"
+
+# Projects
+msgid "Project List"
+msgstr "Liste des projets"
+
+msgid "New Project"
+msgstr "Nouveau projet"
+
+msgid "Project Details"
+msgstr "Détails du projet"
+
+msgid "Start Date"
+msgstr "Date de début"
+
+msgid "End Date"
+msgstr "Date de fin"
+
+msgid "Deadline"
+msgstr "Échéance"
+
+msgid "Priority"
+msgstr "Priorité"
+
+msgid "High"
+msgstr "Élevée"
+
+msgid "Medium"
+msgstr "Moyenne"
+
+msgid "Low"
+msgstr "Faible"
+
+msgid "Tasks"
+msgstr "Tâches"
+
+msgid "New Task"
+msgstr "Nouvelle tâche"
+
+msgid "Assigned To"
+msgstr "Assigné à"
+
+msgid "Kanban"
+msgstr "Kanban"
+
+msgid "Gantt"
+msgstr "Gantt"
+
+msgid "Calendar"
+msgstr "Calendrier"
+
+# Inventory
+msgid "Stock List"
+msgstr "Liste du stock"
+
+msgid "New Item"
+msgstr "Nouvel article"
+
+msgid "Stock Details"
+msgstr "Détails du stock"
+
+msgid "Category"
+msgstr "Catégorie"
+
+msgid "Categories"
+msgstr "Catégories"
+
+msgid "Quantity"
+msgstr "Quantité"
+
+msgid "Unit Price"
+msgstr "Prix unitaire"
+
+msgid "Reorder Level"
+msgstr "Niveau de réapprovisionnement"
+
+msgid "Low Stock Alert"
+msgstr "Alerte stock bas"
+
+msgid "Stock Movement"
+msgstr "Mouvement de stock"
+
+msgid "Add Stock"
+msgstr "Ajouter du stock"
+
+msgid "Remove Stock"
+msgstr "Retirer du stock"
+
+msgid "Supplier"
+msgstr "Fournisseur"
+
+msgid "Inventory Dashboard"
+msgstr "Tableau de bord inventaire"
+
+msgid "Stock Report"
+msgstr "Rapport de stock"
+
+# Finance
+msgid "Chart of Accounts"
+msgstr "Plan comptable"
+
+msgid "New Account"
+msgstr "Nouveau compte"
+
+msgid "Account Details"
+msgstr "Détails du compte"
+
+msgid "Transactions"
+msgstr "Transactions"
+
+msgid "New Transaction"
+msgstr "Nouvelle transaction"
+
+msgid "Credit"
+msgstr "Crédit"
+
+msgid "Debit"
+msgstr "Débit"
+
+msgid "Balance"
+msgstr "Solde"
+
+msgid "Account Type"
+msgstr "Type de compte"
+
+msgid "Asset"
+msgstr "Actif"
+
+msgid "Liability"
+msgstr "Passif"
+
+msgid "Equity"
+msgstr "Capitaux propres"
+
+msgid "Revenue"
+msgstr "Produits"
+
+msgid "Expense"
+msgstr "Charges"
+
+msgid "Journals"
+msgstr "Journaux"
+
+msgid "New Journal"
+msgstr "Nouveau journal"
+
+msgid "Journal Entries"
+msgstr "Écritures comptables"
+
+msgid "Financial Reports"
+msgstr "Rapports financiers"
+
+msgid "Invoices"
+msgstr "Factures"
+
+msgid "Client Invoices"
+msgstr "Factures clients"
+
+msgid "Supplier Invoices"
+msgstr "Factures fournisseurs"
+
+# HR
+msgid "Leave Requests"
+msgstr "Demandes de congé"
+
+msgid "New Leave Request"
+msgstr "Nouvelle demande de congé"
+
+msgid "Leave Type"
+msgstr "Type de congé"
+
+msgid "Annual Leave"
+msgstr "Congé annuel"
+
+msgid "Sick Leave"
+msgstr "Congé maladie"
+
+msgid "Reason"
+msgstr "Motif"
+
+msgid "Approve"
+msgstr "Approuver"
+
+msgid "Reject"
+msgstr "Rejeter"
+
+msgid "Payroll"
+msgstr "Paie"
+
+msgid "Payslips"
+msgstr "Bulletins de paie"
+
+msgid "Payroll Period"
+msgstr "Période de paie"
+
+msgid "Salary"
+msgstr "Salaire"
+
+msgid "Gross Salary"
+msgstr "Salaire brut"
+
+msgid "Net Salary"
+msgstr "Salaire net"
+
+msgid "Deductions"
+msgstr "Retenues"
+
+msgid "Allowances"
+msgstr "Allocations"
+
+msgid "Performance Reviews"
+msgstr "Évaluations"
+
+msgid "Training"
+msgstr "Formation"
+
+msgid "Skills"
+msgstr "Compétences"
+
+msgid "Positions"
+msgstr "Postes"
+
+# CRM
+msgid "Contacts"
+msgstr "Contacts"
+
+msgid "New Contact"
+msgstr "Nouveau contact"
+
+msgid "Contact Details"
+msgstr "Détails du contact"
+
+msgid "Organization"
+msgstr "Organisation"
+
+msgid "Opportunities"
+msgstr "Opportunités"
+
+msgid "New Opportunity"
+msgstr "Nouvelle opportunité"
+
+msgid "Pipeline"
+msgstr "Pipeline"
+
+msgid "Pipeline View"
+msgstr "Vue pipeline"
+
+msgid "Stage"
+msgstr "Étape"
+
+msgid "Value"
+msgstr "Valeur"
+
+msgid "Follow-up"
+msgstr "Suivi"
+
+msgid "Prospect"
+msgstr "Prospect"
+
+msgid "Qualified"
+msgstr "Qualifié"
+
+msgid "Proposal"
+msgstr "Proposition"
+
+msgid "Payment"
+msgstr "Paiement"
+
+msgid "Mark Invoiced"
+msgstr "Marquer comme facturé"
+
+msgid "Mark Paid"
+msgstr "Marquer comme payé"
+
+msgid "Revenue Account"
+msgstr "Compte de produits"
+
+msgid "Payment Date"
+msgstr "Date de paiement"
+
+msgid "Confirm Payment"
+msgstr "Confirmer le paiement"
+
+msgid "Notes"
+msgstr "Notes"
+
+msgid "Note"
+msgstr "Note"
+
+msgid "Phone Call"
+msgstr "Appel téléphonique"
+
+msgid "Add Note"
+msgstr "Ajouter une note"
+
+# Meetings
+msgid "Meeting List"
+msgstr "Liste des réunions"
+
+msgid "New Meeting"
+msgstr "Nouvelle réunion"
+
+msgid "Meeting Details"
+msgstr "Détails de la réunion"
+
+msgid "Meeting Dashboard"
+msgstr "Tableau de bord réunions"
+
+msgid "Participants"
+msgstr "Participants"
+
+msgid "Agenda"
+msgstr "Ordre du jour"
+
+msgid "Action Items"
+msgstr "Points d'action"
+
+msgid "Meeting Notes"
+msgstr "Notes de réunion"
+
+msgid "Attachments"
+msgstr "Pièces jointes"
+
+msgid "Location"
+msgstr "Lieu"
+
+msgid "Online"
+msgstr "En ligne"
+
+# Marketplace
+msgid "Shop"
+msgstr "Boutique"
+
+msgid "Cart"
+msgstr "Panier"
+
+msgid "Checkout"
+msgstr "Commander"
+
+msgid "Orders"
+msgstr "Commandes"
+
+msgid "Order Details"
+msgstr "Détails de la commande"
+
+msgid "Order Dashboard"
+msgstr "Tableau de bord commandes"
+
+msgid "Clients"
+msgstr "Clients"
+
+msgid "Client Login"
+msgstr "Connexion client"
+
+msgid "Client Register"
+msgstr "Inscription client"
+
+msgid "Product"
+msgstr "Produit"
+
+msgid "Products"
+msgstr "Produits"
+
+msgid "Price"
+msgstr "Prix"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Subtotal"
+msgstr "Sous-total"
+
+msgid "Shipping"
+msgstr "Livraison"
+
+msgid "Add to Cart"
+msgstr "Ajouter au panier"
+
+msgid "Place Order"
+msgstr "Passer la commande"
+
+msgid "Order Confirmed"
+msgstr "Commande confirmée"
+
+msgid "Order Shipped"
+msgstr "Commande expédiée"
+
+msgid "Tracking Number"
+msgstr "Numéro de suivi"
+
+msgid "Wishlist"
+msgstr "Liste de souhaits"
+
+# Notifications
+msgid "Notification List"
+msgstr "Liste des notifications"
+
+msgid "Mark as Read"
+msgstr "Marquer comme lu"
+
+msgid "Mark all as read"
+msgstr "Tout marquer comme lu"
+
+msgid "Archive"
+msgstr "Archiver"
+
+msgid "Unread"
+msgstr "Non lu"
+
+msgid "Read"
+msgstr "Lu"
+
+msgid "All"
+msgstr "Tout"
+
+msgid "Global view — all companies"
+msgstr "Vue globale — toutes les entreprises"
+
+msgid "Companies"
+msgstr "Entreprises"
+
+msgid "Total Users"
+msgstr "Total utilisateurs"
+
+msgid "last 5 minutes"
+msgstr "5 dernières minutes"
+
+msgid "Nobody online right now."
+msgstr "Personne en ligne actuellement."
+
+msgid "Domain"
+msgstr "Domaine"
+
+msgid "Plan"
+msgstr "Abonnement"
+
+msgid "Users"
+msgstr "Utilisateurs"
+
+msgid "Registered"
+msgstr "Inscrit"
+
+# Error pages
+msgid "Page Not Found"
+msgstr "Page introuvable"
+
+msgid "The page you're looking for doesn't exist or has been moved."
+msgstr "La page que vous cherchez n'existe pas ou a été déplacée."
+
+msgid "Server Error"
+msgstr "Erreur serveur"
+
+msgid "Something went wrong on our end. Please try again in a moment."
+msgstr "Une erreur s'est produite. Veuillez réessayer dans un moment."
+
+msgid "Access Denied"
+msgstr "Accès refusé"
+
+msgid "You don't have permission to access this page."
+msgstr "Vous n'avez pas la permission d'accéder à cette page."
+
+# Misc
+msgid "No results found."
+msgstr "Aucun résultat trouvé."
+
+msgid "No data available."
+msgstr "Aucune donnée disponible."
+
+msgid "Loading..."
+msgstr "Chargement..."
+
+msgid "Confirm Delete"
+msgstr "Confirmer la suppression"
+
+msgid "Are you sure you want to delete"
+msgstr "Êtes-vous sûr de vouloir supprimer"
+
+msgid "This action cannot be undone."
+msgstr "Cette action est irréversible."
+
+msgid "Previous"
+msgstr "Précédent"
+
+msgid "Next"
+msgstr "Suivant"
+
+msgid "Page"
+msgstr "Page"
+
+msgid "of"
+msgstr "sur"
+
+msgid "per page"
+msgstr "par page"
+
+msgid "Select"
+msgstr "Sélectionner"
+
+msgid "None"
+msgstr "Aucun"
+
+msgid "Switch to dark mode"
+msgstr "Passer en mode sombre"
+
+msgid "Switch to light mode"
+msgstr "Passer en mode clair"
+
+# Auth & registration
+msgid "Welcome back"
+msgstr "Bon retour"
+
+msgid "Sign in to your company account"
+msgstr "Connectez-vous à votre compte entreprise"
+
+msgid "Sign In"
+msgstr "Se connecter"
+
+msgid "Log In"
+msgstr "Se connecter"
+
+msgid "Log in"
+msgstr "Se connecter"
+
+msgid "Don't have a company account?"
+msgstr "Pas encore de compte entreprise ?"
+
+msgid "Joining an existing company?"
+msgstr "Rejoindre une entreprise existante ?"
+
+msgid "Join"
+msgstr "Rejoindre"
+
+msgid "Join a Company"
+msgstr "Rejoindre une entreprise"
+
+msgid "Already have an account?"
+msgstr "Vous avez déjà un compte ?"
+
+msgid "Create Account"
+msgstr "Créer un compte"
+
+msgid "Create your account to join an existing company"
+msgstr "Créez votre compte pour rejoindre une entreprise"
+
+msgid "Team Member"
+msgstr "Membre de l'équipe"
+
+msgid "Forgot your password?"
+msgstr "Mot de passe oublié ?"
+
+msgid "Enter your email to receive a reset link"
+msgstr "Entrez votre email pour recevoir un lien de réinitialisation"
+
+msgid "Send Reset Link"
+msgstr "Envoyer le lien"
+
+msgid "Check Your Email"
+msgstr "Vérifiez votre email"
+
+msgid "Instructions are on their way"
+msgstr "Les instructions sont en route"
+
+msgid ""
+"We've emailed you a link to reset your password. It should arrive within a "
+"few minutes."
+msgstr ""
+"Nous vous avons envoyé un lien par email. Il devrait arriver dans quelques "
+"minutes."
+
+msgid ""
+"Can't find it? Check your spam folder, or make sure you entered the email "
+"address you registered with."
+msgstr ""
+"Vous ne le trouvez pas ? Vérifiez vos spams ou l'adresse email utilisée à "
+"l'inscription."
+
+msgid "Return to Login"
+msgstr "Retour à la connexion"
+
+msgid "Password Reset Complete"
+msgstr "Réinitialisation terminée"
+
+msgid "Password Updated"
+msgstr "Mot de passe mis à jour"
+
+msgid "Password Changed"
+msgstr "Mot de passe changé"
+
+msgid "Update Password"
+msgstr "Mettre à jour le mot de passe"
+
+msgid "Your password has been changed and is now active."
+msgstr "Votre mot de passe a été changé et est maintenant actif."
+
+msgid ""
+"Your password has been set successfully. You can now log in with your new "
+"password."
+msgstr ""
+"Votre mot de passe a été défini. Vous pouvez maintenant vous connecter."
+
+msgid "You're all set"
+msgstr "C'est fait"
+
+msgid "You will need to log in again to access your account."
+msgstr "Vous devrez vous reconnecter pour accéder à votre compte."
+
+msgid "Confirm Logout"
+msgstr "Confirmer la déconnexion"
+
+msgid "Yes, Logout"
+msgstr "Oui, se déconnecter"
+
+# Profile & company
+msgid "Personal Information"
+msgstr "Informations personnelles"
+
+msgid "Company Profile"
+msgstr "Profil de l'entreprise"
+
+msgid "Company Admin"
+msgstr "Administrateur"
+
+msgid "Company Access"
+msgstr "Accès entreprise"
+
+msgid "Company Statistics"
+msgstr "Statistiques de l'entreprise"
+
+msgid "Company password:"
+msgstr "Mot de passe entreprise :"
+
+msgid "Back to Profile"
+msgstr "Retour au profil"
+
+msgid "Back to Dashboard"
+msgstr "Retour au tableau de bord"
+
+msgid "Last Login"
+msgstr "Dernière connexion"
+
+msgid "Last IP"
+msgstr "Dernière IP"
+
+msgid "Administrator View"
+msgstr "Vue administrateur"
+
+msgid "Active Users"
+msgstr "Utilisateurs actifs"
+
+msgid ""
+"This will be shared with your team members so they can register and join "
+"your company."
+msgstr ""
+"Ceci sera partagé avec votre équipe pour qu'elle puisse s'inscrire et "
+"rejoindre votre entreprise."
+
+msgid ""
+"Remember your company domain! You and your team members will need it to log "
+"in and access the system. Share this domain with your team for easy access."
+msgstr ""
+"Retenez bien votre domaine entreprise ! Vous et vos membres en auront besoin"
+" pour vous connecter. Partagez-le avec votre équipe."
+
+msgid "Your account will be created with the"
+msgstr "Votre compte sera créé avec le"
+
+msgid "role. Your administrator can assign a different role after you log in."
+msgstr ""
+"rôle. Votre administrateur peut vous attribuer un rôle différent après "
+"connexion."
+
+# CRM extras
+msgid "Contact"
+msgstr "Contact"
+
+msgid "Contact Info"
+msgstr "Coordonnées"
+
+msgid "Total Contacts"
+msgstr "Total contacts"
+
+msgid "Recent Contacts"
+msgstr "Contacts récents"
+
+msgid "No contacts found"
+msgstr "Aucun contact trouvé"
+
+msgid "No contacts yet."
+msgstr "Aucun contact pour l'instant."
+
+msgid "add your first contact"
+msgstr "ajoutez votre premier contact"
+
+msgid "Open Opportunities"
+msgstr "Opportunités ouvertes"
+
+msgid "Open Pipeline"
+msgstr "Pipeline ouvert"
+
+msgid "Won This Month"
+msgstr "Gagnées ce mois"
+
+msgid "Top Open Opportunities"
+msgstr "Meilleures opportunités ouvertes"
+
+msgid "No open opportunities."
+msgstr "Aucune opportunité ouverte."
+
+msgid "No opportunities found."
+msgstr "Aucune opportunité trouvée."
+
+msgid "No opportunities yet."
+msgstr "Aucune opportunité pour l'instant."
+
+msgid "Overdue follow-ups"
+msgstr "Suivis en retard"
+
+msgid "overdue opportunit"
+msgstr "opportunité(s) en retard"
+
+msgid "Organisation"
+msgstr "Organisation"
+
+msgid "Opps"
+msgstr "Opps"
+
+msgid "Pipeline Value"
+msgstr "Valeur du pipeline"
+
+msgid "Pay"
+msgstr "Payer"
+
+msgid "Mark as Paid"
+msgstr "Marquer comme payé"
+
+msgid "Delete Contact?"
+msgstr "Supprimer le contact ?"
+
+msgid "Delete contact"
+msgstr "Supprimer le contact"
+
+msgid "Delete Opportunity?"
+msgstr "Supprimer l'opportunité ?"
+
+msgid "Delete this note?"
+msgstr "Supprimer cette note ?"
+
+msgid "Save Contact"
+msgstr "Enregistrer le contact"
+
+msgid "Save Opportunity"
+msgstr "Enregistrer l'opportunité"
+
+msgid "Activity Log"
+msgstr "Journal d'activité"
+
+msgid "Add Activity"
+msgstr "Ajouter une activité"
+
+msgid "No activity recorded yet."
+msgstr "Aucune activité enregistrée."
+
+msgid "Other"
+msgstr "Autre"
+
+msgid "Marketplace Client"
+msgstr "Client marketplace"
+
+# Common
+msgid "ID"
+msgstr "ID"
+
+msgid "Title"
+msgstr "Titre"
+
+msgid "New"
+msgstr "Nouveau"
+
+msgid "Help"
+msgstr "Aide"
+
+msgid "Important:"
+msgstr "Important :"
+
+msgid "Close Date"
+msgstr "Date de clôture"
+
+msgid "Employee"
+msgstr "Employé"
+
+msgid "Meeting"
+msgstr "Réunion"
+
+msgid "All stages"
+msgstr "Toutes les étapes"
+
+msgid "All assignees"
+msgstr "Tous les assignés"
+
+msgid "Added"
+msgstr "Ajouté"
+
+msgid "at"
+msgstr "à"
+
+msgid "ago"
+msgstr "il y a"
+
+msgid "This cannot be undone."
+msgstr "Cette action est irréversible."
+
+msgid "Yes, Delete"
+msgstr "Oui, supprimer"
+
+msgid "🇬🇧 English"
+msgstr "🇫🇷 Anglais"
+
+msgid "🇫🇷 Français"
+msgstr "🇫🇷 English"
+
+msgid "Sales Pipeline"
+msgstr "Pipeline de ventes"
+
+msgid "List View"
+msgstr "Vue en liste"
+
+msgid "No opportunities"
+msgstr "Aucune opportunité"
+
+msgid "Department names must be unique within your company."
+msgstr ""
+"Les noms de département doivent être uniques au sein de votre entreprise."
+
+msgid "Report"
+msgstr "Rapport"
+
+msgid "Add Department"
+msgstr "Ajouter un département"
+
+msgid "No departments yet"
+msgstr "Aucun département pour l'instant"
+
+msgid "Create your first department"
+msgstr "Créez votre premier département"
+
+msgid "to start organising your team."
+msgstr "pour commencer à organiser votre équipe."
+
+msgid "Department Report"
+msgstr "Rapport du département"
+
+msgid "Print"
+msgstr "Imprimer"
+
+msgid "Department Statistics"
+msgstr "Statistiques du département"
+
+msgid "Avg Salary"
+msgstr "Salaire moyen"
+
+msgid "Total Salary"
+msgstr "Salaire total"
+
+msgid "% of Company"
+msgstr "% de l'entreprise"
+
+msgid "No departments found."
+msgstr "Aucun département trouvé."
+
+msgid "Delete Employee?"
+msgstr "Supprimer un employé ?"
+
+msgid "You are about to permanently delete"
+msgstr "Vous êtes sur le point de supprimer définitivement"
+
+msgid "All records linked to this employee will be permanently removed."
+msgstr ""
+"Tous les enregistrements liés à cet employé seront définitivement supprimés."
+
+msgid "Date Joined"
+msgstr "Date d'adhésion"
+
+msgid "Personal"
+msgstr "Personnel"
+
+msgid "Full Name"
+msgstr "Nom et prénom"
+
+msgid "Employment"
+msgstr "Emploi"
+
+msgid "Record Created"
+msgstr "Enregistrement créé"
+
+msgid "Last Updated"
+msgstr "Dernière mise à jour"
+
+msgid "User Account"
+msgstr "Compte utilisateur"
+
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+msgid "Account"
+msgstr "Compte"
+
+msgid "Admin"
+msgstr "Administrateur"
+
+msgid "Department Note"
+msgstr "Note du département"
+
+msgid "Send Email"
+msgstr "Envoyer un e-mail"
+
+msgid "Back to List"
+msgstr "Retour à la liste"
+
+msgid "Employee Information"
+msgstr "Informations sur les employés"
+
+msgid ""
+"Employee ID must be unique within your company.\n"
+"                            The ID placeholder is pre-filled based on your company domain."
+msgstr ""
+"L'identifiant de l'employé doit être unique au sein de votre entreprise.\n"
+"                            "
+
+msgid "Save Employee"
+msgstr "Sauver un employé"
+
+msgid "View Details"
+msgstr "Afficher les détails"
+
+msgid "Import Employees"
+msgstr "Importer des employés"
+
+msgid "Before you import:"
+msgstr "Avant d'importer :"
+
+msgid "Download the template first to ensure the correct column format."
+msgstr ""
+"Téléchargez d'abord le modèle pour garantir le format de colonne correct."
+
+msgid "Employee IDs must be unique within your company."
+msgstr ""
+"Les identifiants des employés doivent être uniques au sein de votre "
+"entreprise."
+
+msgid "New user accounts are created automatically; the temporary password is"
+msgstr "Les nouveaux comptes d'utilisateurs sont créés automatiquement ; "
+
+msgid "TempPassword123"
+msgstr "Mot de passe temporaire123"
+
+msgid "— users should change it on first login."
+msgstr "— les utilisateurs doivent le modifier lors de la première connexion."
+
+msgid "Rows with errors are skipped; a summary is shown after import."
+msgstr "Les lignes contenant des erreurs sont ignorées ; "
+
+msgid "Expected Columns"
+msgstr "Colonnes attendues"
+
+msgid "Column"
+msgstr "Colonne"
+
+msgid "Required"
+msgstr "Requis"
+
+msgid "Example"
+msgstr "Exemple"
+
+msgid "Unique employee identifier"
+msgstr "Identifiant unique de l'employé"
+
+msgid "EMP-001"
+msgstr "EMP-001"
+
+msgid "Employee first name"
+msgstr "Prénom de l'employé"
+
+msgid "John"
+msgstr "John"
+
+msgid "Employee last name"
+msgstr "Nom de famille de l'employé"
+
+msgid "Doe"
+msgstr "Biche"
+
+msgid "Email address"
+msgstr "Adresse email"
+
+msgid "john.doe@company.com"
+msgstr "john.doe@company.com"
+
+msgid "Optional"
+msgstr "Facultatif"
+
+msgid "Phone number"
+msgstr "Numéro de téléphone"
+
+msgid "Must match an existing department name"
+msgstr "Doit correspondre à un nom de département existant"
+
+msgid "Engineering"
+msgstr "Ingénierie"
+
+msgid "Employee role slug"
+msgstr "Slug de rôle d'employé"
+
+msgid "developer"
+msgstr "promoteur"
+
+msgid "Employment status"
+msgstr "Statut d'emploi"
+
+msgid "Annual salary (numeric)"
+msgstr "Salaire annuel (numérique)"
+
+msgid "Select Excel File"
+msgstr "Sélectionnez un fichier Excel"
+
+msgid "Accepted formats: .xlsx, .xls"
+msgstr "Formats acceptés : .xlsx, .xls"
+
+msgid "Download Template"
+msgstr "Télécharger le modèle"
+
+msgid "Add Employee"
+msgstr "Ajouter un employé"
+
+msgid "Reports"
+msgstr "Rapports"
+
+msgid "View Summary"
+msgstr "Afficher le résumé"
+
+msgid "Filters"
+msgstr "Filtres"
+
+msgid "All Departments"
+msgstr "Tous les départements"
+
+msgid "All Statuses"
+msgstr "Tous les statuts"
+
+msgid "All Roles"
+msgstr "Tous les rôles"
+
+msgid "No employees found"
+msgstr "Aucun employé trouvé"
+
+msgid "add your first employee"
+msgstr "ajoutez votre premier employé"
+
+msgid "Employee Summary Report"
+msgstr "Rapport sommaire des employés"
+
+msgid "Back to Employees"
+msgstr "Retour aux employés"
+
+msgid "Role Distribution"
+msgstr "Répartition des rôles"
+
+msgid "Count"
+msgstr "Compter"
+
+msgid "No data."
+msgstr "Aucune donnée."
+
+msgid "Department Distribution"
+msgstr "Distribution par département"
+
+msgid "Salary Statistics"
+msgstr "Statistiques salariales"
+
+msgid "Average"
+msgstr "Moyenne"
+
+msgid "Total Payroll"
+msgstr "Masse salariale totale"
+
+msgid "Minimum"
+msgstr "Minimum"
+
+msgid "Maximum"
+msgstr "Maximum"
+
+msgid "Recent Hires"
+msgstr "Embauches récentes"
+
+msgid "(last 30 days)"
+msgstr "(30 derniers jours)"
+
+msgid "No new hires in the last 30 days."
+msgstr "Aucune nouvelle embauche au cours des 30 derniers jours."
+
+msgid "Delete Account"
+msgstr "Supprimer le compte"
+
+msgid "Are you sure you want to delete the account"
+msgstr "Etes-vous sûr de vouloir supprimer le compte"
+
+msgid ""
+"All transactions linked to this account will also be deleted. This cannot be"
+" undone."
+msgstr ""
+"Toutes les transactions liées à ce compte seront également supprimées. "
+
+msgid "Accounts"
+msgstr "Comptes"
+
+msgid "Add Transaction"
+msgstr "Ajouter une transaction"
+
+msgid "Current Balance"
+msgstr "Solde actuel"
+
+msgid "Total Credits"
+msgstr "Crédits totaux"
+
+msgid "Total Debits"
+msgstr "Total des débits"
+
+msgid "All types"
+msgstr "Tous types"
+
+msgid "Entered by"
+msgstr "Entré par"
+
+msgid "No transactions for this account."
+msgstr "Aucune transaction pour ce compte."
+
+msgid "Save Account"
+msgstr "Enregistrer le compte"
+
+msgid "Total balance (all matching)"
+msgstr "Solde total (tout correspondant)"
+
+msgid "Search by name"
+msgstr "Rechercher par nom"
+
+msgid "No accounts found."
+msgstr "Aucun compte trouvé."
+
+msgid "Delete Bank Account"
+msgstr "Supprimer le compte bancaire"
+
+msgid "Are you sure you want to delete the bank account"
+msgstr "Êtes-vous sûr de vouloir supprimer le compte bancaire"
+
+msgid "Warning:"
+msgstr "Avertissement:"
+
+msgid ""
+"This action cannot be undone. All associated statements and reconciliations "
+"will also be deleted."
+msgstr "Cette action ne peut pas être annulée. "
+
+msgid "Bank Account Details:"
+msgstr "Détails du compte bancaire :"
+
+msgid "Name:"
+msgstr "Nom:"
+
+msgid "Account Number:"
+msgstr "Numéro de compte:"
+
+msgid "Bank Name:"
+msgstr "Nom de la banque :"
+
+msgid "Linked Account:"
+msgstr "Compte lié :"
+
+msgid "Opening Balance:"
+msgstr "Solde d'ouverture :"
+
+msgid "Yes, Delete Bank Account"
+msgstr "Oui, supprimer le compte bancaire"
+
+msgid "Account Number"
+msgstr "Numéro de compte"
+
+msgid "Bank Name"
+msgstr "Nom de la banque"
+
+msgid "Opening Balance"
+msgstr "Solde d'ouverture"
+
+msgid "Linked Accounting Account"
+msgstr "Compte comptable lié"
+
+msgid ""
+"Select the asset account that represents this bank account in your chart of "
+"accounts."
+msgstr ""
+"Sélectionnez le compte d'actif qui représente ce compte bancaire dans votre "
+"plan comptable."
+
+msgid "Save Bank Account"
+msgstr "Enregistrer un compte bancaire"
+
+msgid "Bank Accounts"
+msgstr "Comptes bancaires"
+
+msgid "Add Bank Account"
+msgstr "Ajouter un compte bancaire"
+
+msgid "Linked Account"
+msgstr "Compte lié"
+
+msgid "No Bank Accounts"
+msgstr "Pas de compte bancaire"
+
+msgid "Get started by adding your first bank account."
+msgstr "Commencez par ajouter votre premier compte bancaire."
+
+msgid "Bank Balance"
+msgstr "Solde bancaire"
+
+msgid "Book Balance"
+msgstr "Solde comptable"
+
+msgid "Difference"
+msgstr "Différence"
+
+msgid "Reconciled"
+msgstr "Réconcilié"
+
+msgid "Unreconciled Bank Transactions"
+msgstr "Opérations bancaires non rapprochées"
+
+msgid "Action"
+msgstr "Action"
+
+msgid "Select match..."
+msgstr "Sélectionnez la correspondance..."
+
+msgid "Match"
+msgstr "Correspondre"
+
+msgid "All bank transactions have been reconciled."
+msgstr "Toutes les transactions bancaires ont été rapprochées."
+
+msgid "Recent Accounting Transactions"
+msgstr "Opérations comptables récentes"
+
+msgid "No recent accounting transactions found."
+msgstr "Aucune transaction comptable récente trouvée."
+
+msgid "Back to Reconciliations"
+msgstr "Retour aux réconciliations"
+
+msgid "Create Bank Reconciliation"
+msgstr "Créer un rapprochement bancaire"
+
+msgid "Bank Account"
+msgstr "Compte bancaire"
+
+msgid "Bank Statement"
+msgstr "Relevé bancaire"
+
+msgid "Reconciled Date"
+msgstr "Date de rapprochement"
+
+msgid "Create Reconciliation"
+msgstr "Créer une réconciliation"
+
+msgid "Bank Reconciliations"
+msgstr "Rapprochements bancaires"
+
+msgid "Upload Statement"
+msgstr "Télécharger la déclaration"
+
+msgid "New Reconciliation"
+msgstr "Nouvelle réconciliation"
+
+msgid "Statement Date"
+msgstr "Date du relevé"
+
+msgid "No Bank Reconciliations"
+msgstr "Aucun rapprochement bancaire"
+
+msgid "Upload a bank statement to get started with reconciliation."
+msgstr "Téléchargez un relevé bancaire pour commencer le rapprochement."
+
+msgid "Upload Bank Statement"
+msgstr "Télécharger le relevé bancaire"
+
+msgid "Supported Formats:"
+msgstr "Formats pris en charge :"
+
+msgid ""
+"CSV files and MT940 files.\n"
+"                        CSV files should have columns: date, description, amount."
+msgstr ""
+"Fichiers CSV et fichiers MT940.\n"
+"                        "
+
+msgid "Statement File"
+msgstr "Fichier de relevé"
+
+msgid "Delete Client Invoice"
+msgstr "Supprimer la facture client"
+
+msgid "Are you sure you want to delete the client invoice"
+msgstr "Êtes-vous sûr de vouloir supprimer la facture client"
+
+msgid "Client"
+msgstr "Client"
+
+msgid "Invoice Number"
+msgstr "Numéro de facture"
+
+msgid "Due Date"
+msgstr "Date d'échéance"
+
+msgid "Validated"
+msgstr "Validé"
+
+msgid "Sent"
+msgstr "Envoyé"
+
+msgid "Created by"
+msgstr "Créé par"
+
+msgid "Invoice Lines"
+msgstr "Lignes de facture"
+
+msgid "No lines in this invoice."
+msgstr "Aucune ligne dans cette facture."
+
+msgid "Invoice Details"
+msgstr "Détails de la facture"
+
+msgid "Client Details"
+msgstr "Détails du client"
+
+msgid "Add Line"
+msgstr "Ajouter une ligne"
+
+msgid "Summary"
+msgstr "Résumé"
+
+msgid "Save Invoice"
+msgstr "Enregistrer la facture"
+
+msgid "New Invoice"
+msgstr "Nouvelle facture"
+
+msgid "Invoice #"
+msgstr "Facture #"
+
+msgid "No client invoices have been created yet."
+msgstr "Aucune facture client n'a encore été créée."
+
+msgid "Back to Reports"
+msgstr "Retour aux rapports"
+
+msgid "Generate Financial Report"
+msgstr "Générer un rapport financier"
+
+msgid "Report Type"
+msgstr "Type de rapport"
+
+msgid "Report Date"
+msgstr "Date du rapport"
+
+msgid ""
+"For balance sheet: date as of which to report balances. For income "
+"statement: end date of the period."
+msgstr "Pour le bilan : date à partir de laquelle déclarer les soldes. "
+
+msgid "Start Date (Optional)"
+msgstr "Date de début (facultatif)"
+
+msgid "For income statement: start date of the period."
+msgstr "Pour le compte de résultat : date de début de la période."
+
+msgid "End Date (Optional)"
+msgstr "Date de fin (facultatif)"
+
+msgid "For income statement: end date of the period."
+msgstr "Pour le compte de résultat : date de fin de période."
+
+msgid "Generate Report"
+msgstr "Générer un rapport"
+
+msgid "Period"
+msgstr "Période"
+
+msgid "Generated"
+msgstr "Généré"
+
+msgid "No Financial Reports"
+msgstr "Aucun rapport financier"
+
+msgid "Generate your first financial report to get started."
+msgstr "Générez votre premier rapport financier pour commencer."
+
+msgid "Finance Dashboard"
+msgstr "Tableau de bord financier"
+
+msgid "New Journal Entry"
+msgstr "Nouvelle entrée de journal"
+
+msgid "New Client Invoice"
+msgstr "Facture nouveau client"
+
+msgid "New Supplier Invoice"
+msgstr "Nouvelle facture fournisseur"
+
+msgid "Marketplace Mapping"
+msgstr "Cartographie du marché"
+
+msgid "Marketplace finance:"
+msgstr "Financement du marché :"
+
+msgid "Net This Month"
+msgstr "Net ce mois-ci"
+
+msgid "Recent Transactions"
+msgstr "Transactions récentes"
+
+msgid "No transactions yet."
+msgstr "Aucune transaction pour l'instant."
+
+msgid "Top Accounts"
+msgstr "Principaux comptes"
+
+msgid "No accounts yet."
+msgstr "Aucun compte pour l'instant."
+
+msgid "Delete Journal"
+msgstr "Supprimer le journal"
+
+msgid "Are you sure you want to delete the journal"
+msgstr "Êtes-vous sûr de vouloir supprimer le journal"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "Entries"
+msgstr "Entrées"
+
+msgid "New Entry"
+msgstr "Nouvelle entrée"
+
+msgid "Reference"
+msgstr "Référence"
+
+msgid "Debits"
+msgstr "Débits"
+
+msgid "Credits"
+msgstr "Crédits"
+
+msgid "Balanced"
+msgstr "Équilibré"
+
+msgid "No entries recorded in this journal yet."
+msgstr "Aucune entrée enregistrée dans ce journal pour l'instant."
+
+msgid "Delete Journal Entry"
+msgstr "Supprimer une entrée de journal"
+
+msgid "Are you sure you want to delete this journal entry?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette entrée de journal ?"
+
+msgid "Journal"
+msgstr "Journal"
+
+msgid "Lines"
+msgstr "Lignes"
+
+msgid "Total Debit"
+msgstr "Débit total"
+
+msgid "Total Credit"
+msgstr "Crédit total"
+
+msgid "Journal Entry"
+msgstr "Entrée de journal"
+
+msgid "Total:"
+msgstr "Total:"
+
+msgid "Totals"
+msgstr "Totaux"
+
+msgid "No lines in this entry."
+msgstr "Aucune ligne dans cette entrée."
+
+msgid "Remove"
+msgstr "Retirer"
+
+msgid "Save Entry"
+msgstr "Enregistrer l'entrée"
+
+msgid "No journal entries have been created yet."
+msgstr "Aucune écriture de journal n'a encore été créée."
+
+msgid "Save Journal"
+msgstr "Enregistrer le journal"
+
+msgid "Marketplace Finance Settings"
+msgstr "Paramètres financiers du marché"
+
+msgid "Back to Finance"
+msgstr "Retour aux Finances"
+
+msgid "Sales Journal"
+msgstr "Journal des ventes"
+
+msgid "Marketplace Receivable Account"
+msgstr "Compte clients du marché"
+
+msgid "Marketplace Revenue Account"
+msgstr "Compte de revenus du marché"
+
+msgid "Tax Account"
+msgstr "Compte de taxes"
+
+msgid ""
+"Optional. Leave blank if marketplace orders are posted without a separate "
+"tax line."
+msgstr "Facultatif. "
+
+msgid "Enable marketplace finance posting"
+msgstr "Activer la publication financière sur le marché"
+
+msgid "Save Settings"
+msgstr "Enregistrer les paramètres"
+
+msgid ""
+"Phase 2 prepares the accounting map so Phase 3 can post marketplace orders "
+"safely."
+msgstr ""
+"La phase 2 prépare la carte comptable afin que la phase 3 puisse publier les"
+" ordres de marché en toute sécurité."
+
+msgid "The sales journal will receive marketplace journal entries."
+msgstr "Le journal des ventes recevra les écritures du journal du marché."
+
+msgid ""
+"The receivable account is debited when an order is posted before cash "
+"settlement."
+msgstr ""
+"Le compte créance est débité lors de la passation d'une commande avant "
+"règlement en espèces."
+
+msgid "The revenue account is credited for the sale value."
+msgstr "Le compte de revenus est crédité de la valeur de vente."
+
+msgid "The tax account is optional for separate tax handling later."
+msgstr ""
+"Le compte de taxes est facultatif pour un traitement fiscal séparé "
+"ultérieurement."
+
+msgid "Current Status"
+msgstr "Statut actuel"
+
+msgid "Enabled:"
+msgstr "Activé:"
+
+msgid "Updated:"
+msgstr "Mis à jour:"
+
+msgid "Journal:"
+msgstr "Journal:"
+
+msgid "Validated L1"
+msgstr "Validé L1"
+
+msgid "Validated L2"
+msgstr "Validé L2"
+
+msgid "Validated L1 by"
+msgstr "Validé L1 par"
+
+msgid "Verify shipping address is correct"
+msgstr "Vérifiez que l'adresse de livraison est correcte"
+
+msgid "USPS"
+msgstr "USPS"
+
+msgid "No Salary Components"
+msgstr "Aucun élément de salaire"
+
+msgid "No manager assigned"
+msgstr "Aucun responsable affecté"
+
+msgid "Quantity to remove"
+msgstr "Quantité à retirer"
+
+msgid "• Create Position"
+msgstr "• Créer un poste"
+
+msgid "Start Date:"
+msgstr "Date de début :"
+
+msgid "Important system notifications"
+msgstr "Notifications système importantes"
+
+msgid "Keep a backup of your Excel file"
+msgstr "Conservez une sauvegarde de votre fichier Excel"
+
+msgid "In-App Notifications"
+msgstr "Notifications dans l'application"
+
+msgid "No Recent Transactions"
+msgstr "Aucune transaction récente"
+
+msgid "Focus on high-value items with significant shortages"
+msgstr ""
+"Concentrez-vous sur les articles de grande valeur présentant des pénuries "
+"importantes"
+
+msgid "Enrollment Date *"
+msgstr "Date d'inscription *"
+
+msgid "Calendar View"
+msgstr "Vue du calendrier"
+
+msgid "Net Movement"
+msgstr "Mouvement net"
+
+msgid "Products (up to 5)"
+msgstr "Produits (jusqu'à 5)"
+
+msgid "Mark All Read"
+msgstr "Marquer tout comme lu"
+
+msgid "No orders found"
+msgstr "Aucune commande trouvée"
+
+msgid "Courses"
+msgstr "Cours"
+
+msgid "Enrollment Notes"
+msgstr "Notes d'inscription"
+
+msgid "Status Distribution"
+msgstr "Répartition des statuts"
+
+msgid "New Goal"
+msgstr "Nouvel objectif"
+
+msgid "No skills found."
+msgstr "Aucune compétence trouvée."
+
+msgid "Items in This Shipment"
+msgstr "Articles dans cet envoi"
+
+msgid "Choose a team member or leave unassigned."
+msgstr "Choisissez un membre de l’équipe ou laissez-le sans affectation."
+
+msgid "Create Component"
+msgstr "Créer un composant"
+
+msgid ""
+"Reorder level triggers low stock alerts when quantity falls below this level"
+msgstr ""
+"Le niveau de réapprovisionnement déclenche des alertes de stock faible "
+"lorsque la quantité tombe en dessous de ce niveau"
+
+msgid "Marketplace Visible:"
+msgstr "Visible sur le marché :"
+
+msgid "• Skill Assessments"
+msgstr "• Évaluations des compétences"
+
+msgid "Request Leave"
+msgstr "Demander un congé"
+
+msgid "Manager:"
+msgstr "Gestionnaire :"
+
+msgid "Client Information"
+msgstr "Informations client"
+
+msgid "Active Employees"
+msgstr "Employés actifs"
+
+msgid "Browse Products"
+msgstr "Parcourir les produits"
+
+msgid "You have no leave requests yet."
+msgstr "Vous n'avez pas encore de demandes de congés."
+
+msgid "Display order"
+msgstr "Ordre d'affichage"
+
+msgid "Delete Performance Goal"
+msgstr "Supprimer l'objectif de performances"
+
+msgid "All items are in stock and available"
+msgstr "Tous les articles sont en stock et disponibles"
+
+msgid "Course Type *"
+msgstr "Type de cours *"
+
+msgid "Completion Date"
+msgstr "Date d'achèvement"
+
+msgid "Item code must be unique within your company"
+msgstr "Le code article doit être unique au sein de votre entreprise"
+
+msgid "Order Delivered"
+msgstr "Commande livrée"
+
+msgid "New Session"
+msgstr "Nouvelle séance"
+
+msgid "By"
+msgstr "Par"
+
+msgid "Course Title *"
+msgstr "Titre du cours *"
+
+msgid "to organize your inventory items."
+msgstr "pour organiser vos articles d'inventaire."
+
+msgid "OUT"
+msgstr "SORTI"
+
+msgid "System will validate each item and quantity"
+msgstr "Le système validera chaque article et quantité"
+
+msgid "Are you sure you want to delete this leave request?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette demande de congé ?"
+
+msgid "Status *"
+msgstr "Statut *"
+
+msgid ""
+"PDF, Word (DOC, DOCX), Excel (XLS, XLSX), PowerPoint (PPT, PPTX), \n"
+"                        Text, Images (PNG, JPG, GIF), ZIP, CSV"
+msgstr ""
+"PDF, Word (DOC, DOCX), Excel (XLS, XLSX), PowerPoint (PPT, PPTX), \n"
+"                        "
+
+msgid "No meetings found"
+msgstr "Aucune réunion trouvée"
+
+msgid "No journals have been created yet."
+msgstr "Aucun journal n'a encore été créé."
+
+msgid "Project Name"
+msgstr "Nom du projet"
+
+msgid "DHL"
+msgstr "DHL"
+
+msgid "Total Movement"
+msgstr "Mouvement total"
+
+msgid "Team"
+msgstr "Équipe"
+
+msgid "No upcoming meetings scheduled"
+msgstr "Aucune réunion à venir prévue"
+
+msgid "Bulk Remove"
+msgstr "Suppression groupée"
+
+msgid "Goal"
+msgstr "Objectif"
+
+msgid "Total Value"
+msgstr "Valeur totale"
+
+msgid "Estimated Hours"
+msgstr "Heures estimées"
+
+msgid "All inventory items are above their reorder levels. Great job!"
+msgstr ""
+"Tous les articles en stock sont au-dessus de leurs niveaux de "
+"réapprovisionnement. "
+
+msgid "Upload"
+msgstr "Télécharger"
+
+msgid "End Time"
+msgstr "Heure de fin"
+
+msgid "Course"
+msgstr "Cours"
+
+msgid "(Optional)"
+msgstr "(Facultatif)"
+
+msgid "Scheduled Date:"
+msgstr "Date prévue :"
+
+msgid "Period Type"
+msgstr "Type de période"
+
+msgid "Date & Time"
+msgstr "Date et heure"
+
+msgid "In Stock"
+msgstr "En stock"
+
+msgid "About Us"
+msgstr "À propos de nous"
+
+msgid "Components"
+msgstr "Composants"
+
+msgid "Add Comment"
+msgstr "Ajouter un commentaire"
+
+msgid "Tech Supplier Inc."
+msgstr "Fournisseur technologique inc."
+
+msgid "Import Stock Items"
+msgstr "Importer des articles en stock"
+
+msgid "Total Items"
+msgstr "Total des articles"
+
+msgid "Positions Defined"
+msgstr "Postes définis"
+
+msgid "Duration"
+msgstr "Durée"
+
+msgid "Download the template first to ensure correct format"
+msgstr "Téléchargez d'abord le modèle pour garantir le format correct"
+
+msgid "New Position"
+msgstr "Nouveau poste"
+
+msgid "Planning"
+msgstr "Planification"
+
+msgid "Quick In-Store Order"
+msgstr "Commande rapide en magasin"
+
+msgid "Cost Price:"
+msgstr "Prix de revient :"
+
+msgid "Set up automatic reorder alerts"
+msgstr "Configurer des alertes de réapprovisionnement automatiques"
+
+msgid "My Orders"
+msgstr "Mes commandes"
+
+msgid "Month"
+msgstr "Mois"
+
+msgid "Back to My Orders"
+msgstr "Retour à Mes commandes"
+
+msgid "Test with a small batch first"
+msgstr "Testez d'abord avec un petit lot"
+
+msgid "name"
+msgstr "nom"
+
+msgid "Adjustment"
+msgstr "Ajustement"
+
+msgid "Please confirm the following before proceeding:"
+msgstr "Veuillez confirmer les éléments suivants avant de continuer :"
+
+msgid "Schedule"
+msgstr "Calendrier"
+
+msgid "This action"
+msgstr "Cette action"
+
+msgid "start shopping"
+msgstr "commencer à magasiner"
+
+msgid "Add Subtask"
+msgstr "Ajouter une sous-tâche"
+
+msgid "Not confirmed"
+msgstr "Non confirmé"
+
+msgid "contact@supplier.com"
+msgstr "contact@fournisseur.com"
+
+msgid "Legend"
+msgstr "Légende"
+
+msgid "Register here"
+msgstr "Inscrivez-vous ici"
+
+msgid "No performance goals found."
+msgstr "Aucun objectif de performance trouvé."
+
+msgid "Payment has been verified (if applicable)"
+msgstr "Le paiement a été vérifié (le cas échéant)"
+
+msgid "Total Revenue"
+msgstr "Revenu total"
+
+msgid "Product Image"
+msgstr "Image du produit"
+
+msgid "Item Information"
+msgstr "Informations sur l'article"
+
+msgid "File Size:"
+msgstr "Taille du fichier :"
+
+msgid ""
+"This action cannot be undone. Ensure this component is not being used in "
+"active payroll entries."
+msgstr "Cette action ne peut pas être annulée. "
+
+msgid "Are you sure you want to delete the performance goal for"
+msgstr "Etes-vous sûr de vouloir supprimer l'objectif de performances pour"
+
+msgid "Your wishlist is empty"
+msgstr "Votre liste de souhaits est vide"
+
+msgid "When leave requests are submitted, approved, or denied"
+msgstr "Lorsque les demandes de congé sont soumises, approuvées ou refusées"
+
+msgid "remarks"
+msgstr "remarques"
+
+msgid "No payroll entries yet. Add entries to get started."
+msgstr "Aucune saisie de paie pour l'instant. "
+
+msgid "Supplier Contact:"
+msgstr "Contact fournisseur :"
+
+msgid "No Low Stock Items"
+msgstr "Aucun article en faible stock"
+
+msgid "No positions defined yet."
+msgstr "Aucun poste défini pour l'instant."
+
+msgid "Low Stock"
+msgstr "Stock faible"
+
+msgid ""
+"For existing items, only the quantity field will update the stock level"
+msgstr ""
+"Pour les articles existants, seul le champ quantité mettra à jour le niveau "
+"de stock"
+
+msgid "Please correct the following errors:"
+msgstr "Veuillez corriger les erreurs suivantes :"
+
+msgid "Unassigned"
+msgstr "Non attribué"
+
+msgid "Create First Department"
+msgstr "Créer le premier département"
+
+msgid "add your first stock item"
+msgstr "ajoutez votre premier article en stock"
+
+msgid "Export Excel"
+msgstr "Exporter Excel"
+
+msgid "Mark as Completed"
+msgstr "Marquer comme terminé"
+
+msgid "No performance reviews found."
+msgstr "Aucune évaluation des performances trouvée."
+
+msgid "Selling price for marketplace"
+msgstr "Prix de vente pour la place de marché"
+
+msgid "Project"
+msgstr "Projet"
+
+msgid "Payslip Number"
+msgstr "Numéro de fiche de paie"
+
+msgid "Low Stock Alerts"
+msgstr "Alertes de stock faible"
+
+msgid "Net Pay"
+msgstr "Salaire net"
+
+msgid "Optional text"
+msgstr "Texte facultatif"
+
+msgid "Working Days"
+msgstr "Jours ouvrables"
+
+msgid "Save Item"
+msgstr "Enregistrer l'article"
+
+msgid "(optional — you can add more later)"
+msgstr "(facultatif – vous pourrez en ajouter d'autres plus tard)"
+
+msgid "Total Budget"
+msgstr "Budget total"
+
+msgid "Finance Sync"
+msgstr "Synchronisation financière"
+
+msgid "Upload File"
+msgstr "Télécharger le fichier"
+
+msgid "No stock items found"
+msgstr "Aucun article en stock trouvé"
+
+msgid "Current Status:"
+msgstr "Statut actuel :"
+
+msgid "Statistics"
+msgstr "Statistiques"
+
+msgid "Print Payslip"
+msgstr "Imprimer la fiche de paie"
+
+msgid "No comments yet."
+msgstr "Pas encore de commentaires."
+
+msgid "Order Timeline"
+msgstr "Chronologie de la commande"
+
+msgid "Next Steps:"
+msgstr "Prochaines étapes :"
+
+msgid "Process Payroll"
+msgstr "Traiter la paie"
+
+msgid "Create your first category"
+msgstr "Créez votre première catégorie"
+
+msgid "Start Shopping"
+msgstr "Commencer vos achats"
+
+msgid "Shipped Orders"
+msgstr "Commandes expédiées"
+
+msgid "Rating"
+msgstr "Note"
+
+msgid "Related Records:"
+msgstr "Dossiers associés :"
+
+msgid "Task Information"
+msgstr "Informations sur la tâche"
+
+msgid "New items will be created"
+msgstr "De nouveaux éléments seront créés"
+
+msgid "to add this product to cart."
+msgstr "pour ajouter ce produit au panier."
+
+msgid "Storage location"
+msgstr "Lieu de stockage"
+
+msgid "Pending Requests"
+msgstr "Demandes en attente"
+
+msgid "Edit Item"
+msgstr "Modifier l'élément"
+
+msgid "Recent Meetings"
+msgstr "Réunions récentes"
+
+msgid "• Salary Components"
+msgstr "• Éléments de salaire"
+
+msgid "Change order status to"
+msgstr "Changer le statut de la commande en"
+
+msgid "Overdue Items"
+msgstr "Articles en retard"
+
+msgid "No category data available."
+msgstr "Aucune donnée de catégorie disponible."
+
+msgid "Item"
+msgstr "Article"
+
+msgid "Report Period:"
+msgstr "Période du rapport :"
+
+msgid "Task Title *"
+msgstr "Titre de la tâche *"
+
+msgid "Select Excel File:"
+msgstr "Sélectionnez un fichier Excel :"
+
+msgid ""
+"This action cannot be undone. All associated tasks and data will be "
+"permanently deleted."
+msgstr "Cette action ne peut pas être annulée. "
+
+msgid "No pending requests."
+msgstr "Aucune demande en attente."
+
+msgid "Job Positions"
+msgstr "Postes"
+
+msgid "Completion %"
+msgstr "% d'achèvement"
+
+msgid "Complete Stock Valuation"
+msgstr "Évaluation complète des stocks"
+
+msgid "My Action Items"
+msgstr "Mes actions"
+
+msgid "Order Summary"
+msgstr "Récapitulatif de la commande"
+
+msgid "Items"
+msgstr "Articles"
+
+msgid "My Wishlist"
+msgstr "Ma liste de souhaits"
+
+msgid "Metric"
+msgstr "Métrique"
+
+msgid "Add Skill Assessment"
+msgstr "Ajouter une évaluation des compétences"
+
+msgid "View Report"
+msgstr "Afficher le rapport"
+
+msgid "Issued Date"
+msgstr "Date d'émission"
+
+msgid "to view it directly."
+msgstr "pour le visualiser directement."
+
+msgid "Project Details:"
+msgstr "Détails du projet :"
+
+msgid "View All Orders"
+msgstr "Afficher toutes les commandes"
+
+msgid "Salary Information"
+msgstr "Informations sur le salaire"
+
+msgid "Distribution"
+msgstr "Distribution"
+
+msgid "Active skill (available for employee assessments)"
+msgstr "Compétence active (disponible pour les évaluations des employés)"
+
+msgid "Average Budget"
+msgstr "Budget moyen"
+
+msgid "All Categories"
+msgstr "Toutes les catégories"
+
+msgid "Country:"
+msgstr "Pays :"
+
+msgid "No products found"
+msgstr "Aucun produit trouvé"
+
+msgid "Course:"
+msgstr "Cours :"
+
+msgid "Only .xlsx and .xls files are supported"
+msgstr "Seuls les fichiers .xlsx et .xls sont pris en charge"
+
+msgid "Attendees"
+msgstr "Participants"
+
+msgid "Shopping Cart"
+msgstr "Panier"
+
+msgid "Mark as Unread"
+msgstr "Marquer comme non lu"
+
+msgid "Critical Priority"
+msgstr "Priorité critique"
+
+msgid "To Do"
+msgstr "À faire"
+
+msgid "Enroll Employees in Training Session"
+msgstr "Inscrire les employés à une session de formation"
+
+msgid "Cancellation Reason"
+msgstr "Raison de l'annulation"
+
+msgid "Overdue Actions"
+msgstr "Actions en retard"
+
+msgid "Depends on"
+msgstr "Cela dépend"
+
+msgid "No comments yet. Be the first to comment!"
+msgstr "No comments yet. Be the first to comment!"
+
+msgid "Double-check quantity and condition of items"
+msgstr "Vérifiez la quantité et l’état des articles"
+
+msgid "When performance reviews are assigned or completed"
+msgstr "Lorsque les évaluations de performance sont attribuées ou terminées"
+
+msgid "Submit Request"
+msgstr "Soumettre la demande"
+
+msgid "Earnings"
+msgstr "Gains"
+
+msgid "Instructions:"
+msgstr "Consignes :"
+
+msgid "Delete Supplier Invoice"
+msgstr "Supprimer la facture fournisseur"
+
+msgid "No stock transactions found for the selected period."
+msgstr "Aucune transaction boursière trouvée pour la période sélectionnée."
+
+msgid "Login here"
+msgstr "Connectez-vous ici"
+
+msgid "Active Courses"
+msgstr "Cours actifs"
+
+msgid "Bulk Import"
+msgstr "Importation en masse"
+
+msgid "Are you sure you want to delete this project?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce projet ?"
+
+msgid "Cannot Display Content"
+msgstr "Impossible d'afficher le contenu"
+
+msgid "Learning Objectives"
+msgstr "Objectifs d'apprentissage"
+
+msgid "Completion Progress"
+msgstr "Progression de l'achèvement"
+
+msgid "Please"
+msgstr "S'il vous plaît"
+
+msgid "Order Date:"
+msgstr "Date de commande :"
+
+msgid "cost_price"
+msgstr "cost_price"
+
+msgid "All inventory items are properly stocked."
+msgstr "Tous les articles en stock sont correctement approvisionnés."
+
+msgid "item_code"
+msgstr "code_article"
+
+msgid "Create Project"
+msgstr "Créer un projet"
+
+msgid "Clear Filters"
+msgstr "Effacer les filtres"
+
+msgid "Back to Notifications"
+msgstr "Retour aux notifications"
+
+msgid "These related records will also be affected."
+msgstr "Ces enregistrements associés seront également affectés."
+
+msgid "Session Name *"
+msgstr "Nom de la séance *"
+
+msgid "Validated L2 by"
+msgstr "Validé L2 par"
+
+msgid "Meeting Invitations"
+msgstr "Invitations à des réunions"
+
+msgid "Skill Name *"
+msgstr "Nom de la compétence *"
+
+msgid ""
+"Unable to read the document content. This might be due to a corrupted file "
+"or missing dependencies."
+msgstr ""
+"Unable to read the document content. This might be due to a corrupted file "
+"or missing dependencies."
+
+msgid "Subtasks"
+msgstr "Sous-tâches"
+
+msgid "FCFA 0.00"
+msgstr "0,00 FCFA"
+
+msgid "Save Goal"
+msgstr "Enregistrer l'objectif"
+
+msgid "The following employees are already enrolled in this session:"
+msgstr "Les employés suivants sont déjà inscrits à cette session :"
+
+msgid "Total Meetings"
+msgstr "Total des réunions"
+
+msgid "Overall Progress"
+msgstr "Progrès global"
+
+msgid "Budget Overview"
+msgstr "Aperçu budgétaire"
+
+msgid "Basic Information"
+msgstr "Informations de base"
+
+msgid "Item Code:"
+msgstr "Code article :"
+
+msgid "You are about to delete the meeting:"
+msgstr "Vous êtes sur le point de supprimer la réunion :"
+
+msgid "Meeting Date:"
+msgstr "Date de la réunion :"
+
+msgid "Item Name"
+msgstr "Nom de l'article"
+
+msgid "Enroll Selected Employees"
+msgstr "Inscrire les employés sélectionnés"
+
+msgid "City *"
+msgstr "Ville *"
+
+msgid "Postal Code"
+msgstr "Code postal"
+
+msgid "Medium Priority"
+msgstr "Priorité moyenne"
+
+msgid "Training Courses"
+msgstr "Cours de formation"
+
+msgid "Item name"
+msgstr "Nom de l'article"
+
+msgid "Order"
+msgstr "Commande"
+
+msgid "permanently deduct stock quantities"
+msgstr "déduire définitivement les quantités en stock"
+
+msgid "Create Order"
+msgstr "Créer une commande"
+
+msgid "Performance Review"
+msgstr "Évaluation des performances"
+
+msgid "Supplier:"
+msgstr "Fournisseur :"
+
+msgid "Qty"
+msgstr "Quantité"
+
+msgid "Note:"
+msgstr "Remarque :"
+
+msgid "Electronics"
+msgstr "Électronique"
+
+msgid "Use the Inventory list to verify item codes"
+msgstr "Utilisez la liste d'inventaire pour vérifier les codes d'articles"
+
+msgid "Manage customer orders from the marketplace"
+msgstr "Gérer les commandes des clients depuis la Marketplace"
+
+msgid "Back to project"
+msgstr "Retour au projet"
+
+msgid "Ready to ship?"
+msgstr "Prêt à expédier ?"
+
+msgid "Payment Status"
+msgstr "Statut du paiement"
+
+msgid "Due date"
+msgstr "Date d'échéance"
+
+msgid "Enrollment Date"
+msgstr "Date d'inscription"
+
+msgid "Share Marketplace"
+msgstr "Partager le marché"
+
+msgid "Mark as Shipped"
+msgstr "Marquer comme expédié"
+
+msgid "Phone:"
+msgstr "Téléphone :"
+
+msgid "Yes, Delete Entry"
+msgstr "Oui, supprimer l'entrée"
+
+msgid "Reversed:"
+msgstr "Inversé :"
+
+msgid "Try adjusting your search criteria"
+msgstr "Essayez d'ajuster vos critères de recherche"
+
+msgid "Project Manager"
+msgstr "Chef de projet"
+
+msgid "Submitted"
+msgstr "Soumis"
+
+msgid "Low Stock Alert Summary"
+msgstr "Résumé des alertes de stock faible"
+
+msgid "Meeting Reports & Analytics"
+msgstr "Rapports et analyses de réunions"
+
+msgid "Confirmed Date:"
+msgstr "Date confirmée :"
+
+msgid "selling_price"
+msgstr "prix_de-vente"
+
+msgid "View Positions"
+msgstr "Voir les postes"
+
+msgid "Entry Details:"
+msgstr "Détails de l'entrée :"
+
+msgid "Calculated Totals"
+msgstr "Totaux calculés"
+
+msgid "Start Time"
+msgstr "Heure de début"
+
+msgid "Order Information"
+msgstr "Informations sur la commande"
+
+msgid "Organizer:"
+msgstr "Organisateur :"
+
+msgid "Category Statistics"
+msgstr "Statistiques de catégorie"
+
+msgid "No Low Stock Alerts"
+msgstr "Aucune alerte de stock faible"
+
+msgid "Days Remaining:"
+msgstr "Jours restants :"
+
+msgid "Reorder Level:"
+msgstr "Niveau de réapprovisionnement :"
+
+msgid "Import multiple items from Excel"
+msgstr "Importer plusieurs éléments depuis Excel"
+
+msgid "Reviews"
+msgstr "Avis"
+
+msgid "First"
+msgstr "D'abord"
+
+msgid "Delete Position"
+msgstr "Supprimer le poste"
+
+msgid "Gross Pay"
+msgstr "Salaire brut"
+
+msgid "Shipping:"
+msgstr "Expédition :"
+
+msgid "New Course"
+msgstr "Nouveau cours"
+
+msgid "Reset"
+msgstr "Réinitialiser"
+
+msgid "Manage Training Enrollments"
+msgstr "Gérer les inscriptions à la formation"
+
+msgid "Recent Performance Goals"
+msgstr "Objectifs de performance récents"
+
+msgid "Add a comment"
+msgstr "Ajouter un commentaire"
+
+msgid "Payslips will be generated when payroll is processed."
+msgstr "Les fiches de paie seront générées lors du traitement de la paie."
+
+msgid "Edit Project"
+msgstr "Modifier le projet"
+
+msgid "Total Deductions"
+msgstr "Total des déductions"
+
+msgid "Categories will be created automatically if they don't exist"
+msgstr "Les catégories seront créées automatiquement si elles n'existent pas"
+
+msgid ""
+"You can add tracking information now or update it later in order notes."
+msgstr ""
+"Vous pouvez ajouter des informations de suivi maintenant ou les mettre à "
+"jour plus tard dans les notes de commande."
+
+msgid "Full"
+msgstr "Plein"
+
+msgid "Cost ($)"
+msgstr "Coût ($)"
+
+msgid "true"
+msgstr "vrai"
+
+msgid "Payment Status:"
+msgstr "Statut de paiement :"
+
+msgid "Project Summary Report"
+msgstr "Rapport sommaire du projet"
+
+msgid "Reorder level"
+msgstr "Niveau de réapprovisionnement"
+
+msgid "Last Restocked:"
+msgstr "Dernier réapprovisionnement :"
+
+msgid "Total Value at Risk"
+msgstr "Valeur totale à risque"
+
+msgid "Share Shop Link"
+msgstr "Partager le lien de la boutique"
+
+msgid "Update Payment"
+msgstr "Mettre à jour le paiement"
+
+msgid "Top Categories by Value"
+msgstr "Principales catégories par valeur"
+
+msgid "Back to Project"
+msgstr "Retour au projet"
+
+msgid "TOTAL:"
+msgstr "TOTAL :"
+
+msgid "No notifications found"
+msgstr "Aucune notification trouvée"
+
+msgid "Gantt Chart"
+msgstr "Diagramme de Gantt"
+
+msgid "Yes, Delete Component"
+msgstr "Oui, supprimer le composant"
+
+msgid "Preview"
+msgstr "Aperçu"
+
+msgid "Subtotal:"
+msgstr "Sous-total :"
+
+msgid "Total Net Pay"
+msgstr "Salaire net total"
+
+msgid "Existing items with the same item code will be updated"
+msgstr "Les articles existants avec le même code d'article seront mis à jour"
+
+msgid "Create Payroll Period"
+msgstr "Créer une période de paie"
+
+msgid "Add Category"
+msgstr "Ajouter une catégorie"
+
+msgid "No tasks yet. Add your first task to get started!"
+msgstr "Aucune tâche pour l'instant. "
+
+msgid "Comments"
+msgstr "Commentaires"
+
+msgid "Debits (filtered)"
+msgstr "Débits (filtrés)"
+
+msgid "Kanban Board"
+msgstr "Tableau Kanban"
+
+msgid "Are you sure you want to delete the supplier invoice"
+msgstr "Etes-vous sûr de vouloir supprimer la facture fournisseur"
+
+msgid "Depends On"
+msgstr "Cela dépend de"
+
+msgid "Enroll Employee"
+msgstr "Inscrire un employé"
+
+msgid "Category name"
+msgstr "Nom de la catégorie"
+
+msgid "All Priorities"
+msgstr "Toutes les priorités"
+
+msgid "UPS"
+msgstr "UPS"
+
+msgid "Discussion Summary:"
+msgstr "Résumé des discussions :"
+
+msgid "cannot be undone"
+msgstr "ne peut pas être annulé"
+
+msgid "Shipping Information"
+msgstr "Informations d'expédition"
+
+msgid "No Payroll Periods"
+msgstr "Aucune période de paie"
+
+msgid "New Review"
+msgstr "Nouvelle revue"
+
+msgid "Total Transactions"
+msgstr "Total des transactions"
+
+msgid "New Skill"
+msgstr "Nouvelle compétence"
+
+msgid "Save changes"
+msgstr "Enregistrer les modifications"
+
+msgid "Gross Earnings"
+msgstr "Gains bruts"
+
+msgid "Back to Projects"
+msgstr "Retour aux projets"
+
+msgid "All orders have been processed"
+msgstr "Toutes les commandes ont été traitées"
+
+msgid "Warehouse A, Shelf 5"
+msgstr "Entrepôt A, étagère 5"
+
+msgid "Training Course *"
+msgstr "Cours de formation *"
+
+msgid "Budget:"
+msgstr "Budget :"
+
+msgid "Day"
+msgstr "Jour"
+
+msgid "Skill"
+msgstr "Compétence"
+
+msgid "Completed Tasks"
+msgstr "Tâches terminées"
+
+msgid "• Job Positions"
+msgstr "• Postes"
+
+msgid "Save Preferences"
+msgstr "Enregistrer les préférences"
+
+msgid "Goals"
+msgstr "Objectifs"
+
+msgid "Low Stock Report"
+msgstr "Rapport de stock faible"
+
+msgid "Item Code"
+msgstr "Code article"
+
+msgid "View All Inventory"
+msgstr "Afficher tout l'inventaire"
+
+msgid "Report Document:"
+msgstr "Document de rapport :"
+
+msgid "Currently On Leave"
+msgstr "Actuellement en congé"
+
+msgid "Current Qty"
+msgstr "Quantité actuelle"
+
+msgid "View and manage all registered clients"
+msgstr "Afficher et gérer tous les clients enregistrés"
+
+msgid "Confirmed"
+msgstr "Confirmé"
+
+msgid "End Date *"
+msgstr "Date de fin *"
+
+msgid "You can cancel this order if needed."
+msgstr "Vous pouvez annuler cette commande si nécessaire."
+
+msgid "Budget"
+msgstr "Budget"
+
+msgid "Delete Performance Review"
+msgstr "Supprimer l'évaluation des performances"
+
+msgid "Current Stock:"
+msgstr "Stock actuel :"
+
+msgid "Back to Orders"
+msgstr "Retour aux commandes"
+
+msgid "When invited to meetings"
+msgstr "Lorsqu'il est invité à des réunions"
+
+msgid "Units In"
+msgstr "Unités en"
+
+msgid "Days"
+msgstr "Jours"
+
+msgid "Meetings by Status"
+msgstr "Réunions par statut"
+
+msgid "Laptop"
+msgstr "Ordinateur portable"
+
+msgid "Categories help organize inventory items and generate better reports."
+msgstr ""
+"Les catégories aident à organiser les articles d'inventaire et à générer de "
+"meilleurs rapports."
+
+msgid "Perform your first transaction to see activity here."
+msgstr "Effectuez votre première transaction pour voir l'activité ici."
+
+msgid "Registered Clients"
+msgstr "Clients enregistrés"
+
+msgid "Create a payroll period to start processing employee salaries."
+msgstr ""
+"Créez une période de paie pour commencer à traiter les salaires des "
+"employés."
+
+msgid "Severity"
+msgstr "Gravité"
+
+msgid "Are you sure you want to delete the salary component"
+msgstr "Êtes-vous sûr de vouloir supprimer la composante salariale"
+
+msgid "Mark as Delivered"
+msgstr "Marquer comme livré"
+
+msgid "New Training Session"
+msgstr "Nouvelle session de formation"
+
+msgid "Required columns:"
+msgstr "Colonnes obligatoires :"
+
+msgid "No projects in progress"
+msgstr "Aucun projet en cours"
+
+msgid "Assessed By"
+msgstr "Évalué par"
+
+msgid "When training enrollments or completions occur"
+msgstr "Quand les inscriptions ou les achèvements de la formation ont lieu"
+
+msgid "Receive notifications within the application"
+msgstr "Recevoir des notifications dans l'application"
+
+msgid "Category *"
+msgstr "Catégorie *"
+
+msgid "Instructor"
+msgstr "Instructeur"
+
+msgid "Last"
+msgstr "Dernier"
+
+msgid "Employee *"
+msgstr "Employé *"
+
+msgid "No projects found"
+msgstr "Aucun projet trouvé"
+
+msgid "Status:"
+msgstr "Statut :"
+
+msgid "Stock Transaction Journal"
+msgstr "Journal des transactions boursières"
+
+msgid "Yes, Delete Project"
+msgstr "Oui, supprimer le projet"
+
+msgid "All HR Functions"
+msgstr "Toutes les fonctions RH"
+
+msgid "Low Stock Items (Quantity ≤ Reorder Level)"
+msgstr "Articles en faible stock (quantité ≤ niveau de réapprovisionnement)"
+
+msgid "Manager"
+msgstr "Gestionnaire"
+
+msgid "New Training Course"
+msgstr "Nouveau cours de formation"
+
+msgid "Total Action Items"
+msgstr "Total des mesures à prendre"
+
+msgid "is_marketplace_visible"
+msgstr "is_marketplace_visible"
+
+msgid "Prerequisites"
+msgstr "Conditions préalables"
+
+msgid "Item code (must exist in system)"
+msgstr "Code article (doit exister dans le système)"
+
+msgid "Enrolled:"
+msgstr "Inscrit :"
+
+msgid "Add New Task"
+msgstr "Ajouter une nouvelle tâche"
+
+msgid "Stock Movement Report"
+msgstr "Rapport sur les mouvements de stock"
+
+msgid "Check stock levels before preparing the file"
+msgstr "Vérifier les niveaux de stock avant de préparer le dossier"
+
+msgid "Contact suppliers for items with long lead times"
+msgstr ""
+"Contacter les fournisseurs pour les articles avec des délais de livraison "
+"longs"
+
+msgid "Address:"
+msgstr "Adresse :"
+
+msgid ""
+"You are about to cancel this order and restore all inventory quantities."
+msgstr ""
+"Vous êtes sur le point d'annuler cette commande et de restaurer toutes les "
+"quantités en stock."
+
+msgid "Periods"
+msgstr "Périodes"
+
+msgid "Print Report"
+msgstr "Imprimer le rapport"
+
+msgid "Manage inventory categories"
+msgstr "Gérer les catégories d'inventaire"
+
+msgid "Storage Information"
+msgstr "Informations de stockage"
+
+msgid "Add Entries"
+msgstr "Ajouter des entrées"
+
+msgid "Get started by creating your first project."
+msgstr "Commencez par créer votre premier projet."
+
+msgid "Session Cost ($)"
+msgstr "Coût de la séance ($)"
+
+msgid "Supported units: pcs, kg, ltr, box, set"
+msgstr "Unités prises en charge : pièces, kg, litres, boîte, jeu"
+
+msgid "Hold Ctrl/Cmd to select multiple employees"
+msgstr "Maintenez Ctrl/Cmd pour sélectionner plusieurs employés"
+
+msgid "No Payslips"
+msgstr "Pas de fiches de paie"
+
+msgid "Additional Details"
+msgstr "Détails supplémentaires"
+
+msgid "Overdue Projects"
+msgstr "Projets en retard"
+
+msgid "What This Controls"
+msgstr "Ce que cela contrôle"
+
+msgid "• All Leave Requests"
+msgstr "• Toutes les demandes de congé"
+
+msgid "Document Content"
+msgstr "Contenu du document"
+
+msgid "Provider"
+msgstr "Fournisseur"
+
+msgid "Add Component"
+msgstr "Ajouter un composant"
+
+msgid "No performance goals yet"
+msgstr "Aucun objectif de performance pour l'instant"
+
+msgid "Registering for"
+msgstr "S'inscrire à"
+
+msgid "Create stock reversal transactions"
+msgstr "Créer des transactions d'extourne de stock"
+
+msgid "Remarks"
+msgstr "Remarques"
+
+msgid "Reversal Entry:"
+msgstr "Entrée d'annulation :"
+
+msgid "location"
+msgstr "emplacement"
+
+msgid "View detailed inventory reports"
+msgstr "Afficher les rapports d'inventaire détaillés"
+
+msgid "Selling Price:"
+msgstr "Prix de vente :"
+
+msgid "Agenda:"
+msgstr "Ordre du jour :"
+
+msgid "Skills Management"
+msgstr "Gestion des compétences"
+
+msgid "Process:"
+msgstr "Processus :"
+
+msgid "No subtasks yet."
+msgstr "Aucune sous-tâche pour l'instant."
+
+msgid "All statuses"
+msgstr "Tous les statuts"
+
+msgid "Back to Inventory"
+msgstr "Retour à l'inventaire"
+
+msgid "Download the template and fill in the items to remove"
+msgstr "Téléchargez le modèle et remplissez les éléments à supprimer"
+
+msgid "View Reports"
+msgstr "Afficher les rapports"
+
+msgid "Complete history of all stock movements"
+msgstr "Historique complet de tous les mouvements de stock"
+
+msgid "Cancelling this order will:"
+msgstr "L'annulation de cette commande entraînera :"
+
+msgid "Validation"
+msgstr "Validation"
+
+msgid "All Status"
+msgstr "Tous les statuts"
+
+msgid "HR Dashboard"
+msgstr "Tableau de bord RH"
+
+msgid "Export PNG"
+msgstr "Exporter PNG"
+
+msgid "Select carrier..."
+msgstr "Sélectionnez le transporteur..."
+
+msgid "Preferences"
+msgstr "Préférences"
+
+msgid "Update"
+msgstr "Mise à jour"
+
+msgid "This payslip has not been sent to the employee yet."
+msgstr "Cette fiche de paie n'a pas encore été envoyée au salarié."
+
+msgid "No leave requests found."
+msgstr "Aucune demande de congé trouvée."
+
+msgid "Order Status"
+msgstr "Statut de la commande"
+
+msgid "Tax:"
+msgstr "Taxe :"
+
+msgid "Net"
+msgstr "Filet"
+
+msgid "Project Information"
+msgstr "Informations sur le projet"
+
+msgid "Item description"
+msgstr "Description de l'article"
+
+msgid "Save Category"
+msgstr "Enregistrer la catégorie"
+
+msgid "Units Out"
+msgstr "Unités sorties"
+
+msgid "Confirm Deletion"
+msgstr "Confirmer la suppression"
+
+msgid "Add Item"
+msgstr "Ajouter un article"
+
+msgid "No pending action items"
+msgstr "Aucune action en attente"
+
+msgid "Stock Valuation Report"
+msgstr "Rapport d'évaluation des stocks"
+
+msgid "No Movement Data"
+msgstr "Aucune donnée de mouvement"
+
+msgid "Assessment Date *"
+msgstr "Date d'évaluation *"
+
+msgid "Continue Shopping"
+msgstr "Continuer mes achats"
+
+msgid "No action items yet"
+msgstr "Aucune action pour l'instant"
+
+msgid "User"
+msgstr "Utilisateur"
+
+msgid "Days Overdue"
+msgstr "Jours de retard"
+
+msgid "Make visible on marketplace (true/false/yes/no)"
+msgstr "Rendre visible sur la Marketplace (vrai/faux/oui/non)"
+
+msgid "Used for Project ABC"
+msgstr "Utilisé pour le projet ABC"
+
+msgid "Order Cancelled"
+msgstr "Commande annulée"
+
+msgid "supplier_name"
+msgstr "nom_fournisseur"
+
+msgid "This file type cannot be previewed in the browser. Please"
+msgstr "Ce type de fichier ne peut pas être prévisualisé dans le navigateur. "
+
+msgid "Received"
+msgstr "Reçu"
+
+msgid "Shipping address is complete and valid"
+msgstr "L'adresse de livraison est complète et valide"
+
+msgid "Level"
+msgstr "Niveau"
+
+msgid "Order Items (to be restored)"
+msgstr "Articles de commande (à restaurer)"
+
+msgid "System Adjustments"
+msgstr "Ajustements du système"
+
+msgid "Salary Components"
+msgstr "Composantes du salaire"
+
+msgid "Stock Out"
+msgstr "En rupture de stock"
+
+msgid "Manage Categories"
+msgstr "Gérer les catégories"
+
+msgid "Payroll Updates"
+msgstr "Mises à jour de la paie"
+
+msgid "Total Earnings"
+msgstr "Gains totaux"
+
+msgid "Are you sure you want to delete the payroll entry for"
+msgstr "Etes-vous sûr de vouloir supprimer l'entrée de paie pour"
+
+msgid "Security"
+msgstr "Sécurité"
+
+msgid "Cost price for inventory valuation"
+msgstr "Prix ​​de revient pour la valorisation des stocks"
+
+msgid "Synced:"
+msgstr "Synchronisé :"
+
+msgid "Setting quantity will create an initial stock-in transaction"
+msgstr "La définition de la quantité créera une transaction de stock initiale"
+
+msgid "Total Out"
+msgstr "Sortie totale"
+
+msgid "Confirmed:"
+msgstr "Confirmé:"
+
+msgid "This action will"
+msgstr "Cette action va"
+
+msgid "Team Members"
+msgstr "Membres de l'équipe"
+
+msgid "Edit task"
+msgstr "Modifier la tâche"
+
+msgid "Out of Stock"
+msgstr "En rupture de stock"
+
+msgid "No low stock items by category."
+msgstr "Aucun article en faible stock par catégorie."
+
+msgid "unit"
+msgstr "unité"
+
+msgid "Task Completion"
+msgstr "Achèvement des tâches"
+
+msgid "Don't have an account?"
+msgstr "Vous n'avez pas de compte ?"
+
+msgid "No pending orders!"
+msgstr "No pending orders!"
+
+msgid "Nobody on leave today."
+msgstr "Personne en congé aujourd'hui."
+
+msgid "reorder_level"
+msgstr "reorder_level"
+
+msgid "Order Placed"
+msgstr "Commande passée"
+
+msgid "Create Period"
+msgstr "Créer une période"
+
+msgid "Taxes"
+msgstr "Impôts"
+
+msgid "No employee skill assessments found."
+msgstr "Aucune évaluation des compétences des employés trouvée."
+
+msgid "View All Transactions"
+msgstr "Afficher toutes les transactions"
+
+msgid "Supplier name"
+msgstr "Nom du fournisseur"
+
+msgid "Created:"
+msgstr "Créé :"
+
+msgid "Valuation as of:"
+msgstr "Valorisation au :"
+
+msgid "Delete Payroll Entry"
+msgstr "Supprimer une entrée de paie"
+
+msgid "Logging into"
+msgstr "Connexion"
+
+msgid "Salary Details"
+msgstr "Détails du salaire"
+
+msgid "Client Management"
+msgstr "Gestion des clients"
+
+msgid ""
+"Your request will be reviewed by HR. You will be notified of the decision."
+msgstr "Votre demande sera examinée par les RH. "
+
+msgid "Employee Skills"
+msgstr "Compétences des employés"
+
+msgid "Journal Entry:"
+msgstr "Entrée de journal :"
+
+msgid "Complete Training"
+msgstr "Formation complète"
+
+msgid "Net Pay:"
+msgstr "Salaire net :"
+
+msgid "NET PAY"
+msgstr "SALAIRE NET"
+
+msgid "Order Statistics"
+msgstr "Statistiques des commandes"
+
+msgid "Email:"
+msgstr "E-mail:"
+
+msgid "Top 10 Least Valuable Items"
+msgstr "Top 10 des objets les moins précieux"
+
+msgid "Restore all inventory stock quantities"
+msgstr "Restaurer toutes les quantités de stock"
+
+msgid "Scheduled"
+msgstr "Programmé"
+
+msgid "Download"
+msgstr "Télécharger"
+
+msgid "Upcoming Leaves (30 days)"
+msgstr "Congés à venir (30 jours)"
+
+msgid "Categories Affected"
+msgstr "Catégories concernées"
+
+msgid "Timeline"
+msgstr "Chronologie"
+
+msgid "IN"
+msgstr "DANS"
+
+msgid "Category:"
+msgstr "Catégorie :"
+
+msgid "View Leaves"
+msgstr "Voir les feuilles"
+
+msgid "Active course (available for enrollment)"
+msgstr "Cours actif (disponible à l'inscription)"
+
+msgid "Mark Order as Shipped"
+msgstr "Marquer la commande comme expédiée"
+
+msgid "Customer"
+msgstr "Client"
+
+msgid "Avg Cost Price"
+msgstr "Prix de revient moyen"
+
+msgid "Quick Links"
+msgstr "Liens rapides"
+
+msgid "Low Stock Items"
+msgstr "Articles en faible stock"
+
+msgid "No projects on hold"
+msgstr "Aucun projet en attente"
+
+msgid "Mark Complete"
+msgstr "Marquer comme terminé"
+
+msgid "Fill in your stock data following the template structure"
+msgstr "Remplissez vos données de stock en suivant la structure du modèle"
+
+msgid ""
+"This will also delete all associated notes, action items, and attachments."
+msgstr ""
+"Cela supprimera également toutes les notes, éléments d’action et pièces "
+"jointes associés."
+
+msgid "Message"
+msgstr "Message"
+
+msgid "Country"
+msgstr "Pays"
+
+msgid "Registration Error:"
+msgstr "Erreur d'enregistrement :"
+
+msgid "No team members assigned"
+msgstr "Aucun membre de l'équipe affecté"
+
+msgid "options by JS -->"
+msgstr "options par JS -->"
+
+msgid "Order Management"
+msgstr "Gestion des commandes"
+
+msgid "No categories found"
+msgstr "Aucune catégorie trouvée"
+
+msgid "Loading…"
+msgstr "Chargement…"
+
+msgid "Shipping Address"
+msgstr "Adresse de livraison"
+
+msgid "No description provided."
+msgstr "Aucune description fournie."
+
+msgid "Total Projects"
+msgstr "Total des projets"
+
+msgid "Valuation by Category"
+msgstr "Valorisation par catégorie"
+
+msgid "• Training Courses"
+msgstr "• Cours de formation"
+
+msgid "No attendees added"
+msgstr "Aucun participant ajouté"
+
+msgid "All categories"
+msgstr "Toutes les catégories"
+
+msgid "Reviewer"
+msgstr "Réviseur"
+
+msgid "Daily Movement Trend"
+msgstr "Tendance des mouvements quotidiens"
+
+msgid "City"
+msgstr "Ville"
+
+msgid "supplier_contact"
+msgstr "fournisseur_contact"
+
+msgid "Credits (filtered)"
+msgstr "Crédits (filtrés)"
+
+msgid "Start Date *"
+msgstr "Date de début *"
+
+msgid "View all projects and tasks in calendar view"
+msgstr "Afficher tous les projets et tâches dans la vue calendrier"
+
+msgid "Supplier Information"
+msgstr "Informations sur le fournisseur"
+
+msgid "Stock In"
+msgstr "En stock"
+
+msgid "No upcoming leaves."
+msgstr "Aucun congé à venir."
+
+msgid "Total Value:"
+msgstr "Valeur totale :"
+
+msgid "Restock Priority"
+msgstr "Priorité de réapprovisionnement"
+
+msgid "Meeting Statistics Breakdown"
+msgstr "Répartition des statistiques de réunion"
+
+msgid "Session"
+msgstr "Séance"
+
+msgid "Transaction History"
+msgstr "Historique des transactions"
+
+msgid "You are about to delete the action item:"
+msgstr "Vous êtes sur le point de supprimer l'élément d'action :"
+
+msgid "Component"
+msgstr "Composant"
+
+msgid "No training courses found."
+msgstr "Aucune formation trouvée."
+
+msgid "Finance Posting"
+msgstr "Publication financière"
+
+msgid "pcs"
+msgstr "pièces"
+
+msgid "Turnover Rate"
+msgstr "Taux de roulement"
+
+msgid ""
+"Leave \"Existing Client\" empty and fill name + phone for a walk-in "
+"customer."
+msgstr ""
+"Laissez « Client existant » vide et indiquez le nom et le téléphone d'un "
+"client sans rendez-vous."
+
+msgid "Lock Period"
+msgstr "Période de verrouillage"
+
+msgid "Base Salary:"
+msgstr "Salaire de base :"
+
+msgid "Gross Earnings:"
+msgstr "Gains bruts :"
+
+msgid "Training Session *"
+msgstr "Séance de formation *"
+
+msgid "No supplier invoices have been created yet."
+msgstr "Aucune facture fournisseur n'a encore été créée."
+
+msgid "Stock Movement by Item"
+msgstr "Mouvement de stock par article"
+
+msgid "Shipping Carrier"
+msgstr "Transporteur maritime"
+
+msgid "Payroll Periods"
+msgstr "Périodes de paie"
+
+msgid "Leave Management"
+msgstr "Gestion des congés"
+
+msgid "Total Amount:"
+msgstr "Montant total :"
+
+msgid "Complete"
+msgstr "Terminé"
+
+msgid "Stock Status"
+msgstr "État des stocks"
+
+msgid "Employees assigned to this position will have their position cleared."
+msgstr "Les employés affectés à ce poste verront leur poste libéré."
+
+msgid "ADJ"
+msgstr "ADJ"
+
+msgid "Import Now"
+msgstr "Importer maintenant"
+
+msgid "No clients found"
+msgstr "Aucun client trouvé"
+
+msgid "No transactions found"
+msgstr "Aucune transaction trouvée"
+
+msgid "Decisions Made:"
+msgstr "Décisions prises :"
+
+msgid "From:"
+msgstr "De :"
+
+msgid "Process Bulk Removal"
+msgstr "Traiter la suppression en masse"
+
+msgid "Quick Actions"
+msgstr "Actions rapides"
+
+msgid "Try adjusting your filters or search terms."
+msgstr "Essayez d'ajuster vos filtres ou vos termes de recherche."
+
+msgid "Description:"
+msgstr "Descriptif :"
+
+msgid "Cancel Order"
+msgstr "Annuler la commande"
+
+msgid ""
+"This is an electronically generated payslip and does not require a "
+"signature."
+msgstr ""
+"Il s'agit d'une fiche de paie générée électroniquement et ne nécessite pas "
+"de signature."
+
+msgid "Order Items"
+msgstr "Articles de commande"
+
+msgid "Upcoming Meetings"
+msgstr "Réunions à venir"
+
+msgid "Score (%)"
+msgstr "Note (%)"
+
+msgid "New Period"
+msgstr "Nouvelle Période"
+
+msgid "Successful removals will create stock-out transactions"
+msgstr "Les retraits réussis créeront des transactions de rupture de stock"
+
+msgid "Performance Goals"
+msgstr "Objectifs de performance"
+
+msgid "download the file"
+msgstr "télécharger le fichier"
+
+msgid "Back to Order"
+msgstr "Retour à la commande"
+
+msgid "Warning!"
+msgstr "Attention !"
+
+msgid "Completion Date *"
+msgstr "Date d'achèvement *"
+
+msgid "Delete Transaction"
+msgstr "Supprimer la transaction"
+
+msgid "Value at Risk"
+msgstr "Valeur à risque"
+
+msgid "Session:"
+msgstr "Séance :"
+
+msgid "No employee training records found."
+msgstr "Aucun dossier de formation des employés trouvé."
+
+msgid "Percentage"
+msgstr "Pourcentage"
+
+msgid "Deleting will reverse the balance adjustment on"
+msgstr "La suppression annulera l'ajustement de la balance sur"
+
+msgid "Order Notes"
+msgstr "Notes de commande"
+
+msgid "Last Updated:"
+msgstr "Dernière mise à jour :"
+
+msgid "Employee:"
+msgstr "Employé :"
+
+msgid "1 = Beginner, 2 = Basic, 3 = Intermediate, 4 = Advanced, 5 = Expert"
+msgstr "1 = Débutant, 2 = Basique, 3 = Intermédiaire, 4 = Avancé, 5 = Expert"
+
+msgid "Employee & Period Information"
+msgstr "Informations sur les employés et les périodes"
+
+msgid "Max Participants"
+msgstr "Nombre maximum de participants"
+
+msgid "• New Leave Request"
+msgstr "• Nouvelle demande de congé"
+
+msgid "View Related"
+msgstr "Voir les articles connexes"
+
+msgid "My Leave Requests"
+msgstr "Mes demandes de congés"
+
+msgid "No transactions yet"
+msgstr "Aucune transaction pour l'instant"
+
+msgid "You are about to delete the attachment:"
+msgstr "Vous êtes sur le point de supprimer la pièce jointe :"
+
+msgid "Delete Leave Request"
+msgstr "Supprimer la demande de congé"
+
+msgid "Restock items marked as \"Out of Stock\" first"
+msgstr ""
+"Réapprovisionnez d'abord les articles marqués comme « En rupture de stock »"
+
+msgid "Save Position"
+msgstr "Enregistrer la position"
+
+msgid "Component Name"
+msgstr "Nom du composant"
+
+msgid "Low Priority"
+msgstr "Faible priorité"
+
+msgid "Search Item"
+msgstr "Rechercher un article"
+
+msgid "New Salary Component"
+msgstr "Nouvelle composante salariale"
+
+msgid "• Skills Management"
+msgstr "• Gestion des compétences"
+
+msgid "Estimated hours"
+msgstr "Heures estimées"
+
+msgid "Cost Price"
+msgstr "Prix de revient"
+
+msgid "Schedule:"
+msgstr "Horaire :"
+
+msgid "No movement data available for this period."
+msgstr "Aucune donnée de mouvement disponible pour cette période."
+
+msgid "Payroll Entries"
+msgstr "Entrées de paie"
+
+msgid "Are you sure you want to delete the performance review for"
+msgstr "Etes-vous sûr de vouloir supprimer l'évaluation des performances pour"
+
+msgid "Available:"
+msgstr "Disponible :"
+
+msgid "% of Total"
+msgstr "% du total"
+
+msgid "Salary Grade"
+msgstr "Niveau de salaire"
+
+msgid "Export to Excel"
+msgstr "Exporter vers Excel"
+
+msgid "description"
+msgstr "descriptif"
+
+msgid "End Date:"
+msgstr "Date de fin :"
+
+msgid "Error:"
+msgstr "Erreur :"
+
+msgid "Unarchive"
+msgstr "Désarchiver"
+
+msgid "Copies the company marketplace link for the client."
+msgstr "Copie le lien vers la place de marché de l'entreprise pour le client."
+
+msgid "Email Sent"
+msgstr "E-mail envoyé"
+
+msgid "Export PDF"
+msgstr "Exporter un PDF"
+
+msgid "Item codes must be unique within your company"
+msgstr "Les codes articles doivent être uniques au sein de votre entreprise"
+
+msgid "New Payroll Period"
+msgstr "Nouvelle période de paie"
+
+msgid "Top 10 Most Valuable Items"
+msgstr "Top 10 des objets les plus précieux"
+
+msgid "Please confirm:"
+msgstr "Veuillez confirmer :"
+
+msgid "Visual timeline of all projects and tasks"
+msgstr "Chronologie visuelle de tous les projets et tâches"
+
+msgid "No projects in planning"
+msgstr "Aucun projet en planification"
+
+msgid "Record a sale made in person — stock is decremented immediately."
+msgstr ""
+"Enregistrez une vente effectuée en personne : le stock est immédiatement "
+"décrémenté."
+
+msgid "Performance"
+msgstr "Performances"
+
+msgid "Review Date"
+msgstr "Date de révision"
+
+msgid "Important Notes:"
+msgstr "Remarques importantes :"
+
+msgid "Enrolled This Month"
+msgstr "Inscrit ce mois-ci"
+
+msgid "Training Sessions"
+msgstr "Séances de formation"
+
+msgid "Bulk Stock Removal"
+msgstr "Enlèvement de stock en vrac"
+
+msgid "Recent Orders"
+msgstr "Commandes récentes"
+
+msgid "Start Task"
+msgstr "Démarrer la tâche"
+
+msgid "Estimated Duration"
+msgstr "Durée estimée"
+
+msgid "Proceed to Checkout"
+msgstr "Passer à la caisse"
+
+msgid "Minimum Budget"
+msgstr "Budget minimum"
+
+msgid "Component Details:"
+msgstr "Détails des composants :"
+
+msgid "Ship Order"
+msgstr "Commande d'expédition"
+
+msgid "FedEx"
+msgstr "FedEx"
+
+msgid "Maximum Budget"
+msgstr "Budget maximal"
+
+msgid "Upload Attachment"
+msgstr "Télécharger la pièce jointe"
+
+msgid "Organizer"
+msgstr "Organisateur"
+
+msgid ""
+"Configure how you want to receive notifications. You can choose to receive "
+"notifications via email, in-app, or both."
+msgstr ""
+"Configurez la manière dont vous souhaitez recevoir des notifications. "
+
+msgid "• Training Sessions"
+msgstr "• Séances de formation"
+
+msgid "Save Review"
+msgstr "Enregistrer l'avis"
+
+msgid "Total Orders"
+msgstr "Total des commandes"
+
+msgid "Week"
+msgstr "Semaine"
+
+msgid "New Request"
+msgstr "Nouvelle demande"
+
+msgid "Grand Total:"
+msgstr "Total général :"
+
+msgid "Order Number:"
+msgstr "Numéro de commande :"
+
+msgid "Sign in to start shopping"
+msgstr "Connectez-vous pour commencer vos achats"
+
+msgid "View All Meetings"
+msgstr "Afficher toutes les réunions"
+
+msgid "Shortage"
+msgstr "Pénurie"
+
+msgid "When payroll is processed"
+msgstr "Quand la paie est traitée"
+
+msgid "Kanban View"
+msgstr "Vue Kanban"
+
+msgid "to view it."
+msgstr "pour le visualiser."
+
+msgid "Priority Distribution"
+msgstr "Distribution prioritaire"
+
+msgid "Pricing & Quantity"
+msgstr "Prix et quantité"
+
+msgid "Confirm Order"
+msgstr "Confirmer la commande"
+
+msgid "Not assigned"
+msgstr "Non attribué"
+
+msgid "Record Transaction"
+msgstr "Enregistrer une transaction"
+
+msgid "Period:"
+msgstr "Période :"
+
+msgid "Skill *"
+msgstr "Compétence *"
+
+msgid "Duration (hours) *"
+msgstr "Durée (heures) *"
+
+msgid "Preview Not Available"
+msgstr "Aperçu non disponible"
+
+msgid "Contact Supplier"
+msgstr "Contacter le fournisseur"
+
+msgid "Reviewed by"
+msgstr "Révisé par"
+
+msgid "Must be positive number ≤ available stock"
+msgstr "Doit être un nombre positif ≤ stock disponible"
+
+msgid "Initial Subtasks"
+msgstr "Sous-tâches initiales"
+
+msgid "At reorder level"
+msgstr "Au niveau des commandes"
+
+msgid "Post Comment"
+msgstr "Publier un commentaire"
+
+msgid "Assigned to"
+msgstr "Attribué à"
+
+msgid "Email Notifications"
+msgstr "Notifications par courrier électronique"
+
+msgid "All Payment Status"
+msgstr "Tous les statuts de paiement"
+
+msgid "Back to Payslips"
+msgstr "Retour aux fiches de paie"
+
+msgid "Delete Salary Component"
+msgstr "Supprimer un élément de salaire"
+
+msgid "Project Calendar"
+msgstr "Calendrier du projet"
+
+msgid "Tips:"
+msgstr "Conseils :"
+
+msgid "Values are calculated as Quantity × Unit Price"
+msgstr "Les valeurs sont calculées comme suit : Quantité × Prix unitaire"
+
+msgid "Base Salary"
+msgstr "Salaire de base"
+
+msgid "All Types"
+msgstr "Tous types"
+
+msgid "Add Task"
+msgstr "Ajouter une tâche"
+
+msgid "Upload Stock Items"
+msgstr "Télécharger des articles en stock"
+
+msgid "Item:"
+msgstr "Article :"
+
+msgid "Shipped:"
+msgstr "Expédié :"
+
+msgid "Mark In Progress"
+msgstr "Marquer en cours"
+
+msgid "Upload the completed Excel file"
+msgstr "Téléchargez le fichier Excel complété"
+
+msgid "Phone Number *"
+msgstr "Numéro de téléphone *"
+
+msgid "Address *"
+msgstr "Adresse *"
+
+msgid "Shipping Notes"
+msgstr "Notes d'expédition"
+
+msgid "Save Transaction"
+msgstr "Enregistrer la transaction"
+
+msgid "• Employee Training"
+msgstr "• Formation des employés"
+
+msgid "Category Name"
+msgstr "Nom de la catégorie"
+
+msgid "No notes recorded yet"
+msgstr "Aucune note enregistrée pour le moment"
+
+msgid "Address Information"
+msgstr "Informations sur l'adresse"
+
+msgid "Score"
+msgstr "Score"
+
+msgid "Are you sure you want to delete this transaction?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette transaction ?"
+
+msgid "Improvements"
+msgstr "Améliorations"
+
+msgid "Supplier Details"
+msgstr "Détails du fournisseur"
+
+msgid "Review and adjust reorder levels if needed"
+msgstr "Examiner et ajuster les niveaux de réapprovisionnement si nécessaire"
+
+msgid "Risks Identified:"
+msgstr "Risques identifiés :"
+
+msgid "ITEM-001"
+msgstr "ARTICLE-001"
+
+msgid "Pending Orders"
+msgstr "Commandes en attente"
+
+msgid "Strengths"
+msgstr "Points forts"
+
+msgid "Notes:"
+msgstr "Remarques :"
+
+msgid "Order #"
+msgstr "N° de commande"
+
+msgid "Your cart is empty"
+msgstr "Votre panier est vide"
+
+msgid "Earnings & Deductions"
+msgstr "Gains et déductions"
+
+msgid ""
+"Create salary components (base salary, allowances, deductions) to use in "
+"payroll."
+msgstr ""
+"Créez des éléments de salaire (salaire de base, indemnités, déductions) à "
+"utiliser dans la paie."
+
+msgid "Task detail"
+msgstr "Détail de la tâche"
+
+msgid "High Priority"
+msgstr "Haute priorité"
+
+msgid "Uploaded:"
+msgstr "Téléchargé :"
+
+msgid "Perform your first transaction to see history here."
+msgstr "Effectuez votre première transaction pour voir l'historique ici."
+
+msgid "Type:"
+msgstr "Tapez :"
+
+msgid "Payslip Actions"
+msgstr "Actions sur les fiches de paie"
+
+msgid "Active now"
+msgstr "Actif maintenant"
+
+msgid "Must match existing item code"
+msgstr "Doit correspondre au code d'article existant"
+
+msgid "Not Sent"
+msgstr "Non envoyé"
+
+msgid "Recent Performance Reviews"
+msgstr "Évaluations récentes des performances"
+
+msgid "Reason for removal"
+msgstr "Raison de la suppression"
+
+msgid "Make sure all items are packed and labeled before proceeding."
+msgstr ""
+"Assurez-vous que tous les articles sont emballés et étiquetés avant de "
+"continuer."
+
+msgid "Mark as Complete"
+msgstr "Marquer comme terminé"
+
+msgid "Enrolled"
+msgstr "Inscrit"
+
+msgid "No training sessions found."
+msgstr "Aucune séance de formation trouvée."
+
+msgid "Meeting:"
+msgstr "Réunion:"
+
+msgid "Assessment Date"
+msgstr "Date d'évaluation"
+
+msgid "Items with insufficient stock will be skipped"
+msgstr "Les articles dont le stock est insuffisant seront ignorés"
+
+msgid "Start date"
+msgstr "Date de début"
+
+msgid "Training Updates"
+msgstr "Mises à jour de la formation"
+
+msgid "Client:"
+msgstr "Cliente :"
+
+msgid "Monthly Movement (Last 30 Days)"
+msgstr "Mouvement mensuel (30 derniers jours)"
+
+msgid "No attachments yet"
+msgstr "Pas encore de pièces jointes"
+
+msgid "Are you sure?"
+msgstr "Etes-vous sûr ?"
+
+msgid "All Managers"
+msgstr "Tous les gestionnaires"
+
+msgid "Unit of measurement"
+msgstr "Unité de mesure"
+
+msgid "No transactions found."
+msgstr "Aucune transaction trouvée."
+
+msgid "Are you sure you want to delete stock item:"
+msgstr "Etes-vous sûr de vouloir supprimer l'article en stock :"
+
+msgid "Add Notes"
+msgstr "Ajouter des notes"
+
+msgid "All accounts"
+msgstr "Tous les comptes"
+
+msgid "No orders yet —"
+msgstr "Aucune commande pour l'instant —"
+
+msgid "No completed projects"
+msgstr "Aucun projet terminé"
+
+msgid "Upcoming"
+msgstr "À venir"
+
+msgid "Completion Notes"
+msgstr "Notes d'achèvement"
+
+msgid "Recommended Actions"
+msgstr "Actions recommandées"
+
+msgid "Current image"
+msgstr "Image actuelle"
+
+msgid "Tasks:"
+msgstr "Tâches :"
+
+msgid "category"
+msgstr "catégorie"
+
+msgid "Quantity:"
+msgstr "Quantité :"
+
+msgid "No performance reviews yet"
+msgstr "Aucune évaluation des performances pour l'instant"
+
+msgid "quantity"
+msgstr "quantité"
+
+msgid ""
+"from your inventory.\n"
+"                        Each removal will be recorded as a stock-out transaction."
+msgstr ""
+"de votre inventaire.\n"
+"                        "
+
+msgid "Filter by Type"
+msgstr "Filtrer par type"
+
+msgid "Drag and drop projects to change their status"
+msgstr "Glissez et déposez les projets pour modifier leur statut"
+
+msgid "Leave Mgmt"
+msgstr "Quitter la gestion"
+
+msgid "Event Details"
+msgstr "Détails de l'événement"
+
+msgid "Proficiency Level *"
+msgstr "Niveau de compétence *"
+
+msgid "Select Employees to Enroll *"
+msgstr "Sélectionnez les employés à inscrire *"
+
+msgid "Save Component"
+msgstr "Enregistrer le composant"
+
+msgid "Overdue"
+msgstr "En retard"
+
+msgid "Notification Preferences"
+msgstr "Préférences de notifications"
+
+msgid "Stock Transaction"
+msgstr "Transaction boursière"
+
+msgid "Country *"
+msgstr "Pays *"
+
+msgid "Already Enrolled:"
+msgstr "Déjà inscrit :"
+
+msgid "Ensure all items are included in the package"
+msgstr "Assurez-vous que tous les articles sont inclus dans le colis"
+
+msgid "Min level"
+msgstr "Niveau minimum"
+
+msgid "Consider increasing safety stock for critical items"
+msgstr ""
+"Envisagez d'augmenter le stock de sécurité pour les articles critiques"
+
+msgid "Receive notifications via email"
+msgstr "Recevoir des notifications par e-mail"
+
+msgid "• My Leave Requests"
+msgstr "• Mes demandes de congés"
+
+msgid "Earning, Deduction, or Tax"
+msgstr "Gain, déduction ou impôt"
+
+msgid "Joined Date"
+msgstr "Date d'adhésion"
+
+msgid "Transaction Type"
+msgstr "Type de transaction"
+
+msgid "Initial quantity"
+msgstr "Quantité initiale"
+
+msgid "Meetings by Type"
+msgstr "Réunions par type"
+
+msgid "Export this report:"
+msgstr "Exportez ce rapport :"
+
+msgid "Low Stock by Category"
+msgstr "Stock faible par catégorie"
+
+msgid "• Payroll Periods"
+msgstr "• Périodes de paie"
+
+msgid ""
+"For new items with quantity > 0, an initial stock-in transaction will be "
+"created"
+msgstr ""
+"Pour les nouveaux articles avec une quantité > 0, une première transaction "
+"de stock sera créée"
+
+msgid "Denied"
+msgstr "Refusé"
+
+msgid "Time"
+msgstr "Temps"
+
+msgid "Payment:"
+msgstr "Paiement :"
+
+msgid "15-inch Laptop"
+msgstr "Ordinateur portable de 15 pouces"
+
+msgid "Supplier contact"
+msgstr "Contact fournisseur"
+
+msgid "Allowed file types:"
+msgstr "Types de fichiers autorisés :"
+
+msgid "Weight"
+msgstr "Poids"
+
+msgid "Completed Actions"
+msgstr "Actions terminées"
+
+msgid "Edit Notes"
+msgstr "Modifier les notes"
+
+msgid "Meeting Information"
+msgstr "Informations sur la réunion"
+
+msgid "Employee Training"
+msgstr "Formation des employés"
+
+msgid "Total Quantity"
+msgstr "Quantité totale"
+
+msgid "City:"
+msgstr "Ville :"
+
+msgid "• Payslips"
+msgstr "• Fiches de paie"
+
+msgid "Timeline &amp; Budget"
+msgstr "Calendrier et budget"
+
+msgid "Location:"
+msgstr "Localisation :"
+
+msgid "Cost"
+msgstr "Coût"
+
+msgid "System Alerts"
+msgstr "Alertes système"
+
+msgid "Uploaded By:"
+msgstr "Téléchargé par :"
+
+msgid "Unique item identifier"
+msgstr "Identifiant unique de l'article"
+
+msgid "Delivered:"
+msgstr "Livré :"
+
+msgid "Share"
+msgstr "Partager"
+
+msgid "Total In"
+msgstr "Entrée totale"
+
+msgid "Shipped"
+msgstr "Expédié"
+
+msgid "All Orders"
+msgstr "Toutes les commandes"
+
+msgid "Expired"
+msgstr "Expiré"
+
+msgid "Dismiss"
+msgstr "Rejeter"
+
+msgid "No companies yet."
+msgstr "Aucune entreprise pour l'instant."
+
+msgid "Proforma"
+msgstr "Proforma"
+
+msgid "Name, email, organisation…"
+msgstr "Nom, email, organisation…"
+
+msgid "Print Proforma"
+msgstr "Imprimer pro forma"
+
+msgid "Client / Bill To"
+msgstr "Client / Facturer à"
+
+msgid "Search title, contact, organisation…"
+msgstr "Rechercher un titre, un contact, une organisation…"
+
+msgid "Sent Invitations"
+msgstr "Invitations envoyées"
+
+msgid "This invitation link is no longer valid."
+msgstr "Ce lien d'invitation n'est plus valide."
+
+msgid "OFFICIAL INVOICE"
+msgstr "FACTURE OFFICIELLE"
+
+msgid "has invited you to join"
+msgstr "vous a invité à rejoindre"
+
+msgid "Actions for"
+msgstr "Actions pour"
+
+msgid "Invoice"
+msgstr "Facture"
+
+msgid "Invite Users"
+msgstr "Inviter des utilisateurs"
+
+msgid "Invitations expire after 7 days."
+msgstr "Les invitations expirent après 7 jours."
+
+msgid "Print / Save PDF"
+msgstr "Imprimer / Enregistrer le PDF"
+
+msgid "Joining as"
+msgstr "Rejoindre en tant que"
+
+msgid "Toggle theme"
+msgstr "Changer de thème"
+
+msgid "Print Invoice"
+msgstr "Imprimer la facture"
+
+msgid "Tax"
+msgstr "Taxe"
+
+msgid "Create My Account"
+msgstr "Créer mon compte"
+
+msgid "No account? Ask your company admin for an invitation."
+msgstr "Pas de compte ? "
+
+msgid "You've been invited"
+msgstr "Vous avez été invité"
+
+msgid "PROFORMA INVOICE"
+msgstr "FACTURE PROFORMA"
+
+msgid "Accepted"
+msgstr "Accepté"
+
+msgid "INVOICE"
+msgstr "FACTURE"
+
+msgid "Invite Team Member"
+msgstr "Inviter un membre de l'équipe"
+
+msgid "Contact pagination"
+msgstr "Mise en page des contacts"
+
+msgid "No items found."
+msgstr "Aucun élément trouvé."
+
+msgid "Invitation Expired"
+msgstr "Invitation expirée"
+
+msgid "Print Preview"
+msgstr "Aperçu avant impression"
+
+msgid "Send Invitation"
+msgstr "Envoyer une invitation"
+
+msgid "You have been invited to join"
+msgstr "Vous avez été invité à rejoindre"
+
+msgid "Notes & Terms"
+msgstr "Remarques et conditions"
+
+msgid "Write a note…"
+msgstr "Écrivez une note…"
+
+msgid "No invitations sent yet."
+msgstr "Aucune invitation envoyée pour l'instant."
+
+msgid "Manage notification status and archive old items"
+msgstr "Gérer l'état des notifications et archiver les anciens éléments"
+
+msgid "Track vacation, sick leave, and time-off requests"
+msgstr "Suivez les demandes de vacances, de congés de maladie et de congés"
+
+msgid "Project Creation:"
+msgstr "Création de projet :"
+
+msgid ""
+"Account Type must be <strong>Asset</strong> (<code>asset</code>). This "
+"tracks pending/unpaid funds from marketplace customers."
+msgstr ""
+"Le type de compte doit être <strong>Actif</strong> (<code>actif</code>). "
+
+msgid "Assign and manage employee roles and permissions"
+msgstr "Attribuer et gérer les rôles et les autorisations des employés"
+
+msgid "Regularly update task statuses to keep projects on track"
+msgstr ""
+"Mettre régulièrement à jour les statuts des tâches pour garder les projets "
+"sur la bonne voie"
+
+msgid "Badge showing number of unread notifications"
+msgstr "Badge indiquant le nombre de notifications non lues"
+
+msgid "→ Go to Finance Settings and create the configuration"
+msgstr "→ Allez dans Paramètres financiers et créez la configuration"
+
+msgid ""
+"Manage your company's workforce with comprehensive employee profiles and "
+"organizational tools."
+msgstr ""
+"Gérez les effectifs de votre entreprise avec des profils d'employés complets"
+" et des outils organisationnels."
+
+msgid ""
+"Archive old orders and clients periodically for better system performance"
+msgstr ""
+"Archivez périodiquement les anciennes commandes et les clients pour de "
+"meilleures performances du système"
+
+msgid "Transaction Tracking:"
+msgstr "Suivi des transactions :"
+
+msgid "Regularly update opportunity stages to maintain accurate pipeline data"
+msgstr ""
+"Mettre régulièrement à jour les étapes des opportunités pour maintenir des "
+"données de pipeline précises"
+
+msgid "Monitor sales pipeline and deal progress"
+msgstr "Surveiller le pipeline des ventes et l'avancement des transactions"
+
+msgid "Check \"Enable\" to activate finance posting for this company"
+msgstr ""
+"Cochez « Activer » pour activer la comptabilisation financière pour cette "
+"société."
+
+msgid "Payment status shows conflict:"
+msgstr "L'état du paiement montre un conflit :"
+
+msgid "Transaction History:"
+msgstr "Historique des transactions :"
+
+msgid "Creates corresponding transaction records for reporting"
+msgstr ""
+"Crée les enregistrements de transactions correspondants pour le reporting"
+
+msgid "Check the bell icon for system notifications and updates"
+msgstr ""
+"Vérifiez l'icône en forme de cloche pour les notifications et mises à jour "
+"du système"
+
+msgid "1. Create Required Accounts (Chart of Accounts)"
+msgstr "1. Créer les comptes requis (plan comptable)"
+
+msgid "Access complete employee information, roles, and history"
+msgstr ""
+"Accédez aux informations complètes sur les employés, aux rôles et à "
+"l'historique"
+
+msgid "Keep contact information current and complete"
+msgstr "Gardez les informations de contact à jour et complètes"
+
+msgid "Monitor who attends and participates"
+msgstr "Surveiller qui assiste et participe"
+
+msgid "Use filters to find specific types of notifications"
+msgstr ""
+"Utilisez des filtres pour trouver des types spécifiques de notifications"
+
+msgid "Clients can browse inventory and add items to cart"
+msgstr ""
+"Les clients peuvent parcourir l'inventaire et ajouter des articles au panier"
+
+msgid "Role-based Access:"
+msgstr "Accès basé sur les rôles :"
+
+msgid "Optional Liability account (if tracking tax separately)"
+msgstr "Compte de passif facultatif (si vous suivez les taxes séparément)"
+
+msgid "Instant notifications for important events"
+msgstr "Notifications instantanées pour les événements importants"
+
+msgid "Keep supplier information up-to-date for efficient procurement"
+msgstr ""
+"Maintenir les informations sur les fournisseurs à jour pour un "
+"approvisionnement efficace"
+
+msgid ""
+"Use the pipeline view to identify bottlenecks and improve sales processes"
+msgstr ""
+"Utilisez la vue pipeline pour identifier les goulots d'étranglement et "
+"améliorer les processus de vente"
+
+msgid "Process leave requests promptly to maintain employee satisfaction"
+msgstr ""
+"Traiter rapidement les demandes de congés pour maintenir la satisfaction des"
+" employés"
+
+msgid "Company Statistics:"
+msgstr "Statistiques de l'entreprise :"
+
+msgid "Enable Setting:"
+msgstr "Activer le paramètre :"
+
+msgid "Client Invoicing:"
+msgstr "Facturation Client :"
+
+msgid "Set up projects with budgets, timelines, and team assignments"
+msgstr ""
+"Configurer des projets avec des budgets, des délais et des affectations "
+"d'équipe"
+
+msgid ""
+"Manage company finances with invoicing, accounts payable/receivable, and "
+"financial reporting."
+msgstr ""
+"Gérez les finances de l'entreprise avec la facturation, les comptes "
+"créditeurs/clients et les rapports financiers."
+
+msgid "Detailed Profiles:"
+msgstr "Profils détaillés :"
+
+msgid ""
+"Manage customer relationships, track sales opportunities, and drive business"
+" growth."
+msgstr ""
+"Gérez les relations clients, suivez les opportunités de vente et stimulez la"
+" croissance de votre entreprise."
+
+msgid "Attendance Tracking:"
+msgstr "Suivi des présences :"
+
+msgid "Record all financial transactions"
+msgstr "Enregistrez toutes les transactions financières"
+
+msgid "Manage employee development and certification tracking"
+msgstr "Gérer le développement des employés et le suivi des certifications"
+
+msgid "Check the bell icon regularly for important updates"
+msgstr ""
+"Vérifiez régulièrement l'icône en forme de cloche pour les mises à jour "
+"importantes"
+
+msgid "Automatic notifications when items reach reorder levels"
+msgstr ""
+"Notifications automatiques lorsque les articles atteignent les niveaux de "
+"réapprovisionnement"
+
+msgid ""
+"Manage customer orders, shopping carts, and integrate sales transactions "
+"into your accounting system."
+msgstr ""
+"Gérez les commandes des clients, les paniers d'achat et intégrez les "
+"transactions de vente dans votre système comptable."
+
+msgid "Convert leads into customers through defined processes"
+msgstr "Convertir les leads en clients via des processus définis"
+
+msgid "Role-based permissions control what each employee can access"
+msgstr ""
+"Les autorisations basées sur les rôles contrôlent ce à quoi chaque employé "
+"peut accéder"
+
+msgid "Financial Reports:"
+msgstr "Rapports financiers :"
+
+msgid ""
+"<strong>IMPORTANT:</strong> Before processing marketplace orders, you must "
+"configure Finance Settings for your company."
+msgstr ""
+"<strong>IMPORTANT :</strong> Avant de traiter les commandes du Marketplace, "
+"vous devez configurer les paramètres financiers de votre entreprise."
+
+msgid "Position Management:"
+msgstr "Gestion des postes :"
+
+msgid "Sales Journal:"
+msgstr "Journal des ventes :"
+
+msgid "Preference Settings:"
+msgstr "Paramètres de préférence :"
+
+msgid "Revenue Account:"
+msgstr "Compte de revenus :"
+
+msgid "Training Programs:"
+msgstr "Programmes de formation :"
+
+msgid ""
+"Before you can process marketplace transactions or mark client orders as "
+"paid, you must configure the accounting link inside the finance system."
+msgstr ""
+"Avant de pouvoir traiter les transactions du marché ou marquer les commandes"
+" des clients comme payées, vous devez configurer le lien comptable au sein "
+"du système financier."
+
+msgid "Marketplace Overview"
+msgstr "Présentation du marché"
+
+msgid "Monitor quantities, values, and stock movements"
+msgstr "Surveiller les quantités, les valeurs et les mouvements de stock"
+
+msgid "Access frequently used functions from the sidebar"
+msgstr "Accédez aux fonctions fréquemment utilisées depuis la barre latérale"
+
+msgid "Progress Tracking:"
+msgstr "Suivi des progrès :"
+
+msgid "Attach files and resources to meetings"
+msgstr "Joindre des fichiers et des ressources aux réunions"
+
+msgid "Automatically post paid orders to accounting"
+msgstr "Reportez automatiquement les commandes payées à la comptabilité"
+
+msgid "CRM Overview"
+msgstr "Aperçu du CRM"
+
+msgid "Keep training records current for compliance and development planning"
+msgstr ""
+"Tenir les dossiers de formation à jour pour la conformité et la "
+"planification du développement"
+
+msgid "Mark as Read:"
+msgstr "Marquer comme lu :"
+
+msgid ""
+"Don't update status and payment settings simultaneously; complete one action"
+" first"
+msgstr ""
+"Ne mettez pas à jour simultanément le statut et les paramètres de paiement ;"
+" "
+
+msgid "Financial Management Overview"
+msgstr "Aperçu de la gestion financière"
+
+msgid "Unread Counter:"
+msgstr "Compteur non lu :"
+
+msgid "Regularly review financial reports to monitor business health"
+msgstr ""
+"Examiner régulièrement les rapports financiers pour surveiller la santé de "
+"l'entreprise"
+
+msgid "Mark notifications as read to keep your inbox organized"
+msgstr ""
+"Marquez les notifications comme lues pour garder votre boîte de réception "
+"organisée"
+
+msgid "Order won't post to finance:"
+msgstr "La commande ne sera pas publiée dans le financement :"
+
+msgid "Break down projects into manageable tasks and subtasks"
+msgstr "Décomposer les projets en tâches et sous-tâches gérables"
+
+msgid "The dashboard updates in real-time as data changes"
+msgstr ""
+"Le tableau de bord se met à jour en temps réel à mesure que les données "
+"changent"
+
+msgid "Complete audit trail of all inventory movements"
+msgstr "Piste d’audit complète de tous les mouvements de stocks"
+
+msgid "Use categories to organize and filter your inventory"
+msgstr "Utilisez des catégories pour organiser et filtrer votre inventaire"
+
+msgid "Performance Reviews:"
+msgstr "Évaluations des performances :"
+
+msgid "Define job roles and career progression paths"
+msgstr ""
+"Définir les rôles professionnels et les parcours de progression de carrière"
+
+msgid "Customize which notifications you receive"
+msgstr "Personnalisez les notifications que vous recevez"
+
+msgid "Marketplace Revenue:"
+msgstr "Revenus du marché :"
+
+msgid "Use meeting notes to maintain institutional knowledge"
+msgstr ""
+"Utiliser les notes de réunion pour maintenir les connaissances "
+"institutionnelles"
+
+msgid "Meeting Scheduling:"
+msgstr "Planification des réunions :"
+
+msgid "Dashboard Overview"
+msgstr "Présentation du tableau de bord"
+
+msgid "Use position management to plan for succession and career growth"
+msgstr ""
+"Utiliser la gestion des postes pour planifier la succession et l’évolution "
+"de carrière"
+
+msgid "Order Processing:"
+msgstr "Traitement des commandes :"
+
+msgid "Key Features:"
+msgstr "Principales caractéristiques :"
+
+msgid "Lead Management:"
+msgstr "Gestion des leads :"
+
+msgid ""
+"Plan, track, and manage projects with task management, timelines, and team "
+"collaboration tools."
+msgstr ""
+"Planifiez, suivez et gérez des projets avec des outils de gestion des "
+"tâches, de calendriers et de collaboration en équipe."
+
+msgid "See only the modules you have permission to access"
+msgstr "Afficher uniquement les modules auxquels vous êtes autorisé à accéder"
+
+msgid "Monitor completion percentages and project status"
+msgstr "Surveiller les pourcentages d’achèvement et l’état du projet"
+
+msgid "Updates account balances automatically"
+msgstr "Met à jour automatiquement les soldes des comptes"
+
+msgid "Use proper accounting categories for accurate reporting"
+msgstr ""
+"Utilisez des catégories comptables appropriées pour des rapports précis"
+
+msgid "Kanban Board:"
+msgstr "Tableau Kanban :"
+
+msgid "Human Resources Overview"
+msgstr "Aperçu des ressources humaines"
+
+msgid "Meeting Management Overview"
+msgstr "Présentation de la gestion des réunions"
+
+msgid "Send meeting invites and set clear agendas in advance"
+msgstr ""
+"Envoyez des invitations à des réunions et établissez des ordres du jour "
+"clairs à l'avance"
+
+msgid "Notifications Overview"
+msgstr "Aperçu des notifications"
+
+msgid "Team Collaboration:"
+msgstr "Collaboration en équipe :"
+
+msgid "Supplier Management:"
+msgstr "Gestion des fournisseurs :"
+
+msgid "Leave Management:"
+msgstr "Gestion des congés :"
+
+msgid "Credit:"
+msgstr "Crédit :"
+
+msgid "Use the search and filter options to quickly find employees"
+msgstr ""
+"Utilisez les options de recherche et de filtrage pour trouver rapidement des"
+" employés"
+
+msgid "Inventory Management Overview"
+msgstr "Présentation de la gestion des stocks"
+
+msgid "Track orders from pending to delivered status"
+msgstr "Suivre les commandes du statut en attente au statut livré"
+
+msgid "Best Practices:"
+msgstr "Meilleures pratiques :"
+
+msgid "Understand reporting structures and hierarchies"
+msgstr "Comprendre les structures et hiérarchies hiérarchiques"
+
+msgid "Notification History:"
+msgstr "Historique des notifications :"
+
+msgid "View and search all company employees"
+msgstr "Afficher et rechercher tous les employés de l'entreprise"
+
+msgid "Meeting Notes:"
+msgstr "Notes de réunion :"
+
+msgid "Register and manage marketplace customers"
+msgstr "Enregistrer et gérer les clients du Marketplace"
+
+msgid "View total employees, active projects, and recent activities"
+msgstr ""
+"Afficher le nombre total d'employés, les projets actifs et les activités "
+"récentes"
+
+msgid "Sales Tax Payable (Optional):"
+msgstr "Taxe de vente à payer (facultatif) :"
+
+msgid "Activity Logging:"
+msgstr "Journalisation des activités :"
+
+msgid "Track supplier information and purchase history"
+msgstr ""
+"Suivre les informations sur les fournisseurs et l'historique des achats"
+
+msgid "Marketplace Receivable:"
+msgstr "Créances du marché :"
+
+msgid ""
+"Verify all required accounts exist and are the correct type (Asset, Revenue,"
+" Liability)"
+msgstr ""
+"Vérifiez que tous les comptes requis existent et sont du bon type (Actif, "
+"Revenu, Passif)"
+
+msgid "Select or create a Sales/General journal for order entries"
+msgstr ""
+"Sélectionnez ou créez un journal Ventes/Général pour les entrées de commande"
+
+msgid "Store and organize customer and prospect information"
+msgstr "Stocker et organiser les informations sur les clients et prospects"
+
+msgid "Regularly reconcile marketplace receivables with accounting records"
+msgstr ""
+"Rapprocher régulièrement les créances du marché avec les registres "
+"comptables"
+
+msgid ""
+"Use separate accounts for marketplace revenue vs. other sales channels if "
+"needed"
+msgstr ""
+"Utilisez des comptes distincts pour les revenus du marché par rapport aux "
+"autres canaux de vente si nécessaire"
+
+msgid "Plan meetings with attendees, agendas, and locations"
+msgstr ""
+"Planifier des réunions avec les participants, les ordres du jour et les "
+"lieux"
+
+msgid "Revenue account - for subtotal + shipping"
+msgstr "Compte de revenus - pour le sous-total + les frais d'expédition"
+
+msgid "Assign action items with specific owners and deadlines"
+msgstr ""
+"Attribuer des éléments d'action avec des propriétaires et des délais "
+"spécifiques"
+
+msgid "Set up chart of accounts and track balances"
+msgstr "Mettre en place un plan comptable et suivre les soldes"
+
+msgid "System checks for Marketplace Finance Settings for your company"
+msgstr ""
+"Le système vérifie les paramètres Marketplace Finance pour votre entreprise"
+
+msgid "Track and pay supplier invoices"
+msgstr "Suivre et payer les factures fournisseurs"
+
+msgid "Check the <strong>Enable Marketplace Posting</strong> box and save."
+msgstr ""
+"Cochez la case <strong>Activer la publication sur le Marketplace</strong> et"
+" enregistrez."
+
+msgid "Supplier Bills:"
+msgstr "Factures fournisseurs :"
+
+msgid ""
+"The Dashboard provides a comprehensive overview of your company's key "
+"metrics and activities."
+msgstr ""
+"Le tableau de bord fournit un aperçu complet des indicateurs et activités "
+"clés de votre entreprise."
+
+msgid "Payroll Processing:"
+msgstr "Traitement de la paie :"
+
+msgid "Generate profit & loss, balance sheets, and cash flow reports"
+msgstr ""
+"Générez des rapports sur les profits et pertes, les bilans et les flux de "
+"trésorerie"
+
+msgid "Accounts Receivable (Asset) - for full order total"
+msgstr "Comptes clients (actif) - pour le total total de la commande"
+
+msgid "Client Management:"
+msgstr "Gestion des clients :"
+
+msgid "Analyze sales performance and forecast revenue"
+msgstr "Analyser les performances commerciales et prévoir les revenus"
+
+msgid "Conduct regular performance reviews to support employee development"
+msgstr ""
+"Effectuer des évaluations régulières des performances pour soutenir le "
+"développement des employés"
+
+msgid ""
+"Account Type must be <strong>Liability</strong> (<code>liability</code>). "
+"Used if you need to isolate sales tax amounts for tax reporting."
+msgstr ""
+"Le type de compte doit être <strong>Responsable</strong> "
+"(<code>responsabilité</code>). "
+
+msgid ""
+"Stay informed about important events and updates across the ERP system."
+msgstr ""
+"Restez informé des événements importants et des mises à jour dans le système"
+" ERP."
+
+msgid "Receivable Account:"
+msgstr "Compte recevable :"
+
+msgid "Payment Tracking:"
+msgstr "Suivi des paiements :"
+
+msgid "Real-time Alerts:"
+msgstr "Alertes en temps réel :"
+
+msgid "Record discussions, decisions, and outcomes"
+msgstr "Enregistrer les discussions, les décisions et les résultats"
+
+msgid "Document Management:"
+msgstr "Gestion des documents :"
+
+msgid "Monitor payment status and update as orders are paid"
+msgstr ""
+"Surveiller l'état du paiement et mettre à jour au fur et à mesure que les "
+"commandes sont payées"
+
+msgid ""
+"Go to <strong>Finance → Marketplace Settings</strong> (or the settings tab) "
+"and:"
+msgstr ""
+"Accédez à <strong>Finance → Paramètres de la Marketplace</strong> (ou à "
+"l'onglet Paramètres) et :"
+
+msgid "Monitor project budgets and resource allocation"
+msgstr "Surveiller les budgets des projets et l'allocation des ressources"
+
+msgid "Stock Tracking:"
+msgstr "Suivi des stocks :"
+
+msgid "Employee Directory:"
+msgstr "Annuaire des employés :"
+
+msgid ""
+"Employee profiles include contact information, positions, and performance "
+"data"
+msgstr ""
+"Les profils des employés incluent des informations de contact, des postes et"
+" des données de performance."
+
+msgid "2. Link Accounts in Settings"
+msgstr "2. Lier les comptes dans les paramètres"
+
+msgid "Updates order with posting date and status"
+msgstr "Met à jour la commande avec la date de publication et le statut"
+
+msgid ""
+"Set up Finance Settings <strong>before</strong> processing any marketplace "
+"orders"
+msgstr ""
+"Configurez les paramètres financiers <strong>avant</strong> de traiter des "
+"ordres sur le marché."
+
+msgid "Follow up on action items to ensure completion"
+msgstr "Effectuer le suivi des éléments d'action pour assurer leur achèvement"
+
+msgid "Generate inventory reports and analytics"
+msgstr "Générer des rapports et des analyses d'inventaire"
+
+msgid "Use the Kanban board for visual project management"
+msgstr "Utilisez le tableau Kanban pour une gestion visuelle de projet"
+
+msgid "Tax account (if configured) - for tax amount"
+msgstr "Compte de taxes (si configuré) - pour le montant de la taxe"
+
+msgid "Finance Integration:"
+msgstr "Intégration financière :"
+
+msgid "Complete log of all system notifications"
+msgstr "Journal complet de toutes les notifications système"
+
+msgid "Task Management:"
+msgstr "Gestion des tâches :"
+
+msgid "Organizational Chart:"
+msgstr "Organigramme :"
+
+msgid "Monitor payment status and follow up on unpaid orders promptly"
+msgstr ""
+"Surveiller l'état des paiements et assurer le suivi rapide des commandes "
+"impayées"
+
+msgid ""
+"Review your chart of accounts to ensure proper account types are assigned"
+msgstr ""
+"Examinez votre plan comptable pour vous assurer que les types de comptes "
+"appropriés sont attribués."
+
+msgid "Employee Management Overview"
+msgstr "Aperçu de la gestion des employés"
+
+msgid "Send invoices promptly and follow up on overdue payments"
+msgstr ""
+"Envoyez les factures rapidement et effectuez le suivi des paiements en "
+"retard"
+
+msgid "Visual project workflow with drag-and-drop status updates"
+msgstr ""
+"Flux de travail visuel du projet avec mises à jour de statut par glisser-"
+"déposer"
+
+msgid "Tax Account:"
+msgstr "Compte de taxes :"
+
+msgid "Choose a Revenue account (records the sales income)"
+msgstr "Choisissez un compte de revenus (enregistre les revenus des ventes)"
+
+msgid "Assign and monitor follow-up tasks from meetings"
+msgstr "Attribuer et surveiller les tâches de suivi des réunions"
+
+msgid "Keep accurate records of all financial transactions"
+msgstr "Tenir des registres précis de toutes les transactions financières"
+
+msgid "Pipeline Analytics:"
+msgstr "Analyse des pipelines :"
+
+msgid "Calculate salaries, bonuses, and deductions"
+msgstr "Calculer les salaires, primes et déductions"
+
+msgid "Create and send invoices to customers"
+msgstr "Créer et envoyer des factures aux clients"
+
+msgid "Reporting:"
+msgstr "Rapports :"
+
+msgid "Log all customer interactions for better relationship management"
+msgstr ""
+"Enregistrez toutes les interactions clients pour une meilleure gestion des "
+"relations"
+
+msgid "Low Stock Alerts:"
+msgstr "Alertes de stock faible :"
+
+msgid "Check notifications regularly for important updates"
+msgstr ""
+"Vérifiez régulièrement les notifications pour les mises à jour importantes"
+
+msgid "Use the sidebar to navigate between different modules"
+msgstr "Utilisez la barre latérale pour naviguer entre les différents modules"
+
+msgid "Shopping Cart:"
+msgstr "Panier :"
+
+msgid "Notifications:"
+msgstr "Notifications :"
+
+msgid "Role Management:"
+msgstr "Gestion des rôles :"
+
+msgid ""
+"Manage employee lifecycle from recruitment to retirement with comprehensive "
+"HR tools."
+msgstr ""
+"Gérez le cycle de vie des employés, du recrutement à la retraite, grâce à "
+"des outils RH complets."
+
+msgid "Choose an Asset account (tracks unpaid customer orders)"
+msgstr "Choisissez un compte d'actif (suit les commandes clients impayées)"
+
+msgid ""
+"Select the optional <strong>Tax Account</strong> (Liability) if tracking "
+"tax."
+msgstr ""
+"Sélectionnez le <strong>Compte de taxes</strong> (Responsabilité) facultatif"
+" si vous effectuez le suivi des taxes."
+
+msgid "Action Item Tracking:"
+msgstr "Suivi des éléments d'action :"
+
+msgid "→ Check the \"is_enabled\" checkbox in Finance Settings"
+msgstr "→ Cochez la case \"is_enabled\" dans les paramètres financiers"
+
+msgid "Regularly review low stock alerts and reorder items promptly"
+msgstr ""
+"Examinez régulièrement les alertes de stock faible et commandez à nouveau "
+"les articles rapidement."
+
+msgid "Debit:"
+msgstr "Débit :"
+
+msgid "Creates a balanced journal entry in your sales journal with:"
+msgstr ""
+"Crée une écriture de journal équilibrée dans votre journal des ventes avec :"
+
+msgid ""
+"Track stock levels, manage suppliers, and monitor inventory movements with "
+"automated alerts."
+msgstr ""
+"Suivez les niveaux de stock, gérez les fournisseurs et surveillez les "
+"mouvements de stocks avec des alertes automatisées."
+
+msgid ""
+"Schedule, conduct, and follow up on meetings with action item tracking and "
+"documentation."
+msgstr ""
+"Planifiez, conduisez et suivez les réunions avec le suivi et la "
+"documentation des actions à entreprendre."
+
+msgid "Error: \"Marketplace finance settings not configured\""
+msgstr "Erreur : « Paramètres financiers du Marketplace non configurés »"
+
+msgid "Set appropriate reorder levels to prevent stockouts"
+msgstr ""
+"Définir des niveaux de réapprovisionnement appropriés pour éviter les "
+"ruptures de stock"
+
+msgid ""
+"Select the <strong>Receivable Account</strong> (Asset) and <strong>Revenue "
+"Account</strong> (Revenue) you created."
+msgstr ""
+"Sélectionnez le <strong>Compte client</strong> (Actif) et le <strong>Compte "
+"de revenus</strong> (Revenu) que vous avez créés."
+
+msgid "Error: \"Finance posting is disabled\""
+msgstr "Erreur : « La comptabilisation financière est désactivée »"
+
+msgid "Contact Management:"
+msgstr "Gestion des contacts :"
+
+msgid "Configure notification preferences to receive only relevant alerts"
+msgstr ""
+"Configurez les préférences de notification pour recevoir uniquement les "
+"alertes pertinentes"
+
+msgid "Assign tasks and track team member contributions"
+msgstr ""
+"Attribuez des tâches et suivez les contributions des membres de l'équipe"
+
+msgid "Conduct and track employee performance evaluations"
+msgstr "Effectuer et suivre les évaluations de performance des employés"
+
+msgid ""
+"Select the <strong>Sales Journal</strong> to record your order journal "
+"entries."
+msgstr ""
+"Sélectionnez le <strong>Journal des ventes</strong> pour enregistrer vos "
+"entrées de journal de commandes."
+
+msgid "Quick Actions:"
+msgstr "Actions rapides :"
+
+msgid ""
+"Go to <strong>Finance → Chart of Accounts (Add Account)</strong> and ensure "
+"the following accounts are created with their precise Account Types:"
+msgstr ""
+"Accédez à <strong>Finance → Plan comptable (Ajouter un compte)</strong> et "
+"assurez-vous que les comptes suivants sont créés avec leurs types de compte "
+"précis :"
+
+msgid "Track all customer interactions and communications"
+msgstr "Suivez toutes les interactions et communications avec les clients"
+
+msgid "Account Management:"
+msgstr "Gestion des comptes :"
+
+msgid ""
+"Account Type must be <strong>Revenue</strong> (<code>revenue</code>). This "
+"records your gross sales income from the marketplace."
+msgstr ""
+"Le type de compte doit être <strong>Revenue</strong> (<code>revenue</code>)."
+" "
+
+msgid "Opportunity Tracking:"
+msgstr "Suivi des opportunités :"
+
+msgid "Project Management Overview"
+msgstr "Aperçu de la gestion de projet"
+
+msgid ""
+"<strong>Go to Finance → Marketplace Finance Settings and configure:</strong>"
+msgstr ""
+"<strong>Accédez à Finance → Paramètres financiers de Marketplace et "
+"configurez :</strong>"
+
+msgid "Assign clear responsibilities and deadlines for each task"
+msgstr "Attribuez des responsabilités et des délais clairs pour chaque tâche"

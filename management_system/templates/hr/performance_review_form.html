@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ title }} — HR{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h2 class="mb-4">{{ title }}</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <div class="row g-3">
+        <div class="col-md-6">{{ form.employee.label_tag }} {{ form.employee }}</div>
+        <div class="col-md-6">{{ form.reviewer.label_tag }} {{ form.reviewer }}</div>
+        <div class="col-md-6">{{ form.period_start.label_tag }} {{ form.period_start }}</div>
+        <div class="col-md-6">{{ form.period_end.label_tag }} {{ form.period_end }}</div>
+        <div class="col-md-6">{{ form.review_date.label_tag }} {{ form.review_date }}</div>
+        <div class="col-md-6">{{ form.rating.label_tag }} {{ form.rating }}</div>
+        <div class="col-12">{{ form.strengths.label_tag }} {{ form.strengths }}</div>
+        <div class="col-12">{{ form.improvements.label_tag }} {{ form.improvements }}</div>
+        <div class="col-12">{{ form.summary.label_tag }} {{ form.summary }}</div>
+        <div class="col-md-6">{{ form.status.label_tag }} {{ form.status }}</div>
+      </div>
+      <div class="mt-4">
+        <button type="submit" class="btn btn-primary">{% trans "Save Review" %}</button>
+        <a href="{% url 'hr:performance_review_list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% block title %}Payslips{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">{% trans "Payslips" %}</h3>
+                </div>
+                <div class="card-body">
+                    {% if payslips %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans "Payslip Number" %}</th>
+                                        <th>{% trans "Employee" %}</th>
+                                        <th>{% trans "Period" %}</th>
+                                        <th>{% trans "Gross Pay" %}</th>
+                                        <th>{% trans "Deductions" %}</th>
+                                        <th>{% trans "Net Pay" %}</th>
+                                        <th>{% trans "Issued Date" %}</th>
+                                        <th>{% trans "Email Sent" %}</th>
+                                        <th>{% trans "Actions" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payslip in payslips %}
+                                    <tr>
+                                        <td><strong>{{ payslip.payslip_number }}</strong></td>
+                                        <td>{{ payslip.payroll_entry.employee.full_name }}</td>
+                                        <td>{{ payslip.payroll_entry.payroll_period.start_date|date:"M d" }} - {{ payslip.payroll_entry.payroll_period.end_date|date:"M d, Y" }}</td>
+                                        <td class="text-end text-success">₱{{ payslip.payroll_entry.gross_earnings|floatformat:2 }}</td>
+                                        <td class="text-end text-danger">₱{{ payslip.payroll_entry.total_deductions|floatformat:2 }}</td>
+                                        <td class="text-end text-primary"><strong>₱{{ payslip.payroll_entry.net_pay|floatformat:2 }}</strong></td>
+                                        <td>{{ payslip.issued_date|date:"M d, Y" }}</td>
+                                        <td>
+                                            {% if payslip.email_sent %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check"></i> Sent {{ payslip.email_sent_at|date:"M d" }}
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{% trans "Not Sent" %}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'hr:payslip_detail' payslip.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> {% trans "View" %}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if payslips.has_other_pages %}
+                        <nav class="mt-3">
+                            <ul class="pagination justify-content-center">
+                                {% if payslips.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1">{% trans "First" %}</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ payslips.previous_page_number }}">{% trans "Previous" %}</a>
+                                    </li>
+                                {% endif %}
+
+                                <li class="page-item active">
+                                    <span class="page-link">Page {{ payslips.number }} of {{ payslips.paginator.num_pages }}</span>
+                                </li>
+
+                                {% if payslips.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ payslips.next_page_number }}">{% trans "Next" %}</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ payslips.paginator.num_pages }}">{% trans "Last" %}</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                            <h4>{% trans "No Payslips" %}</h4>
+                            <p class="text-muted">{% trans "Payslips will be generated when payroll is processed." %}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

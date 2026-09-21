@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Project Summary Report - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+    }
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+    .chart-container {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+        .stat-card {
+            break-inside: avoid;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Report Header -->
+    <div class="report-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2 mb-2"><i class="fas fa-chart-bar me-3"></i>{% trans "Project Summary Report" %}</h1>
+                <p class="mb-0">Generated on {{ report_date|date:"F d, Y" }}</p>
+            </div>
+            <div class="no-print">
+                <button onclick="window.print()" class="btn btn-light me-2">
+                    <i class="fas fa-print me-2"></i>{% trans "Print Report" %}
+                </button>
+                <a href="{% url 'projects:project_export' %}" class="btn btn-light">
+                    <i class="fas fa-download me-2"></i>{% trans "Export Excel" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-card text-center">
+                <i class="fas fa-folder fa-2x text-primary mb-2"></i>
+                <div class="stat-number text-primary">{{ total_projects }}</div>
+                <div class="text-muted">{% trans "Total Projects" %}</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card text-center">
+                <i class="fas fa-spinner fa-2x text-info mb-2"></i>
+                <div class="stat-number text-info">{{ active_projects }}</div>
+                <div class="text-muted">{% trans "Active Projects" %}</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card text-center">
+                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                <div class="stat-number text-success">{{ completed_projects }}</div>
+                <div class="text-muted">{% trans "Completed" %}</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card text-center">
+                <i class="fas fa-pause-circle fa-2x text-warning mb-2"></i>
+                <div class="stat-number text-warning">{{ on_hold_projects }}</div>
+                <div class="text-muted">{% trans "On Hold" %}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Statistics -->
+    <div class="chart-container mb-4">
+        <h4 class="mb-3"><i class="fas fa-dollar-sign me-2"></i>{% trans "Budget Overview" %}</h4>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="text-center p-3 rounded-3" style="background:var(--surface2)">
+                    <h5 class="text-primary">${{ budget_stats.total_budget|default:0|floatformat:2 }}</h5>
+                    <small class="text-muted">{% trans "Total Budget" %}</small>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="text-center p-3 rounded-3" style="background:var(--surface2)">
+                    <h5 class="text-info">${{ budget_stats.avg_budget|default:0|floatformat:2 }}</h5>
+                    <small class="text-muted">{% trans "Average Budget" %}</small>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="text-center p-3 rounded-3" style="background:var(--surface2)">
+                    <h5 class="text-success">${{ budget_stats.min_budget|default:0|floatformat:2 }}</h5>
+                    <small class="text-muted">{% trans "Minimum Budget" %}</small>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="text-center p-3 rounded-3" style="background:var(--surface2)">
+                    <h5 class="text-danger">${{ budget_stats.max_budget|default:0|floatformat:2 }}</h5>
+                    <small class="text-muted">{% trans "Maximum Budget" %}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Status Distribution -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h4 class="mb-3"><i class="fas fa-chart-pie me-2"></i>{% trans "Status Distribution" %}</h4>
+                <canvas id="statusChart"></canvas>
+                <div class="mt-3">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Status" %}</th>
+                                <th class="text-end">{% trans "Count" %}</th>
+                                <th class="text-end">{% trans "Percentage" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in status_distribution %}
+                            <tr>
+                                <td>{{ item.status|title }}</td>
+                                <td class="text-end">{{ item.count }}</td>
+                                <td class="text-end">{{ item.percentage|floatformat:1 }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Priority Distribution -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h4 class="mb-3"><i class="fas fa-chart-bar me-2"></i>{% trans "Priority Distribution" %}</h4>
+                <canvas id="priorityChart"></canvas>
+                <div class="mt-3">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Priority" %}</th>
+                                <th class="text-end">{% trans "Count" %}</th>
+                                <th class="text-end">{% trans "Percentage" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in priority_distribution %}
+                            <tr>
+                                <td>{{ item.priority|title }}</td>
+                                <td class="text-end">{{ item.count }}</td>
+                                <td class="text-end">{{ item.percentage|floatformat:1 }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overdue Projects -->
+    {% if overdue_projects %}
+    <div class="chart-container mb-4">
+        <h4 class="mb-3"><i class="fas fa-exclamation-triangle text-danger me-2"></i>{% trans "Overdue Projects" %}</h4>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>{% trans "Project Name" %}</th>
+                        <th>{% trans "Priority" %}</th>
+                        <th>{% trans "End Date" %}</th>
+                        <th>{% trans "Days Overdue" %}</th>
+                        <th>{% trans "Manager" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in overdue_projects %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'projects:project_detail' project.pk %}">{{ project.name }}</a>
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if project.priority == 'critical' %}bg-danger
+                                {% elif project.priority == 'high' %}bg-warning
+                                {% elif project.priority == 'medium' %}bg-info
+                                {% elif project.priority == 'low' %}bg-secondary
+                                {% endif %}">
+                                {{ project.get_priority_display }}
+                            </span>
+                        </td>
+                        <td>{{ project.end_date|date:"M d, Y" }}</td>
+                        <td class="text-danger">
+                            {{ project.end_date|timesince }} ago
+                        </td>
+                        <td>
+                            {% if project.manager %}
+                                {{ project.manager.user.get_full_name }}
+                            {% else %}
+                                <em>{% trans "Unassigned" %}</em>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Projects -->
+    <div class="chart-container">
+        <h4 class="mb-3"><i class="fas fa-clock me-2"></i>{% trans "Recent Projects" %}</h4>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>{% trans "Project Name" %}</th>
+                        <th>{% trans "Status" %}</th>
+                        <th>{% trans "Priority" %}</th>
+                        <th>{% trans "Progress" %}</th>
+                        <th>{% trans "Created" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in recent_projects %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'projects:project_detail' project.pk %}">{{ project.name }}</a>
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if project.status == 'planning' %}bg-secondary
+                                {% elif project.status == 'in_progress' %}bg-primary
+                                {% elif project.status == 'on_hold' %}bg-warning
+                                {% elif project.status == 'completed' %}bg-success
+                                {% elif project.status == 'cancelled' %}bg-danger
+                                {% endif %}">
+                                {{ project.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if project.priority == 'critical' %}bg-danger
+                                {% elif project.priority == 'high' %}bg-warning
+                                {% elif project.priority == 'medium' %}bg-info
+                                {% elif project.priority == 'low' %}bg-secondary
+                                {% endif %}">
+                                {{ project.get_priority_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="progress flex-grow-1 me-2" style="height: 20px;">
+                                    <div class="progress-bar bg-success" style="width: {{ project.completion_percentage }}%">
+                                        {{ project.completion_percentage }}%
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ project.created_at|date:"M d, Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="text-center mt-4 mb-4 no-print">
+        <a href="{% url 'projects:project_list' %}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i>{% trans "Back to Projects" %}
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Status Chart
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: [{% for item in status_distribution %}'{{ item.status|title }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            data: [{% for item in status_distribution %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: [
+                '#6c757d', // planning
+                '#0d6efd', // in_progress
+                '#ffc107', // on_hold
+                '#198754', // completed
+                '#dc3545'  // cancelled
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Priority Chart
+const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+new Chart(priorityCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for item in priority_distribution %}'{{ item.priority|title }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Projects',
+            data: [{% for item in priority_distribution %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: [
+                '#6c757d', // low
+                '#0dcaf0', // medium
+                '#ffc107', // high
+                '#dc3545'  // critical
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

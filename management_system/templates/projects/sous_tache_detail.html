@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ tache.titre }} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .task-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+    }
+    .comment-item {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-left: 3px solid #0d6efd;
+    }
+    .comment-author {
+        font-weight: bold;
+        color: #495057;
+    }
+    .comment-time {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    .info-item {
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Task Header -->
+    <div class="task-header">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'projects:project_list' %}" class="text-white">{% trans "Projects" %}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'projects:project_detail' tache.projet.pk %}" class="text-white">{{ tache.projet.name }}</a></li>
+                <li class="breadcrumb-item active text-white">{{ tache.titre }}</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1 class="h3 mb-3">{{ tache.titre }}</h1>
+                <div class="mb-2">
+                    <span class="badge 
+                        {% if tache.status == 'termine' %}bg-success
+                        {% elif tache.status == 'en_cours' %}bg-primary
+                        {% elif tache.status == 'a_faire' %}bg-secondary
+                        {% elif tache.status == 'en_attente' %}bg-warning
+                        {% elif tache.status == 'annule' %}bg-danger
+                        {% endif %} me-2">
+                        {{ tache.get_status_display }}
+                    </span>
+                    <span class="badge 
+                        {% if tache.priorite == 'urgente' %}bg-danger
+                        {% elif tache.priorite == 'elevee' %}bg-warning
+                        {% elif tache.priorite == 'moyenne' %}bg-info
+                        {% elif tache.priorite == 'faible' %}bg-light text-dark
+                        {% endif %}">
+                        {{ tache.get_priorite_display }}
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'projects:sous_tache_edit' tache.pk %}" class="btn btn-light">
+                    <i class="fas fa-edit me-1"></i>{% trans "Edit" %}
+                </a>
+                <form method="post" action="{% url 'projects:sous_tache_delete' tache.pk %}" class="d-inline"
+                      onsubmit="return confirm('Delete this task permanently?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-light">
+                        <i class="fas fa-trash me-1"></i>{% trans "Delete" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Description -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-align-left me-2"></i>{% trans "Description" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if tache.description %}
+                        <p class="mb-0">{{ tache.description|linebreaks }}</p>
+                    {% else %}
+                        <p class="text-muted fst-italic mb-0">{% trans "No description provided." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Comments ({{ comments.count }})</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Add Comment Form -->
+                    <form method="post" action="{% url 'projects:add_comment' tache.id %}" class="mb-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Add a comment" %}</label>
+                            {{ comment_form.contenu }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>{% trans "Post Comment" %}
+                        </button>
+                    </form>
+
+                    <!-- Comments List -->
+                    {% if comments %}
+                        {% for comment in comments %}
+                        <div class="comment-item">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <span class="comment-author">{{ comment.auteur.get_full_name }}</span>
+                                    <span class="comment-time ms-2">
+                                        <i class="fas fa-clock me-1"></i>{{ comment.created_at|timesince }} ago
+                                    </span>
+                                </div>
+                                {% if comment.auteur == request.user or request.user.is_company_admin %}
+                                <form method="post" action="{% url 'projects:delete_comment' comment.pk %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                            onclick="return confirm('Delete this comment?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                            <p class="mb-0">{{ comment.contenu|linebreaks }}</p>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-comment-slash fa-3x mb-3"></i>
+                            <p class="mb-0">{% trans "No comments yet. Be the first to comment!" %}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Task Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{% trans "Task Information" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <small class="text-muted d-block mb-1">{% trans "Project" %}</small>
+                        <a href="{% url 'projects:project_detail' tache.projet.pk %}">
+                            {{ tache.projet.name }}
+                        </a>
+                    </div>
+
+                    <div class="info-item">
+                        <small class="text-muted d-block mb-1">{% trans "Assigned To" %}</small>
+                        {% if tache.assigne_a %}
+                            <strong>{{ tache.assigne_a.user.get_full_name }}</strong>
+                        {% else %}
+                            <em class="text-muted">{% trans "Unassigned" %}</em>
+                        {% endif %}
+                    </div>
+
+                    {% if tache.date_debut %}
+                    <div class="info-item">
+                        <small class="text-muted d-block mb-1">{% trans "Start Date" %}</small>
+                        <strong>{{ tache.date_debut|date:"F d, Y" }}</strong>
+                    </div>
+                    {% endif %}
+
+                    {% if tache.date_echeance %}
+                    <div class="info-item">
+                        <small class="text-muted d-block mb-1">{% trans "Due Date" %}</small>
+                        <strong>{{ tache.date_echeance|date:"F d, Y" }}</strong>
+                        {% now "Y-m-d" as today %}
+                        {% if tache.date_echeance|date:"Y-m-d" < today and tache.status != 'termine' %}
+                            <span class="badge bg-danger ms-2">{% trans "Overdue" %}</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if tache.date_achevement %}
+                    <div class="info-item">
+                        <small class="text-muted d-block mb-1">{% trans "Completion Date" %}</small>
+                        <strong>{{ tache.date_achevement|date:"F d, Y" }}</strong>
+                    </div>
+                    {% endif %}
+
+                    {% if tache.duree_estimee %}
+                    <div class="info-item">
+                        <small class="text-muted d-block mb-1">{% trans "Estimated Duration" %}</small>
+                        <strong>{{ tache.duree_estimee }} hours</strong>
+                    </div>
+                    {% endif %}
+
+                    {% if tache.depend_de %}
+                    <div class="info-item">
+                        <small class="text-muted d-block mb-1">{% trans "Depends On" %}</small>
+                        <a href="{% url 'projects:sous_tache_detail' tache.depend_de.pk %}">
+                            {{ tache.depend_de.titre }}
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div class="info-item">
+                        <small class="text-muted d-block mb-1">{% trans "Completion Progress" %}</small>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar 
+                                {% if tache.completion_percentage < 30 %}bg-danger
+                                {% elif tache.completion_percentage < 70 %}bg-warning
+                                {% else %}bg-success
+                                {% endif %}" 
+                                style="width: {{ tache.completion_percentage }}%">
+                                {{ tache.completion_percentage }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>{% trans "Quick Actions" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if tache.status != 'termine' %}
+                        <form method="post" action="{% url 'projects:sous_tache_change_status' tache.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="termine">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check me-2"></i>{% trans "Mark as Complete" %}
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        {% if tache.status != 'en_cours' %}
+                        <form method="post" action="{% url 'projects:sous_tache_change_status' tache.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="en_cours">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-play me-2"></i>{% trans "Start Task" %}
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        <a href="{% url 'projects:project_detail' tache.projet.pk %}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-arrow-left me-2"></i>{% trans "Back to Project" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

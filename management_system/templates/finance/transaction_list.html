@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Transactions — Finance{% endblock %}
+
+{% block content %}
+{% include 'finance/_nav.html' %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0"><i class="fas fa-exchange-alt text-primary me-2"></i>{% trans "Transactions" %}</h2>
+  <a href="{% url 'finance:transaction_create' %}" class="btn btn-primary btn-sm">
+    <i class="fas fa-plus me-1"></i>{% trans "New Transaction" %}
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <input type="text" name="q" class="form-control form-control-sm"
+               placeholder="Search description / account…" value="{{ query }}">
+      </div>
+      <div class="col-md-2">
+        <select name="account" class="form-select form-select-sm">
+          <option value="">{% trans "All accounts" %}</option>
+          {% for acct in accounts %}
+          <option value="{{ acct.pk }}" {% if account_filter == acct.pk|stringformat:"s" %}selected{% endif %}>
+            {{ acct.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select name="type" class="form-select form-select-sm">
+          <option value="">{% trans "All types" %}</option>
+          <option value="credit" {% if type_filter == 'credit' %}selected{% endif %}>{% trans "Credit" %}</option>
+          <option value="debit"  {% if type_filter == 'debit'  %}selected{% endif %}>{% trans "Debit" %}</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <input type="date" name="date_from" class="form-control form-control-sm" value="{{ date_from }}" title="From date">
+      </div>
+      <div class="col-md-2">
+        <input type="date" name="date_to" class="form-control form-control-sm" value="{{ date_to }}" title="To date">
+      </div>
+      <div class="col-auto d-flex gap-2">
+        <button type="submit" class="btn btn-primary btn-sm">{% trans "Filter" %}</button>
+        <a href="{% url 'finance:transaction_list' %}" class="btn btn-outline-secondary btn-sm">{% trans "Clear" %}</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Summary bar -->
+<div class="row g-3 mb-3">
+  <div class="col-sm-4">
+    <div class="card border-0 bg-success bg-opacity-10 shadow-sm text-center py-2">
+      <p class="text-muted small mb-0">{% trans "Credits (filtered)" %}</p>
+      <h5 class="mb-0 text-success fw-bold">{{ credits|floatformat:0 }}</h5>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card border-0 bg-danger bg-opacity-10 shadow-sm text-center py-2">
+      <p class="text-muted small mb-0">{% trans "Debits (filtered)" %}</p>
+      <h5 class="mb-0 text-danger fw-bold">{{ debits|floatformat:0 }}</h5>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card border-0 {% if net >= 0 %}bg-primary{% else %}bg-danger{% endif %} bg-opacity-10 shadow-sm text-center py-2">
+      <p class="text-muted small mb-0">{% trans "Net" %}</p>
+      <h5 class="mb-0 {% if net >= 0 %}text-primary{% else %}text-danger{% endif %} fw-bold">
+        {% if net >= 0 %}+{% endif %}{{ net|floatformat:0 }}
+      </h5>
+    </div>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>{% trans "Date" %}</th>
+            <th>{% trans "Account" %}</th>
+            <th>{% trans "Type" %}</th>
+            <th>{% trans "Description" %}</th>
+            <th class="text-end">{% trans "Credit" %}</th>
+            <th class="text-end">{% trans "Debit" %}</th>
+            <th class="text-muted small">{% trans "By" %}</th>
+            <th class="text-end">{% trans "Actions" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for txn in transactions %}
+        <tr>
+          <td class="small">{{ txn.date|date:"d M Y" }}</td>
+          <td>
+            <a href="{% url 'finance:account_detail' txn.account.pk %}" class="text-decoration-none">
+              {{ txn.account.name }}
+            </a>
+          </td>
+          <td>
+            {% if txn.transaction_type == 'credit' %}
+            <span class="badge bg-success">{% trans "Credit" %}</span>
+            {% else %}
+            <span class="badge bg-danger">{% trans "Debit" %}</span>
+            {% endif %}
+          </td>
+          <td class="small text-muted">{{ txn.description|truncatechars:50|default:"—" }}</td>
+          <td class="text-end text-success fw-semibold">
+            {% if txn.transaction_type == 'credit' %}{{ txn.amount|floatformat:0 }}{% endif %}
+          </td>
+          <td class="text-end text-danger fw-semibold">
+            {% if txn.transaction_type == 'debit' %}{{ txn.amount|floatformat:0 }}{% endif %}
+          </td>
+          <td class="small text-muted">{{ txn.entered_by.get_full_name|default:"—" }}</td>
+          <td class="text-end">
+            <a href="{% url 'finance:transaction_edit' txn.pk %}" class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-edit"></i>
+            </a>
+            <a href="{% url 'finance:transaction_delete' txn.pk %}" class="btn btn-sm btn-outline-danger">
+              <i class="fas fa-trash"></i>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center text-muted py-4">{% trans "No transactions found." %}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% if transactions.has_other_pages %}
+<nav class="mt-3" aria-label="Transactions pagination">
+  <ul class="pagination pagination-sm justify-content-center">
+    {% if transactions.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ transactions.previous_page_number }}&q={{ query }}&account={{ account_filter }}&type={{ type_filter }}&date_from={{ date_from }}&date_to={{ date_to }}">{% trans "Previous" %}</a>
+    </li>
+    {% endif %}
+    <li class="page-item disabled">
+      <span class="page-link">{{ transactions.number }} / {{ transactions.paginator.num_pages }}</span>
+    </li>
+    {% if transactions.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ transactions.next_page_number }}&q={{ query }}&account={{ account_filter }}&type={{ type_filter }}&date_from={{ date_from }}&date_to={{ date_to }}">{% trans "Next" %}</a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

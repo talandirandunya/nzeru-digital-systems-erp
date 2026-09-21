@@ -1,0 +1,415 @@
+{% load i18n %}
+<style>
+  #helpButton {
+    background: linear-gradient(135deg, var(--accent), oklch(0.60 0.17 200)) !important;
+    border: none !important;
+    color: #0d1117 !important;
+    width: 48px;
+    height: 48px;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1050;
+  }
+  #helpButton:hover {
+    transform: scale(1.1) rotate(10deg);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
+    color: #0d1117 !important;
+  }
+  #helpModal .modal-content {
+    background: var(--glass-card) !important;
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid var(--border) !important;
+    border-radius: 16px !important;
+    color: var(--text) !important;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3) !important;
+  }
+  #helpModal .modal-header,
+  #helpModal .modal-footer {
+    border-color: var(--border) !important;
+  }
+  #helpContent h6 {
+    margin-top: 18px;
+    font-weight: 600;
+    font-size: 14.5px;
+  }
+  #helpContent ul, #helpContent ol {
+    padding-left: 20px;
+    margin-bottom: 15px;
+  }
+  #helpContent li {
+    margin-bottom: 6px;
+  }
+</style>
+
+<!-- Help System Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="helpModalLabel">
+          <i class="fas fa-question-circle text-primary me-2"></i>
+          <span id="helpTitle">{% trans "Help" %}</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+      </div>
+      <div class="modal-body" id="helpContent">
+        <!-- Help content will be loaded here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Help Button -->
+<button id="helpButton" data-bs-toggle="modal" data-bs-target="#helpModal" title="{% trans 'Help' %}">
+  <i class="fas fa-question-circle" style="font-size: 20px;"></i>
+</button>
+
+<script>
+// Help content for each app
+const helpContent = {
+  'core': {
+    title: 'Dashboard Help',
+    content: `
+      <h6><i class="fas fa-home text-primary"></i>{% trans "Dashboard Overview" %}</h6>
+      <p>{% trans "The Dashboard provides a comprehensive overview of your company's key metrics and activities." %}</p>
+
+      <h6><i class="fas fa-chart-bar text-success"></i>{% trans "Key Features:" %}</h6>
+      <ul>
+        <li><strong>{% trans "Company Statistics:" %}</strong> {% trans "View total employees, active projects, and recent activities" %}</li>
+        <li><strong>{% trans "Quick Actions:" %}</strong> {% trans "Access frequently used functions from the sidebar" %}</li>
+        <li><strong>{% trans "Notifications:" %}</strong> {% trans "Check the bell icon for system notifications and updates" %}</li>
+        <li><strong>{% trans "Role-based Access:" %}</strong> {% trans "See only the modules you have permission to access" %}</li>
+      </ul>
+
+      <h6><i class="fas fa-lightbulb text-warning"></i>{% trans "Tips:" %}</h6>
+      <ul>
+        <li>{% trans "Use the sidebar to navigate between different modules" %}</li>
+        <li>{% trans "Check notifications regularly for important updates" %}</li>
+        <li>{% trans "The dashboard updates in real-time as data changes" %}</li>
+      </ul>
+    `
+  },
+
+  'employees': {
+    title: 'Employee Management Help',
+    content: `
+      <h6><i class="fas fa-users text-primary"></i>{% trans "Employee Management Overview" %}</h6>
+      <p>{% trans "Manage your company's workforce with comprehensive employee profiles and organizational tools." %}</p>
+
+      <h6><i class="fas fa-user-plus text-success"></i>{% trans "Key Features:" %}</h6>
+      <ul>
+        <li><strong>{% trans "Employee Directory:" %}</strong> {% trans "View and search all company employees" %}</li>
+        <li><strong>{% trans "Detailed Profiles:" %}</strong> {% trans "Access complete employee information, roles, and history" %}</li>
+        <li><strong>{% trans "Organizational Chart:" %}</strong> {% trans "Understand reporting structures and hierarchies" %}</li>
+        <li><strong>{% trans "Role Management:" %}</strong> {% trans "Assign and manage employee roles and permissions" %}</li>
+      </ul>
+
+      <h6><i class="fas fa-lightbulb text-warning"></i>{% trans "Tips:" %}</h6>
+      <ul>
+        <li>{% trans "Use the search and filter options to quickly find employees" %}</li>
+        <li>{% trans "Employee profiles include contact information, positions, and performance data" %}</li>
+        <li>{% trans "Role-based permissions control what each employee can access" %}</li>
+      </ul>
+    `
+  },
+
+  'projects': {
+    title: 'Project Management Help',
+    content: `
+      <h6><i class="fas fa-project-diagram text-primary"></i>{% trans "Project Management Overview" %}</h6>
+      <p>{% trans "Plan, track, and manage projects with task management, timelines, and team collaboration tools." %}</p>
+
+      <h6><i class="fas fa-tasks text-success"></i>{% trans "Key Features:" %}</h6>
+      <ul>
+        <li><strong>{% trans "Project Creation:" %}</strong> {% trans "Set up projects with budgets, timelines, and team assignments" %}</li>
+        <li><strong>{% trans "Task Management:" %}</strong> {% trans "Break down projects into manageable tasks and subtasks" %}</li>
+        <li><strong>{% trans "Progress Tracking:" %}</strong> {% trans "Monitor completion percentages and project status" %}</li>
+        <li><strong>{% trans "Team Collaboration:" %}</strong> {% trans "Assign tasks and track team member contributions" %}</li>
+        <li><strong>{% trans "Kanban Board:" %}</strong> {% trans "Visual project workflow with drag-and-drop status updates" %}</li>
+      </ul>
+
+      <h6><i class="fas fa-lightbulb text-warning"></i>{% trans "Tips:" %}</h6>
+      <ul>
+        <li>{% trans "Use the Kanban board for visual project management" %}</li>
+        <li>{% trans "Regularly update task statuses to keep projects on track" %}</li>
+        <li>{% trans "Assign clear responsibilities and deadlines for each task" %}</li>
+        <li>{% trans "Monitor project budgets and resource allocation" %}</li>
+      </ul>
+    `
+  },
+
+  'inventory': {
+    title: 'Inventory Management Help',
+    content: `
+      <h6><i class="fas fa-boxes text-primary"></i>{% trans "Inventory Management Overview" %}</h6>
+      <p>{% trans "Track stock levels, manage suppliers, and monitor inventory movements with automated alerts." %}</p>
+
+      <h6><i class="fas fa-warehouse text-success"></i>{% trans "Key Features:" %}</h6>
+      <ul>
+        <li><strong>{% trans "Stock Tracking:" %}</strong> {% trans "Monitor quantities, values, and stock movements" %}</li>
+        <li><strong>{% trans "Low Stock Alerts:" %}</strong> {% trans "Automatic notifications when items reach reorder levels" %}</li>
+        <li><strong>{% trans "Supplier Management:" %}</strong> {% trans "Track supplier information and purchase history" %}</li>
+        <li><strong>{% trans "Transaction History:" %}</strong> {% trans "Complete audit trail of all inventory movements" %}</li>
+        <li><strong>{% trans "Reporting:" %}</strong> {% trans "Generate inventory reports and analytics" %}</li>
+      </ul>
+
+      <h6><i class="fas fa-lightbulb text-warning"></i>{% trans "Tips:" %}</h6>
+      <ul>
+        <li>{% trans "Set appropriate reorder levels to prevent stockouts" %}</li>
+        <li>{% trans "Regularly review low stock alerts and reorder items promptly" %}</li>
+        <li>{% trans "Use categories to organize and filter your inventory" %}</li>
+        <li>{% trans "Keep supplier information up-to-date for efficient procurement" %}</li>
+      </ul>
+    `
+  },
+
+  'finance': {
+    title: 'Financial Management Help',
+    content: `
+      <h6><i class="fas fa-wallet text-primary"></i>{% trans "Financial Management Overview" %}</h6>
+      <p>{% trans "Manage company finances with invoicing, accounts payable/receivable, and financial reporting." %}</p>
+
+      <h6><i class="fas fa-calculator text-success"></i>{% trans "Key Features:" %}</h6>
+      <ul>
+        <li><strong>{% trans "Client Invoicing:" %}</strong> {% trans "Create and send invoices to customers" %}</li>
+        <li><strong>{% trans "Supplier Bills:" %}</strong> {% trans "Track and pay supplier invoices" %}</li>
+        <li><strong>{% trans "Account Management:" %}</strong> {% trans "Set up chart of accounts and track balances" %}</li>
+        <li><strong>{% trans "Transaction Tracking:" %}</strong> {% trans "Record all financial transactions" %}</li>
+        <li><strong>{% trans "Financial Reports:" %}</strong> {% trans "Generate profit & loss, balance sheets, and cash flow reports" %}</li>
+      </ul>
+
+      <h6 class="text-danger"><i class="fas fa-cog"></i> Marketplace Integration Setup</h6>
+      <p>{% trans "Before you can process marketplace transactions or mark client orders as paid, you must configure the accounting link inside the finance system." %}</p>
+      
+      <h6><i class="fas fa-plus-circle text-info"></i>{% trans "1. Create Required Accounts (Chart of Accounts)" %}</h6>
+      <p>{% trans "Go to <strong>Finance → Chart of Accounts (Add Account)</strong> and ensure the following accounts are created with their precise Account Types:" %}</p>
+      <ul>
+        <li><strong>{% trans "Marketplace Receivable:" %}</strong> {% trans "Account Type must be <strong>Asset</strong> (<code>asset</code>). This tracks pending/unpaid funds from marketplace customers." %}</li>
+        <li><strong>{% trans "Marketplace Revenue:" %}</strong> {% trans "Account Type must be <strong>Revenue</strong> (<code>revenue</code>). This records your gross sales income from the marketplace." %}</li>
+        <li><strong>{% trans "Sales Tax Payable (Optional):" %}</strong> {% trans "Account Type must be <strong>Liability</strong> (<code>liability</code>). Used if you need to isolate sales tax amounts for tax reporting." %}</li>
+      </ul>
+      
+      <h6><i class="fas fa-link text-success"></i>{% trans "2. Link Accounts in Settings" %}</h6>
+      <p>{% trans "Go to <strong>Finance → Marketplace Settings</strong> (or the settings tab) and:" %}</p>
+      <ol>
+        <li>{% trans "Select the <strong>Sales Journal</strong> to record your order journal entries." %}</li>
+        <li>{% trans "Select the <strong>Receivable Account</strong> (Asset) and <strong>Revenue Account</strong> (Revenue) you created." %}</li>
+        <li>{% trans "Select the optional <strong>Tax Account</strong> (Liability) if tracking tax." %}</li>
+        <li>{% trans "Check the <strong>Enable Marketplace Posting</strong> box and save." %}</li>
+      </ol>
+
+      <h6><i class="fas fa-lightbulb text-warning"></i>{% trans "Tips:" %}</h6>
+      <ul>
+        <li>{% trans "Keep accurate records of all financial transactions" %}</li>
+        <li>{% trans "Send invoices promptly and follow up on overdue payments" %}</li>
+        <li>{% trans "Regularly review financial reports to monitor business health" %}</li>
+        <li>{% trans "Use proper accounting categories for accurate reporting" %}</li>
+      </ul>
+    `
+  },
+
+  'hr': {
+    title: 'Human Resources Help',
+    content: `
+      <h6><i class="fas fa-user-tie text-primary"></i>{% trans "Human Resources Overview" %}</h6>
+      <p>{% trans "Manage employee lifecycle from recruitment to retirement with comprehensive HR tools." %}</p>
+
+      <h6><i class="fas fa-users-cog text-success"></i>{% trans "Key Features:" %}</h6>
+      <ul>
+        <li><strong>{% trans "Leave Management:" %}</strong> {% trans "Track vacation, sick leave, and time-off requests" %}</li>
+        <li><strong>{% trans "Performance Reviews:" %}</strong> {% trans "Conduct and track employee performance evaluations" %}</li>
+        <li><strong>{% trans "Training Programs:" %}</strong> {% trans "Manage employee development and certification tracking" %}</li>
+        <li><strong>{% trans "Payroll Processing:" %}</strong> {% trans "Calculate salaries, bonuses, and deductions" %}</li>
+        <li><strong>{% trans "Position Management:" %}</strong> {% trans "Define job roles and career progression paths" %}</li>
+      </ul>
+
+      <h6><i class="fas fa-lightbulb text-warning"></i>{% trans "Tips:" %}</h6>
+      <ul>
+        <li>{% trans "Process leave requests promptly to maintain employee satisfaction" %}</li>
+        <li>{% trans "Conduct regular performance reviews to support employee development" %}</li>
+        <li>{% trans "Keep training records current for compliance and development planning" %}</li>
+        <li>{% trans "Use position management to plan for succession and career growth" %}</li>
+      </ul>
+    `
+  },
+
+  'crm': {
+    title: 'Customer Relationship Management Help',
+    content: `
+      <h6><i class="fas fa-address-book text-primary"></i>{% trans "CRM Overview" %}</h6>
+      <p>{% trans "Manage customer relationships, track sales opportunities, and drive business growth." %}</p>
+
+      <h6><i class="fas fa-handshake text-success"></i>{% trans "Key Features:" %}</h6>
+      <ul>
+        <li><strong>{% trans "Contact Management:" %}</strong> {% trans "Store and organize customer and prospect information" %}</li>
+        <li><strong>{% trans "Opportunity Tracking:" %}</strong> {% trans "Monitor sales pipeline and deal progress" %}</li>
+        <li><strong>{% trans "Lead Management:" %}</strong> {% trans "Convert leads into customers through defined processes" %}</li>
+        <li><strong>{% trans "Activity Logging:" %}</strong> {% trans "Track all customer interactions and communications" %}</li>
+        <li><strong>{% trans "Pipeline Analytics:" %}</strong> {% trans "Analyze sales performance and forecast revenue" %}</li>
+      </ul>
+
+      <h6><i class="fas fa-lightbulb text-warning"></i>{% trans "Tips:" %}</h6>
+      <ul>
+        <li>{% trans "Keep contact information current and complete" %}</li>
+        <li>{% trans "Regularly update opportunity stages to maintain accurate pipeline data" %}</li>
+        <li>{% trans "Log all customer interactions for better relationship management" %}</li>
+        <li>{% trans "Use the pipeline view to identify bottlenecks and improve sales processes" %}</li>
+      </ul>
+    `
+  },
+
+  'meetings': {
+    title: 'Meeting Management Help',
+    content: `
+      <h6><i class="fas fa-calendar-alt text-primary"></i>{% trans "Meeting Management Overview" %}</h6>
+      <p>{% trans "Schedule, conduct, and follow up on meetings with action item tracking and documentation." %}</p>
+
+      <h6><i class="fas fa-calendar-check text-success"></i>{% trans "Key Features:" %}</h6>
+      <ul>
+        <li><strong>{% trans "Meeting Scheduling:" %}</strong> {% trans "Plan meetings with attendees, agendas, and locations" %}</li>
+        <li><strong>{% trans "Action Item Tracking:" %}</strong> {% trans "Assign and monitor follow-up tasks from meetings" %}</li>
+        <li><strong>{% trans "Meeting Notes:" %}</strong> {% trans "Record discussions, decisions, and outcomes" %}</li>
+        <li><strong>{% trans "Document Management:" %}</strong> {% trans "Attach files and resources to meetings" %}</li>
+        <li><strong>{% trans "Attendance Tracking:" %}</strong> {% trans "Monitor who attends and participates" %}</li>
+      </ul>
+
+      <h6><i class="fas fa-lightbulb text-warning"></i>{% trans "Tips:" %}</h6>
+      <ul>
+        <li>{% trans "Send meeting invites and set clear agendas in advance" %}</li>
+        <li>{% trans "Assign action items with specific owners and deadlines" %}</li>
+        <li>{% trans "Follow up on action items to ensure completion" %}</li>
+        <li>{% trans "Use meeting notes to maintain institutional knowledge" %}</li>
+      </ul>
+    `
+  },
+
+  'notifications': {
+    title: 'Notifications Help',
+    content: `
+      <h6><i class="fas fa-bell text-primary"></i>{% trans "Notifications Overview" %}</h6>
+      <p>{% trans "Stay informed about important events and updates across the ERP system." %}</p>
+
+      <h6><i class="fas fa-envelope text-success"></i>{% trans "Key Features:" %}</h6>
+      <ul>
+        <li><strong>{% trans "Real-time Alerts:" %}</strong> {% trans "Instant notifications for important events" %}</li>
+        <li><strong>{% trans "Unread Counter:" %}</strong> {% trans "Badge showing number of unread notifications" %}</li>
+        <li><strong>{% trans "Notification History:" %}</strong> {% trans "Complete log of all system notifications" %}</li>
+        <li><strong>{% trans "Preference Settings:" %}</strong> {% trans "Customize which notifications you receive" %}</li>
+        <li><strong>{% trans "Mark as Read:" %}</strong> {% trans "Manage notification status and archive old items" %}</li>
+      </ul>
+
+      <h6><i class="fas fa-lightbulb text-warning"></i>{% trans "Tips:" %}</h6>
+      <ul>
+        <li>{% trans "Check the bell icon regularly for important updates" %}</li>
+        <li>{% trans "Configure notification preferences to receive only relevant alerts" %}</li>
+        <li>{% trans "Use filters to find specific types of notifications" %}</li>
+        <li>{% trans "Mark notifications as read to keep your inbox organized" %}</li>
+      </ul>
+    `
+  },
+
+  'marketplace': {
+    title: 'Marketplace & Sales Help',
+    content: `
+      <h6><i class="fas fa-shopping-cart text-primary"></i>{% trans "Marketplace Overview" %}</h6>
+      <p>{% trans "Manage customer orders, shopping carts, and integrate sales transactions into your accounting system." %}</p>
+
+      <h6><i class="fas fa-shopping-bag text-success"></i>{% trans "Key Features:" %}</h6>
+      <ul>
+        <li><strong>{% trans "Client Management:" %}</strong> {% trans "Register and manage marketplace customers" %}</li>
+        <li><strong>{% trans "Shopping Cart:" %}</strong> {% trans "Clients can browse inventory and add items to cart" %}</li>
+        <li><strong>{% trans "Order Processing:" %}</strong> {% trans "Track orders from pending to delivered status" %}</li>
+        <li><strong>{% trans "Payment Tracking:" %}</strong> {% trans "Monitor payment status and update as orders are paid" %}</li>
+        <li><strong>{% trans "Finance Integration:" %}</strong> {% trans "Automatically post paid orders to accounting" %}</li>
+      </ul>
+
+      <h6 class="text-danger"><i class="fas fa-cog text-danger"></i> Finance Integration Setup</h6>
+      <p>{% trans "<strong>IMPORTANT:</strong> Before processing marketplace orders, you must configure Finance Settings for your company." %}</p>
+
+      <h6 class="text-info"><i class="fas fa-info-circle text-info"></i> What Happens When an Order is Marked "Paid":</h6>
+      <ul>
+        <li>{% trans "System checks for Marketplace Finance Settings for your company" %}</li>
+        <li>{% trans "Creates a balanced journal entry in your sales journal with:" %}</li>
+        <ul>
+          <li><strong>{% trans "Debit:" %}</strong> {% trans "Accounts Receivable (Asset) - for full order total" %}</li>
+          <li><strong>{% trans "Credit:" %}</strong> {% trans "Revenue account - for subtotal + shipping" %}</li>
+          <li><strong>{% trans "Credit:" %}</strong> {% trans "Tax account (if configured) - for tax amount" %}</li>
+        </ul>
+        <li>{% trans "Updates account balances automatically" %}</li>
+        <li>{% trans "Creates corresponding transaction records for reporting" %}</li>
+        <li>{% trans "Updates order with posting date and status" %}</li>
+      </ul>
+
+      <h6 class="text-success"><i class="fas fa-check-circle text-success"></i> Required Setup Steps:</h6>
+      <p>{% trans "<strong>Go to Finance → Marketplace Finance Settings and configure:</strong>" %}</p>
+      <ol>
+        <li><strong>{% trans "Sales Journal:" %}</strong> {% trans "Select or create a Sales/General journal for order entries" %}</li>
+        <li><strong>{% trans "Receivable Account:" %}</strong> {% trans "Choose an Asset account (tracks unpaid customer orders)" %}</li>
+        <li><strong>{% trans "Revenue Account:" %}</strong> {% trans "Choose a Revenue account (records the sales income)" %}</li>
+        <li><strong>{% trans "Tax Account:" %}</strong> {% trans "Optional Liability account (if tracking tax separately)" %}</li>
+        <li><strong>{% trans "Enable Setting:" %}</strong> {% trans "Check \"Enable\" to activate finance posting for this company" %}</li>
+      </ol>
+
+      <h6 class="text-warning"><i class="fas fa-exclamation-triangle text-warning"></i> Troubleshooting:</h6>
+      <ul>
+        <li><strong>{% trans "Error: \"Marketplace finance settings not configured\"" %}</strong> {% trans "→ Go to Finance Settings and create the configuration" %}</li>
+        <li><strong>{% trans "Error: \"Finance posting is disabled\"" %}</strong> {% trans "→ Check the \"is_enabled\" checkbox in Finance Settings" %}</li>
+        <li><strong>{% trans "Order won't post to finance:" %}</strong> {% trans "Verify all required accounts exist and are the correct type (Asset, Revenue, Liability)" %}</li>
+        <li><strong>{% trans "Payment status shows conflict:" %}</strong> {% trans "Don't update status and payment settings simultaneously; complete one action first" %}</li>
+      </ul>
+
+      <h6><i class="fas fa-lightbulb text-warning"></i>{% trans "Best Practices:" %}</h6>
+      <ul>
+        <li>{% trans "Set up Finance Settings <strong>before</strong> processing any marketplace orders" %}</li>
+        <li>{% trans "Use separate accounts for marketplace revenue vs. other sales channels if needed" %}</li>
+        <li>{% trans "Review your chart of accounts to ensure proper account types are assigned" %}</li>
+        <li>{% trans "Regularly reconcile marketplace receivables with accounting records" %}</li>
+        <li>{% trans "Archive old orders and clients periodically for better system performance" %}</li>
+        <li>{% trans "Monitor payment status and follow up on unpaid orders promptly" %}</li>
+      </ul>
+    `
+  }
+};
+
+// Function to show help for current app
+function showHelp() {
+  const currentUrl = window.location.pathname;
+  let appName = 'core'; // default
+
+  // Determine current app from URL
+  if (currentUrl.includes('/employees/')) appName = 'employees';
+  else if (currentUrl.includes('/projects/')) appName = 'projects';
+  else if (currentUrl.includes('/inventory/')) appName = 'inventory';
+  else if (currentUrl.includes('/finance/')) appName = 'finance';
+  else if (currentUrl.includes('/hr/')) appName = 'hr';
+  else if (currentUrl.includes('/crm/')) appName = 'crm';
+  else if (currentUrl.includes('/meetings/')) appName = 'meetings';
+  else if (currentUrl.includes('/notifications/')) appName = 'notifications';
+  else if (currentUrl.includes('/marketplace/')) appName = 'marketplace';
+  else if (currentUrl.includes('/accounts/') && currentUrl.includes('company_profile')) appName = 'core';
+
+  const help = helpContent[appName] || helpContent['core'];
+
+  document.getElementById('helpTitle').textContent = help.title;
+  document.getElementById('helpContent').innerHTML = help.content;
+}
+
+// Initialize help button
+document.addEventListener('DOMContentLoaded', function() {
+  const helpButton = document.getElementById('helpButton');
+  if (helpButton) {
+    helpButton.addEventListener('click', showHelp);
+  }
+});
+</script>

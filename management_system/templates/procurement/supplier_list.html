@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block title %}Suppliers{% endblock %}{% block content %}<h2>Suppliers</h2><a href="{% url 'procurement:supplier_create' %}">New supplier</a><ul>{% for supplier in suppliers %}<li>{{ supplier.name }} - {{ supplier.email }}</li>{% empty %}<li>No suppliers.</li>{% endfor %}</ul>{% endblock %}

@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h4 class="mb-0"><i class="fas fa-box me-2"></i>{{ title }}</h4>
+            </div>
+            
+            <div class="card-body">
+                <!-- ✅ FORM TAG UPDATED -->
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="mb-3 border-bottom pb-2">{% trans "Basic Information" %}</h5>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            {{ form.item_code|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.name|as_crispy_field }}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            {{ form.category|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.unit|as_crispy_field }}
+                        </div>
+                        
+                        <div class="col-12">
+                            {{ form.description|as_crispy_field }}
+                        </div>
+
+                        <!-- ✅ IMAGE FIELD ADDED -->
+                        <div class="col-12 mt-3">
+                            <div class="mb-3">
+                                <label class="form-label">{% trans "Product Image" %}</label>
+                                {{ form.image }}
+                                
+                                {% if stock and stock.image %}
+                                <div class="mt-2">
+                                    <img src="{{ stock.image.url }}" 
+                                         alt="{{ stock.name }}" 
+                                         class="img-thumbnail" 
+                                         style="max-width: 200px;">
+                                    <p class="small text-muted">{% trans "Current image" %}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 mt-4">
+                            <h5 class="mb-3 border-bottom pb-2">{% trans "Pricing & Quantity" %}</h5>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            {{ form.quantity|as_crispy_field }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.cost_price|as_crispy_field }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.selling_price|as_crispy_field }}
+                        </div>
+                        
+                        <div class="col-md-4">
+                            {{ form.reorder_level|as_crispy_field }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.is_marketplace_visible|as_crispy_field }}
+                        </div>
+                        
+                        <div class="col-12 mt-4">
+                            <h5 class="mb-3 border-bottom pb-2">{% trans "Supplier Information" %}</h5>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            {{ form.supplier_name|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.supplier_contact|as_crispy_field }}
+                        </div>
+                        
+                        <div class="col-12 mt-4">
+                            <h5 class="mb-3 border-bottom pb-2">{% trans "Storage Information" %}</h5>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            {{ form.location|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.last_restocked|as_crispy_field }}
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>{% trans "Note:" %}</strong> 
+                        <ul class="mb-0 mt-2">
+                            <li>{% trans "Item code must be unique within your company" %}</li>
+                            <li>{% trans "Setting quantity will create an initial stock-in transaction" %}</li>
+                            <li>{% trans "Reorder level triggers low stock alerts when quantity falls below this level" %}</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>{% trans "Save Item" %}
+                        </button>
+                        <div>
+                            <a href="{% url 'inventory:stock_list' %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>{% trans "Cancel" %}
+                            </a>
+                            {% if stock %}
+                            <a href="{% url 'inventory:stock_detail' stock.pk %}" class="btn btn-info">
+                                <i class="fas fa-eye me-1"></i>{% trans "View Details" %}
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

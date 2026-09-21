@@ -1,0 +1,438 @@
+{% extends 'marketplace/marketplace_base.html' %}
+{% load i18n %}
+{% block title %}Register - {{ block.super }}{% endblock %}
+
+{% block content %}
+<style>
+    .register-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 2rem 0;
+        background-color: var(--app-bg) !important;
+    }
+
+    .register-card {
+        background-color: var(--surface-bg) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    [data-bs-theme="dark"] .register-card {
+        border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .register-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--card-shadow-hover);
+    }
+
+    .register-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        color: white !important;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .register-header h2 {
+        font-weight: 700;
+        font-size: 1.75rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .register-header .company-info {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin-top: 0.5rem;
+    }
+
+    .form-group-wrapper {
+        position: relative;
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--app-text) !important;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-label-icon {
+        color: var(--primary-color) !important;
+        width: 18px;
+        text-align: center;
+    }
+
+    .form-control {
+        border: 1.5px solid rgba(0, 0, 0, 0.15) !important;
+        border-radius: 0.75rem !important;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+        background-color: var(--surface-bg) !important;
+        color: var(--app-text) !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+    }
+
+    [data-bs-theme="dark"] .form-control {
+        border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+        background-color: var(--surface-bg) !important;
+    }
+
+    .form-control::placeholder {
+        color: #9ca3af !important;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--primary-color) !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.08) !important;
+    }
+
+    [data-bs-theme="dark"] .form-section-title {
+        border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .form-row-two .col-md-6 {
+        padding-right: 0.625rem;
+    }
+
+    .form-row-two .col-md-6:last-child {
+        padding-left: 0.625rem;
+        padding-right: 0;
+    }
+
+    .form-row-three .col-md-4 {
+        padding-right: 0.625rem;
+    }
+
+    .form-row-three .col-md-4:last-child {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .btn-register {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        border: none !important;
+        border-radius: 0.75rem !important;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s;
+        color: white !important;
+        margin-top: 1rem;
+    }
+
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3) !important;
+        filter: brightness(1.1);
+    }
+
+    .btn-register:active {
+        transform: translateY(0);
+    }
+
+    .register-footer {
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+        margin-top: 1.5rem;
+    }
+
+    [data-bs-theme="dark"] .register-footer {
+        border-top-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .register-footer p {
+        margin: 0;
+        color: #6b7280 !important;
+        font-size: 0.95rem;
+    }
+
+    .register-footer a {
+        color: var(--primary-color) !important;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .register-footer a:hover {
+        color: var(--secondary-color) !important;
+        text-decoration: underline;
+    }
+
+    .error-messages {
+        background-color: #fee2e2;
+        border: 1px solid #fecaca;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        color: #991b1b;
+    }
+
+    .error-messages i {
+        margin-right: 0.5rem;
+    }
+
+    .help-text {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-top: 0.25rem;
+    }
+
+    @media (max-width: 768px) {
+        .register-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .register-header {
+            padding: 1.5rem;
+        }
+
+        .form-row-two .col-md-6 {
+            padding-right: 0;
+        }
+
+        .form-row-two .col-md-6:last-child {
+            padding-left: 0;
+        }
+
+        .form-row-three .col-md-4 {
+            padding-right: 0;
+        }
+    }
+</style>
+
+<div class="register-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7 col-xl-6">
+                <div class="card register-card">
+                    <div class="register-header">
+                        <h2>
+                            <i class="fas fa-clipboard-user"></i>{% trans "Create Account" %}
+                        </h2>
+                        {% if company %}
+                        <div class="company-info">
+                            {% trans "Registering for" %} <strong>{{ company.name }}</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="card-body p-5">
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+
+                            {% if form.non_field_errors %}
+                            <div class="error-messages">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <strong>{% trans "Registration Error:" %}</strong>
+                                <div>{{ form.non_field_errors }}</div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Personal Information Section -->
+                            <div class="form-section">
+                                <div class="form-section-title">
+                                    <i class="fas fa-user me-2" style="color: #6366f1;"></i>{% trans "Personal Information" %}
+                                </div>
+                                <div class="row form-row-two">
+                                    <div class="col-md-6">
+                                        <div class="form-group-wrapper">
+                                            <label class="form-label">
+                                                <span class="form-label-icon"><i class="fas fa-user-circle"></i></span>
+                                                {% trans "First Name" %} <span style="color: #ef4444;">*</span>
+                                            </label>
+                                            {{ form.first_name }}
+                                            {% if form.first_name.errors %}
+                                            <div class="text-danger small mt-1">{{ form.first_name.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group-wrapper">
+                                            <label class="form-label">
+                                                <span class="form-label-icon"><i class="fas fa-user-circle"></i></span>
+                                                {% trans "Last Name" %} <span style="color: #ef4444;">*</span>
+                                            </label>
+                                            {{ form.last_name }}
+                                            {% if form.last_name.errors %}
+                                            <div class="text-danger small mt-1">{{ form.last_name.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row form-row-two">
+                                    <div class="col-md-6">
+                                        <div class="form-group-wrapper">
+                                            <label class="form-label">
+                                                <span class="form-label-icon"><i class="fas fa-envelope"></i></span>
+                                                {% trans "Email" %} <span style="color: #ef4444;">*</span>
+                                            </label>
+                                            {{ form.email }}
+                                            {% if form.email.errors %}
+                                            <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group-wrapper">
+                                            <label class="form-label">
+                                                <span class="form-label-icon"><i class="fas fa-phone"></i></span>
+                                                {% trans "Phone" %}
+                                            </label>
+                                            {{ form.phone }}
+                                            {% if form.phone.errors %}
+                                            <div class="text-danger small mt-1">{{ form.phone.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Address Section -->
+                            <div class="form-section">
+                                <div class="form-section-title">
+                                    <i class="fas fa-map-marker-alt me-2"></i>{% trans "Address Information" %}
+                                </div>
+                                <div class="form-group-wrapper">
+                                    <label class="form-label">
+                                        <span class="form-label-icon"><i class="fas fa-home"></i></span>
+                                        {% trans "Address" %}
+                                    </label>
+                                    {{ form.address }}
+                                    {% if form.address.errors %}
+                                    <div class="text-danger small mt-1">{{ form.address.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="row form-row-three">
+                                    <div class="col-md-4">
+                                        <div class="form-group-wrapper">
+                                            <label class="form-label">
+                                                <span class="form-label-icon"><i class="fas fa-city"></i></span>
+                                                {% trans "City" %}
+                                            </label>
+                                            {{ form.city }}
+                                            {% if form.city.errors %}
+                                            <div class="text-danger small mt-1">{{ form.city.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group-wrapper">
+                                            <label class="form-label">
+                                                <span class="form-label-icon"><i class="fas fa-globe"></i></span>
+                                                {% trans "Country" %}
+                                            </label>
+                                            {{ form.country }}
+                                            {% if form.country.errors %}
+                                            <div class="text-danger small mt-1">{{ form.country.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group-wrapper">
+                                            <label class="form-label">
+                                                <span class="form-label-icon"><i class="fas fa-mailbox"></i></span>
+                                                {% trans "Postal Code" %}
+                                            </label>
+                                            {{ form.postal_code }}
+                                            {% if form.postal_code.errors %}
+                                            <div class="text-danger small mt-1">{{ form.postal_code.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Security Section -->
+                            <div class="form-section">
+                                <div class="form-section-title">
+                                    <i class="fas fa-lock me-2"></i>{% trans "Security" %}
+                                </div>
+                                <div class="row form-row-two">
+                                    <div class="col-md-6">
+                                        <div class="form-group-wrapper">
+                                            <label class="form-label">
+                                                <span class="form-label-icon"><i class="fas fa-key"></i></span>
+                                                {% trans "Password" %} <span style="color: #ef4444;">*</span>
+                                            </label>
+                                            {{ form.password }}
+                                            {% if form.password.errors %}
+                                            <div class="text-danger small mt-1">{{ form.password.errors }}</div>
+                                            {% endif %}
+                                            {% if form.password.help_text %}
+                                            <small class="help-text d-block mt-2">
+                                                <i class="fas fa-info-circle me-1"></i>{{ form.password.help_text|safe }}
+                                            </small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group-wrapper">
+                                            <label class="form-label">
+                                                <span class="form-label-icon"><i class="fas fa-key"></i></span>
+                                                {% trans "Confirm Password" %} <span style="color: #ef4444;">*</span>
+                                            </label>
+                                            {{ form.confirm_password }}
+                                            {% if form.confirm_password.errors %}
+                                            <div class="text-danger small mt-1">{{ form.confirm_password.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-register w-100">
+                                <i class="fas fa-user-check me-2"></i>{% trans "Create Account" %}
+                            </button>
+                        </form>
+
+                        <div class="register-footer">
+                            <p>{% trans "Already have an account?" %} 
+                                <a href="{% url 'marketplace:client_login' %}">
+                                    <i class="fas fa-sign-in-alt me-1"></i>{% trans "Login here" %}
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

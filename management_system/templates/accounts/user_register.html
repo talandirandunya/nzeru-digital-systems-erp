@@ -1,0 +1,68 @@
+{% extends 'accounts/base_auth.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Join Company" %} — ERP System{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+    <div class="auth-header">
+        <i class="fas fa-user-plus fa-2x mb-2" aria-hidden="true"></i>
+        <h1 class="h3 mb-1">{% trans "Join a Company" %}</h1>
+        <p class="mb-0 opacity-75">{% trans "Create your account to join an existing company" %}</p>
+    </div>
+
+    <div class="auth-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-circle me-2" aria-hidden="true"></i>
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            {# ---- Company Access ---- #}
+            <h5 class="border-bottom pb-2 mb-3">
+                <i class="fas fa-building me-1 text-primary" aria-hidden="true"></i>
+                {% trans "Company Access" %}
+            </h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">{{ form.company_domain|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.company_password|as_crispy_field }}</div>
+            </div>
+
+            {# ---- Personal Information ---- #}
+            <h5 class="border-bottom pb-2 mb-3">
+                <i class="fas fa-user me-1 text-primary" aria-hidden="true"></i>
+                {% trans "Personal Information" %}
+            </h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">{{ form.first_name|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.last_name|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.email|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.phone|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.password1|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.password2|as_crispy_field }}</div>
+            </div>
+
+            <div class="alert alert-info d-flex align-items-start" role="note">
+                <i class="fas fa-info-circle me-2 mt-1 flex-shrink-0" aria-hidden="true"></i>
+                <div>
+                    {% trans "Your account will be created with the" %} <strong>{% trans "Employee" %}</strong> {% trans "role. Your administrator can assign a different role after you log in." %}
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-user-check me-2" aria-hidden="true"></i>{% trans "Join Company" %}
+                </button>
+                <a href="{% url 'accounts:company_login' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2" aria-hidden="true"></i>{% trans "Back to Login" %}
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

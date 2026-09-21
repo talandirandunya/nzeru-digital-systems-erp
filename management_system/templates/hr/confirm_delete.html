@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Confirm Delete — HR{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header" style="color:var(--red)">
+        <h5 class="mb-0">
+          <i class="fas fa-exclamation-triangle me-2"></i>{% trans "Confirm Delete" %}
+        </h5>
+      </div>
+      <div class="card-body">
+        <p class="mb-3">Are you sure you want to delete the following {{ object_type }}?</p>
+
+        <div class="alert alert-warning">
+          <strong>{{ object_name }}</strong>
+          {% if object_details %}
+          <br><small class="text-muted">{{ object_details }}</small>
+          {% endif %}
+        </div>
+
+        {% if related_objects %}
+        <div class="alert alert-info">
+          <strong>{% trans "Related Records:" %}</strong>
+          <ul class="mb-0 mt-2">
+            {% for related in related_objects %}
+            <li>{{ related }}</li>
+            {% endfor %}
+          </ul>
+          <small class="text-muted">{% trans "These related records will also be affected." %}</small>
+        </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-between mt-4">
+          <a href="{{ cancel_url }}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+          <form method="post" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+              <i class="fas fa-trash me-1"></i>Delete {{ object_type }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

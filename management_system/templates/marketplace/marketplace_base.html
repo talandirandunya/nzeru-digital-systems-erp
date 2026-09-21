@@ -1,0 +1,337 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Marketplace{% endblock %}</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --dark-color: #1f2937;
+            --light-color: #f3f4f6;
+            --app-bg: #f9fafb;
+            --surface-bg: #ffffff;
+            --app-text: #111827;
+            --card-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            --card-shadow-hover: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        [data-bs-theme="dark"] {
+            --app-bg: #0b1220;
+            --surface-bg: #1f2937;
+            --app-text: #e5e7eb;
+            --card-shadow: 0 2px 10px rgba(0,0,0,0.35);
+            --card-shadow-hover: 0 8px 25px rgba(0,0,0,0.45);
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--app-bg);
+            color: var(--app-text);
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+        
+        /* Navbar */
+        .marketplace-navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+            transform: translateY(-2px);
+        }
+        
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background: var(--primary-color);
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+        
+        /* Footer */
+        .marketplace-footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 80px;
+        }
+        
+        .footer-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-link:hover {
+            color: white;
+        }
+        
+        /* Alerts */
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 15px;
+            background-color: var(--surface-bg);
+            color: var(--app-text);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            box-shadow: var(--card-shadow-hover);
+        }
+        .theme-toggle-btn {
+            position: fixed;
+            right: 1rem;
+            bottom: 1rem;
+            z-index: 1080;
+            border-radius: 999px;
+            width: 44px;
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark marketplace-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'marketplace:shop' %}">
+                <i class="fas fa-store me-2"></i>
+                {% if company %}
+                    {{ company.name }} Shop
+                {% else %}
+                    Shop
+                {% endif %}
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                {% if request.session.client_id %}
+                <!-- Logged in menu -->
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'marketplace:shop' %}">
+                            <i class="fas fa-shopping-bag me-1"></i>{% trans "Shop" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'marketplace:order_list' %}">
+                            <i class="fas fa-box me-1"></i>{% trans "My Orders" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'marketplace:view_wishlist' %}">
+                            <i class="fas fa-heart me-1"></i>{% trans "Wishlist" %}
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item position-relative me-3">
+                        <a class="nav-link" href="{% url 'marketplace:view_cart' %}">
+                            <i class="fas fa-shopping-cart fa-lg"></i>
+                            {% if cart_count %}
+                            <span class="cart-badge">{{ cart_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i>{% trans "Account" %}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'marketplace:client_profile' %}"><i class="fas fa-user me-2"></i>{% trans "Profile" %}</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'marketplace:client_logout' %}"><i class="fas fa-sign-out-alt me-2"></i>{% trans "Logout" %}</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                {% else %}
+                <!-- Guest menu -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'marketplace:client_login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i>{% trans "Login" %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'marketplace:client_register' %}">
+                            <i class="fas fa-user-plus me-1"></i>{% trans "Register" %}
+                        </a>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="marketplace-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="mb-3">{% trans "About Us" %}</h5>
+                    <p class="text-muted">
+                        {% if company %}
+                            {{ company.name }} - Your trusted online marketplace
+                        {% else %}
+                            Shop with confidence
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="mb-3">{% trans "Quick Links" %}</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'marketplace:shop' %}" class="footer-link">{% trans "Shop" %}</a></li>
+                        {% if request.session.client_id %}
+                        <li><a href="{% url 'marketplace:order_list' %}" class="footer-link">{% trans "My Orders" %}</a></li>
+                        <li><a href="{% url 'marketplace:client_profile' %}" class="footer-link">{% trans "Profile" %}</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="mb-3">{% trans "Contact" %}</h5>
+                    {% if company %}
+                    <p class="text-muted">
+                        <i class="fas fa-envelope me-2"></i>{{ company.contact_email }}<br>
+                        {% if company.contact_phone %}
+                        <i class="fas fa-phone me-2"></i>{{ company.contact_phone }}
+                        {% endif %}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            <hr class="border-secondary">
+            <div class="text-center text-muted">
+                <p class="mb-0">&copy; {% now "Y" %} {% if company %}{{ company.name }}{% else %}Marketplace{% endif %}. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    {% if company and company.whatsapp_number %}
+    <a href="https://wa.me/{{ company.whatsapp_number|cut:'+'|cut:' ' }}" target="_blank" class="btn btn-success rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="position: fixed; bottom: 20px; left: 20px; width: 56px; height: 56px; z-index: 1050; font-size: 28px;" title="Chat with us on WhatsApp">
+        <i class="fab fa-whatsapp text-white"></i>
+    </a>
+    {% endif %}
+
+    <button id="themeToggle" class="btn btn-outline-secondary theme-toggle-btn" type="button" aria-label="Toggle dark mode">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function() {
+            var storageKey = 'erp-theme';
+            var root = document.documentElement;
+            var toggleBtn = document.getElementById('themeToggle');
+            var toggleIcon = toggleBtn ? toggleBtn.querySelector('i') : null;
+
+            function getPreferredTheme() {
+                var savedTheme = localStorage.getItem(storageKey);
+                if (savedTheme === 'dark' || savedTheme === 'light') {
+                    return savedTheme;
+                }
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            function applyTheme(theme) {
+                root.setAttribute('data-bs-theme', theme);
+                if (toggleIcon) {
+                    toggleIcon.className = 'fas ' + (theme === 'dark' ? 'fa-sun' : 'fa-moon');
+                }
+                if (toggleBtn) {
+                    toggleBtn.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+                }
+            }
+
+            applyTheme(getPreferredTheme());
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    var nextTheme = root.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+                    localStorage.setItem(storageKey, nextTheme);
+                    applyTheme(nextTheme);
+                });
+            }
+        })();
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

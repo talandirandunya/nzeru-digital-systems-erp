@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: zentral
+      POSTGRES_USER: zentral_user
+      POSTGRES_PASSWORD: zentral_dev_2026
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zentral_user -d zentral"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8010:8000"
+    environment:
+      DATABASE_URL: postgresql://zentral_user:zentral_dev_2026@db:5432/zentral
+      DEBUG: "True"
+      SECRET_KEY: django-insecure-local-docker-dev-only
+      DJANGO_SETTINGS_MODULE: management_system.settings
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./management_system:/app/management_system
+      - media_files:/app/management_system/media
+
+volumes:
+  postgres_data:
+  media_files:

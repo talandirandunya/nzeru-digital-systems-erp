@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ notification.title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+          {% if notification.notification_type == 'leave_request' %}
+          <i class="fas fa-calendar-minus text-primary me-2 fa-lg"></i>
+          {% elif notification.notification_type == 'leave_approved' %}
+          <i class="fas fa-check-circle text-success me-2 fa-lg"></i>
+          {% elif notification.notification_type == 'leave_denied' %}
+          <i class="fas fa-times-circle text-danger me-2 fa-lg"></i>
+          {% elif notification.notification_type == 'performance_review' %}
+          <i class="fas fa-star text-warning me-2 fa-lg"></i>
+          {% elif notification.notification_type == 'performance_goal' %}
+          <i class="fas fa-bullseye text-info me-2 fa-lg"></i>
+          {% elif notification.notification_type == 'training_enrollment' %}
+          <i class="fas fa-graduation-cap text-success me-2 fa-lg"></i>
+          {% elif notification.notification_type == 'training_completed' %}
+          <i class="fas fa-trophy text-warning me-2 fa-lg"></i>
+          {% elif notification.notification_type == 'payroll_processed' %}
+          <i class="fas fa-money-bill-wave text-success me-2 fa-lg"></i>
+          {% elif notification.notification_type == 'meeting_invitation' %}
+          <i class="fas fa-calendar-alt text-info me-2 fa-lg"></i>
+          {% elif notification.notification_type == 'project_update' %}
+          <i class="fas fa-project-diagram text-primary me-2 fa-lg"></i>
+          {% elif notification.notification_type == 'crm_opportunity' %}
+          <i class="fas fa-handshake text-success me-2 fa-lg"></i>
+          {% elif notification.notification_type == 'inventory_low' %}
+          <i class="fas fa-exclamation-triangle text-warning me-2 fa-lg"></i>
+          {% elif notification.notification_type == 'marketplace_order' %}
+          <i class="fas fa-shopping-cart text-primary me-2 fa-lg"></i>
+          {% else %}
+          <i class="fas fa-bell text-secondary me-2 fa-lg"></i>
+          {% endif %}
+
+          <div>
+            <h5 class="mb-0">{{ notification.title }}</h5>
+            <small class="text-muted">{{ notification.get_notification_type_display }}</small>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          {% if notification.related_url %}
+          <a href="{{ notification.related_url }}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-external-link-alt me-1"></i>{% trans "View Related" %}
+          </a>
+          {% endif %}
+          <a href="{% url 'notifications:notification_list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>{% trans "Back to List" %}
+          </a>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="mb-3">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <small class="text-muted d-block">{% trans "Received" %}</small>
+              <span class="fw-semibold">{{ notification.created_at|date:"M d, Y \a\t g:i A" }}</span>
+            </div>
+            <div class="col-md-6">
+              <small class="text-muted d-block">{% trans "Status" %}</small>
+              {% if notification.is_read %}
+              <span class="badge bg-success">{% trans "Read" %}</span>
+              {% if notification.read_at %}
+              <small class="text-muted d-block mt-1">Read on {{ notification.read_at|date:"M d, Y \a\t g:i A" }}</small>
+              {% endif %}
+              {% else %}
+              <span class="badge bg-primary">{% trans "Unread" %}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="notification-content">
+          <h6 class="fw-bold mb-3">{% trans "Message" %}</h6>
+          <div class="p-3 rounded-3" style="background:var(--surface2)">
+            {{ notification.message|linebreaks }}
+          </div>
+        </div>
+
+        {% if notification.data %}
+        <hr>
+        <div class="notification-data">
+          <h6 class="fw-bold mb-3">{% trans "Additional Details" %}</h6>
+          <div class="p-3 rounded-3" style="background:var(--surface2)">
+            <pre class="mb-0">{{ notification.data|pprint }}</pre>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="card-footer">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="text-muted small">
+            {{ notification.time_since }}
+          </div>
+
+          <div class="d-flex gap-2">
+            {% if not notification.is_read %}
+            <form method="post" action="{% url 'notifications:mark_as_read' notification.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-success btn-sm">
+                <i class="fas fa-check me-1"></i>{% trans "Mark as Read" %}
+              </button>
+            </form>
+            {% endif %}
+
+            {% if not notification.is_archived %}
+            <form method="post" action="{% url 'notifications:archive_notification' notification.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-warning btn-sm">
+                <i class="fas fa-archive me-1"></i>{% trans "Archive" %}
+              </button>
+            </form>
+            {% else %}
+            <form method="post" action="{% url 'notifications:unarchive_notification' notification.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-info btn-sm">
+                <i class="fas fa-undo me-1"></i>{% trans "Unarchive" %}
+              </button>
+            </form>
+            {% endif %}
+
+            <form method="post" action="{% url 'notifications:delete_notification' notification.pk %}" class="d-inline"
+                  onsubmit="return confirm('Are you sure you want to delete this notification?')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">
+                <i class="fas fa-trash me-1"></i>{% trans "Delete" %}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

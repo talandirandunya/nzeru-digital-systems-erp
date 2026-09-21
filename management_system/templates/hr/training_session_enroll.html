@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Enroll Employees — {{ session.session_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-users text-primary me-2"></i>{% trans "Enroll Employees in Training Session" %}
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info mb-4">
+          <strong>{% trans "Course:" %}</strong> {{ session.course.title }}<br>
+          <strong>{% trans "Session:" %}</strong> {{ session.session_name }}<br>
+          <strong>{% trans "Schedule:" %}</strong> {{ session.start_date|date:"M d, Y" }} - {{ session.end_date|date:"M d, Y" }}<br>
+          <strong>{% trans "Enrolled:" %}</strong> {{ session.enrolled_count }}/{{ session.max_participants|default:'∞' }}
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.employees.id_for_label }}" class="form-label">{% trans "Select Employees to Enroll *" %}</label>
+              {{ form.employees }}
+              {% if form.employees.errors %}
+              <div class="invalid-feedback d-block">{{ form.employees.errors.0 }}</div>
+              {% endif %}
+              <div class="form-text">{% trans "Hold Ctrl/Cmd to select multiple employees" %}</div>
+            </div>
+
+            <div class="col-12">
+              <label for="{{ form.enrollment_date.id_for_label }}" class="form-label">{% trans "Enrollment Date *" %}</label>
+              {{ form.enrollment_date }}
+              {% if form.enrollment_date.errors %}
+              <div class="invalid-feedback d-block">{{ form.enrollment_date.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-12">
+              <label for="{{ form.notes.id_for_label }}" class="form-label">{% trans "Enrollment Notes" %}</label>
+              {{ form.notes }}
+              {% if form.notes.errors %}
+              <div class="invalid-feedback d-block">{{ form.notes.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'hr:training_session_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-users me-1"></i>{% trans "Enroll Selected Employees" %}
+            </button>
+          </div>
+        </form>
+
+        {% if already_enrolled %}
+        <div class="alert alert-warning mt-3">
+          <strong>{% trans "Already Enrolled:" %}</strong> {% trans "The following employees are already enrolled in this session:" %}
+          <ul class="mb-0 mt-2">
+            {% for emp in already_enrolled %}
+            <li>{{ emp.get_full_name }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

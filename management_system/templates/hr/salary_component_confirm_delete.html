@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% block title %}Delete Salary Component{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> {% trans "Delete Salary Component" %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p class="mb-4">{% trans "Are you sure you want to delete the salary component" %} <strong>"{{ component.name }}"</strong>?</p>
+
+                    <div class="alert alert-warning">
+                        <strong>{% trans "Warning:" %}</strong> {% trans "This action cannot be undone. Ensure this component is not being used in active payroll entries." %}
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h6>{% trans "Component Details:" %}</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>{% trans "Name:" %}</strong> {{ component.name }}</li>
+                                <li><strong>{% trans "Type:" %}</strong> {{ component.get_component_type_display }}</li>
+                                <li><strong>{% trans "Description:" %}</strong> {{ component.description|default:"—" }}</li>
+                                <li><strong>{% trans "Status:" %}</strong> {% if component.is_active %}Active{% else %}Inactive{% endif %}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> {% trans "Yes, Delete Component" %}
+                            </button>
+                            <a href="{% url 'hr:salary_component_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> {% trans "Cancel" %}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

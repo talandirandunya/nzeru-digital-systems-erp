@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Access assignments{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+	<div><h2 class="mb-1">Access assignments</h2><p class="text-muted mb-0">{{ managed_user.get_full_name }} · {{ managed_user.email }} · {{ managed_user.company.name }}</p></div>
+	<a class="btn btn-outline-secondary" href="{% url 'governance:user_list' %}">Back to users</a>
+</div>
+
+<div class="alert alert-warning">When explicit assignments are enabled, this user receives only the checked permissions. Their job title will not add access automatically.</div>
+<form method="post" class="card mb-4">{% csrf_token %}<input type="hidden" name="action" value="save_access">
+	<div class="card-body">
+		<div class="form-check form-switch mb-4">{{ form.access_controlled }} <label class="form-check-label" for="{{ form.access_controlled.id_for_label }}"><strong>{{ form.access_controlled.label }}</strong></label><div class="small text-muted">{{ form.access_controlled.help_text }}</div></div>
+		<div class="row g-3">
+			{% for module in module_access_catalog %}
+			<div class="col-12 col-lg-6"><section class="border rounded p-3 h-100"><h5 class="mb-3">{{ module.label }}</h5>
+				{% for capability, label in module.capabilities %}
+				<div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="capability__{{ capability }}" id="id_capability__{{ capability }}"{% if capability in assigned_capabilities %} checked{% endif %}><label class="form-check-label" for="id_capability__{{ capability }}">{{ label }} <span class="text-muted small">({{ capability }})</span></label></div>
+				{% endfor %}
+			</section></div>
+			{% endfor %}
+		</div>
+	</div>
+	<div class="card-footer"><button name="action" value="save_access" class="btn btn-primary">Save access assignments</button></div>
+</form>
+
+<div class="card mb-4"><div class="card-header"><h4 class="mb-0">Approval authority</h4></div><div class="card-body"><p class="text-muted">Approval authority is separate from module access. Configure the transaction type, scope, and amount limit explicitly.</p><form method="post">{% csrf_token %}<input type="hidden" name="action" value="save_authority">{{ authority_form.as_p }}<button class="btn btn-primary">Save approval authority</button></form></div></div>
+
+<div class="card mb-4"><div class="card-header"><h4 class="mb-0">Current approval authorities</h4></div><div class="card-body"><div class="table-responsive"><table class="table"><thead><tr><th>Transaction</th><th>Module</th><th>Capability</th><th>Limit</th><th>Scope</th><th></th></tr></thead><tbody>{% for authority in authorities %}<tr><td>{{ authority.transaction_type }}</td><td>{{ authority.module|default:'All' }}</td><td>{{ authority.capability }}</td><td>{{ authority.min_amount|default:'Any' }} - {{ authority.max_amount|default:'Any' }}</td><td>{{ authority.department|default:'All departments' }} / {{ authority.branch|default:'All branches' }}</td><td><form method="post" action="{% url 'governance:user_approval_authority_delete' authority.pk %}">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Remove</button></form></td></tr>{% empty %}<tr><td colspan="6" class="text-muted">No explicit approval authority assigned.</td></tr>{% endfor %}</tbody></table></div></div></div>
+
+<div class="card"><div class="card-header"><h4 class="mb-0">Role defaults (reference only)</h4></div><div class="card-body"><p class="text-muted mb-0">These are inherited from the job title and are not administrator assignments. They are ignored when explicit assignments are enabled.</p><div class="small mt-2">{{ effective_capabilities|join:', ' }}</div></div></div>
+{% endblock %}

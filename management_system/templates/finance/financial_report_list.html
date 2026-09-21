@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% block title %}Financial Reports{% endblock %}
+
+{% block content %}
+{% include 'finance/_nav.html' %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">{% trans "Financial Reports" %}</h3>
+                    <a href="{% url 'finance:financial_report_generate' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> {% trans "Generate Report" %}
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if reports %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans "Report Type" %}</th>
+                                        <th>{% trans "Report Date" %}</th>
+                                        <th>{% trans "Period" %}</th>
+                                        <th>{% trans "Generated" %}</th>
+                                        <th>{% trans "Actions" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for report in reports %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary">{{ report.get_report_type_display }}</span>
+                                        </td>
+                                        <td>{{ report.report_date|date:"M d, Y" }}</td>
+                                        <td>
+                                            {% if report.start_date and report.end_date %}
+                                                {{ report.start_date|date:"M d" }} - {{ report.end_date|date:"M d, Y" }}
+                                            {% else %}
+                                                As of {{ report.report_date|date:"M d, Y" }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ report.created_date|date:"M d, Y H:i" }}</td>
+                                        <td>
+                                            <a href="{% url 'finance:financial_report_detail' report.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> {% trans "View" %}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                            <h4>{% trans "No Financial Reports" %}</h4>
+                            <p class="text-muted">{% trans "Generate your first financial report to get started." %}</p>
+                            <a href="{% url 'finance:financial_report_generate' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> {% trans "Generate Report" %}
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

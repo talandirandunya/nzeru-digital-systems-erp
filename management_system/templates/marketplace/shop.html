@@ -1,0 +1,63 @@
+{% extends 'marketplace/marketplace_base.html' %}
+{% load i18n %}
+{% block title %}Shop - {{ block.super }}{% endblock %}
+{% block extra_css %}
+<style>
+    .product-card { transition: all 0.3s; cursor: pointer; height: 100%; }
+    .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+    .product-image { height: 200px; object-fit: cover; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #d1d5db; }
+    .price { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="mb-4"><i class="fas fa-shopping-bag me-2"></i>Shop{% if company %} - {{ company.name }}{% endif %}</h1>
+    
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <form method="get" class="d-flex gap-2">
+                <input type="hidden" name="company" value="{% if company %}{{ company.domain }}{% endif %}">
+                <input type="text" name="q" class="form-control" placeholder="Search products..." value="{{ query }}">
+                <select name="category" class="form-select" style="max-width: 200px;">
+                    <option value="">{% trans "All Categories" %}</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Products -->
+    <div class="row">
+        {% for stock in stocks %}
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="card product-card" onclick="window.location='{% url 'marketplace:product_detail' stock.pk %}'">
+                <div class="product-image card-img-top">
+                    {% if stock.image %}
+                        <img src="{{ stock.image.url }}" alt="{{ stock.name }}" style="width: 100%; height: 200px; object-fit: cover;">
+                    {% else %}
+                        <i class="fas fa-box"></i>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title">{{ stock.name }}</h6>
+                    <p class="text-muted small mb-2">{{ stock.item_code }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="price">FCFA {{ stock.selling_price|floatformat:0 }}</span>
+                        <span class="badge bg-success">{{ stock.quantity }} in stock</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-box-open fa-5x text-muted mb-3"></i>
+            <h4>{% trans "No products found" %}</h4>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Marketplace Finance Settings{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="mb-1"><i class="fas fa-store text-primary me-2"></i>{% trans "Marketplace Finance Settings" %}</h2>
+    <p class="text-muted mb-0">Map marketplace orders to the correct journal and accounts for {{ request.user.company.name }}.</p>
+  </div>
+  <a href="{% url 'finance:index' %}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left me-1"></i>{% trans "Back to Finance" %}
+  </a>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+          </div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label for="{{ form.sales_journal.id_for_label }}" class="form-label fw-semibold">{% trans "Sales Journal" %}</label>
+            {{ form.sales_journal }}
+            {% if form.sales_journal.errors %}<div class="text-danger small mt-1">{{ form.sales_journal.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.receivable_account.id_for_label }}" class="form-label fw-semibold">{% trans "Marketplace Receivable Account" %}</label>
+            {{ form.receivable_account }}
+            {% if form.receivable_account.errors %}<div class="text-danger small mt-1">{{ form.receivable_account.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.revenue_account.id_for_label }}" class="form-label fw-semibold">{% trans "Marketplace Revenue Account" %}</label>
+            {{ form.revenue_account }}
+            {% if form.revenue_account.errors %}<div class="text-danger small mt-1">{{ form.revenue_account.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.tax_account.id_for_label }}" class="form-label fw-semibold">{% trans "Tax Account" %}</label>
+            {{ form.tax_account }}
+            <div class="form-text">{% trans "Optional. Leave blank if marketplace orders are posted without a separate tax line." %}</div>
+            {% if form.tax_account.errors %}<div class="text-danger small mt-1">{{ form.tax_account.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="form-check form-switch mb-4">
+            {{ form.is_enabled }}
+            <label class="form-check-label" for="{{ form.is_enabled.id_for_label }}">{% trans "Enable marketplace finance posting" %}</label>
+            {% if form.is_enabled.errors %}<div class="text-danger small mt-1">{{ form.is_enabled.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i>{% trans "Save Settings" %}
+            </button>
+            <a href="{% url 'finance:index' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-light">
+        <span class="fw-semibold">{% trans "What This Controls" %}</span>
+      </div>
+      <div class="card-body">
+        <p class="mb-3 text-muted">{% trans "Phase 2 prepares the accounting map so Phase 3 can post marketplace orders safely." %}</p>
+        <ul class="mb-0 text-muted">
+          <li>{% trans "The sales journal will receive marketplace journal entries." %}</li>
+          <li>{% trans "The receivable account is debited when an order is posted before cash settlement." %}</li>
+          <li>{% trans "The revenue account is credited for the sale value." %}</li>
+          <li>{% trans "The tax account is optional for separate tax handling later." %}</li>
+        </ul>
+      </div>
+    </div>
+
+    {% if settings_obj %}
+    <div class="card shadow-sm mt-4">
+      <div class="card-header bg-light">
+        <span class="fw-semibold">{% trans "Current Status" %}</span>
+      </div>
+      <div class="card-body">
+        <p class="mb-2"><strong>{% trans "Enabled:" %}</strong> {{ settings_obj.is_enabled|yesno:"Yes,No" }}</p>
+        <p class="mb-2"><strong>{% trans "Updated:" %}</strong> {{ settings_obj.updated_at|date:"d M Y H:i" }}</p>
+        <p class="mb-0"><strong>{% trans "Journal:" %}</strong> {{ settings_obj.sales_journal.name }}</p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,192 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}NZERU ERP{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>(function(){var t=localStorage.getItem('zentral-theme')||'dark';document.documentElement.setAttribute('data-bs-theme',t);})();</script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  {% block extra_css %}{% endblock %}
+  <style>
+    :root {
+      --bg: #0d1117; --surface: #161b22; --surface2: #21262d;
+      --border: #30363d; --text: #e6edf3; --muted: #8b949e; --muted-dim: #484f58;
+      --accent: oklch(0.70 0.17 162); --accent-dim: oklch(0.70 0.17 162 / 0.15);
+      --red: oklch(0.62 0.20 25);
+    }
+    [data-bs-theme="light"] {
+      --bg: #f3f4f6; --surface: #ffffff; --surface2: #f0f1f3;
+      --border: #e1e4e8; --text: #1c2128; --muted: #57606a; --muted-dim: #8c959f;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      transition: background .25s, color .25s;
+    }
+    @keyframes fadeSlideIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+    .auth-wrap { width: 100%; max-width: 640px; padding: 24px; animation: fadeSlideIn .25s ease; }
+
+    .auth-brand { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 32px; text-decoration: none; }
+    .auth-brand-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--accent); display: flex; align-items: center; justify-content: center; }
+    .auth-brand-icon i { color: #0d1117; font-size: 16px; }
+    .auth-brand-name { font-weight: 800; font-size: 22px; color: var(--text); letter-spacing: -.5px; }
+
+    .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,.4); }
+    .auth-card-header { padding: 28px 32px 20px; text-align: center; border-bottom: 1px solid var(--border); }
+    .auth-card-header h1 { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .auth-card-header p  { font-size: 13px; color: var(--muted); }
+    .auth-card-body { padding: 32px 36px 36px; }
+    .auth-card-body .mb-3 { margin-bottom: 1.1rem !important; }
+    .auth-card-body .btn { margin-top: 8px; }
+
+    /* Form elements */
+    label { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; display: block; }
+    .form-control, .form-select {
+      background: var(--surface2) !important; border: 1px solid var(--border) !important;
+      color: var(--text) !important; border-radius: 8px !important;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; padding: 10px 14px !important;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 3px oklch(0.70 0.17 162 / 0.15) !important;
+      outline: none !important;
+    }
+    .form-control::placeholder { color: var(--muted-dim); }
+    select option { background: var(--surface2); color: var(--text); }
+
+    /* Buttons */
+    .btn-primary {
+      background: var(--accent) !important; border-color: var(--accent) !important;
+      color: #0d1117 !important; font-weight: 700; padding: 11px !important;
+      border-radius: 8px !important; font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .btn-primary:hover { opacity: .88; }
+    .btn-outline-secondary {
+      border-color: var(--border) !important; color: var(--muted) !important;
+      background: transparent !important; border-radius: 8px !important;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .btn-outline-secondary:hover { background: var(--surface2) !important; color: var(--text) !important; }
+
+    /* Alerts */
+    .alert { border-radius: 10px !important; font-size: 13px; }
+    .alert-danger  { background: oklch(0.62 0.20 25 / 0.12) !important; border: 1px solid oklch(0.62 0.20 25 / 0.3) !important; color: var(--text) !important; }
+    .alert-success { background: oklch(0.70 0.17 162 / 0.12) !important; border: 1px solid oklch(0.70 0.17 162 / 0.3) !important; color: var(--text) !important; }
+    .alert-warning { background: oklch(0.78 0.17 75 / 0.12) !important; border: 1px solid oklch(0.78 0.17 75 / 0.3) !important; color: var(--text) !important; }
+    .alert-info    { background: oklch(0.65 0.17 245 / 0.12) !important; border: 1px solid oklch(0.65 0.17 245 / 0.3) !important; color: var(--text) !important; }
+    .btn-close { filter: invert(60%); }
+
+    /* Links */
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { opacity: .8; }
+
+    /* Errors */
+    .errorlist { list-style: none; padding: 0; margin: 4px 0 0; font-size: 12px; color: var(--red); }
+    .helptext  { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .form-label.required-label::after,
+    label.required-label::after { content: '*'; color: #ea5455; margin-left: 0.15rem; }
+    .required-field-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.9rem 1rem;
+      margin-bottom: 1.25rem;
+      border-radius: 0.85rem;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    .required-field-note i { margin-top: 0.1rem; color: var(--accent); }
+
+    /* Theme FAB */
+    .theme-fab {
+      position: fixed; bottom: 20px; right: 20px; width: 42px; height: 42px;
+      border-radius: 50%; background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--muted);
+      box-shadow: 0 4px 16px rgba(0,0,0,.3); z-index: 100;
+      transition: color .15s;
+    }
+    .theme-fab:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<div class="auth-wrap">
+  <a class="auth-brand" href="/">
+    <div class="auth-brand-icon"><i class="fas fa-bolt"></i></div>
+    <span class="auth-brand-name">NZERU ERP</span>
+  </a>
+
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3">
+      <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{% trans 'Dismiss' %}"></button>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="auth-card">
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+<button class="theme-fab" id="theme-fab" title="{% trans 'Toggle theme' %}">
+  <i class="fas fa-sun" id="theme-fab-icon"></i>
+</button>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function(){
+  const html = document.documentElement;
+  const icon = document.getElementById('theme-fab-icon');
+  const t = localStorage.getItem('zentral-theme') || 'dark';
+  html.setAttribute('data-bs-theme', t);
+  if (icon) icon.className = t === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+  document.getElementById('theme-fab').addEventListener('click', function() {
+    const next = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-bs-theme', next);
+    localStorage.setItem('zentral-theme', next);
+    if (icon) icon.className = next === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+  });
+})();
+(function() {
+  function enhanceRequiredFormFields() {
+    document.querySelectorAll('form').forEach(function(form) {
+      form.removeAttribute('novalidate');
+      var hasRequired = false;
+      form.querySelectorAll('label[for]').forEach(function(label) {
+        var target = document.getElementById(label.getAttribute('for'));
+        if (target && target.required) {
+          hasRequired = true;
+          if (!label.querySelector('.asteriskField') && !label.innerHTML.includes('*')) {
+            label.classList.add('required-label');
+          }
+        }
+      });
+      if (hasRequired && !form.querySelector('.required-field-note')) {
+        var note = document.createElement('div');
+        note.className = 'required-field-note';
+        note.innerHTML = '<i class="fas fa-info-circle"></i><div>Fields marked with <span class="text-danger">*</span> are required. Please complete them before submitting.</div>';
+        form.insertAdjacentElement('afterbegin', note);
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded', enhanceRequiredFormFields);
+})();
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

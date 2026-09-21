@@ -1,0 +1,48 @@
+{% extends 'marketplace/marketplace_base.html' %}
+{% load i18n %}
+{% block title %}My Profile - {{ block.super }}{% endblock %}
+{% block content %}
+<div class="container">
+    <h2 class="mb-4"><i class="fas fa-user me-2"></i>{% trans "My Profile" %}</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-circle fa-5x text-primary mb-3"></i>
+                    <h4>{{ client.get_full_name }}</h4>
+                    <p class="text-muted">{{ client.email }}</p>
+                    <a href="{% url 'marketplace:edit_client_profile' %}" class="btn btn-primary">{% trans "Edit Profile" %}</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header"><h5>{% trans "Personal Information" %}</h5></div>
+                <div class="card-body">
+                    <p><strong>{% trans "Name:" %}</strong> {{ client.get_full_name }}</p>
+                    <p><strong>{% trans "Email:" %}</strong> {{ client.email }}</p>
+                    <p><strong>{% trans "Phone:" %}</strong> {{ client.phone|default:"—" }}</p>
+                    <p><strong>{% trans "Address:" %}</strong> {{ client.address|default:"—" }}</p>
+                    <p><strong>{% trans "City:" %}</strong> {{ client.city|default:"—" }}</p>
+                    <p><strong>{% trans "Country:" %}</strong> {{ client.country|default:"—" }}</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h5>{% trans "Order Statistics" %}</h5></div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h3 class="text-primary">{{ total_orders }}</h3>
+                            <p class="text-muted">{% trans "Total Orders" %}</p>
+                        </div>
+                        <div class="col-6">
+                            <h3 class="text-warning">{{ pending_orders }}</h3>
+                            <p class="text-muted">{% trans "Pending Orders" %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

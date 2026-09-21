@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Edit Payroll Entry{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">{{ title }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <h5>{% trans "Employee & Period Information" %}</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">{% trans "Employee" %}</label>
+                                    <p class="form-control-plaintext">{{ entry.employee.full_name }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">{% trans "Payroll Period" %}</label>
+                                    <p class="form-control-plaintext">{{ entry.payroll_period.start_date|date:"M d" }} - {{ entry.payroll_period.end_date|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5>{% trans "Salary Information" %}</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.base_salary.id_for_label }}" class="form-label">{% trans "Base Salary" %}</label>
+                                    {{ form.base_salary }}
+                                    {% if form.base_salary.errors %}
+                                        <div class="text-danger">{{ form.base_salary.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.working_days.id_for_label }}" class="form-label">{% trans "Working Days" %}</label>
+                                    {{ form.working_days }}
+                                    {% if form.working_days.errors %}
+                                        <div class="text-danger">{{ form.working_days.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5>{% trans "Salary Components" %}</h5>
+                        {{ formset.management_form }}
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans "Component" %}</th>
+                                        <th>{% trans "Amount" %}</th>
+                                        <th>{% trans "Notes" %}</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for form_item in formset %}
+                                        {% if forloop.counter <= formset.total_form_count %}
+                                        <tr>
+                                            <td>{{ form_item.component }}</td>
+                                            <td>{{ form_item.amount }}</td>
+                                            <td>{{ form_item.notes }}</td>
+                                            <td class="text-center">{{ form_item.DELETE }}</td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h5 class="mt-4">{% trans "Calculated Totals" %}</h5>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6>{% trans "Gross Earnings" %}</h6>
+                                        <p class="h5 text-success">₱{{ entry.gross_earnings|floatformat:2 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6>{% trans "Deductions" %}</h6>
+                                        <p class="h5 text-danger">₱{{ entry.total_deductions|floatformat:2 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6>{% trans "Taxes" %}</h6>
+                                        <p class="h5 text-warning">₱{{ entry.tax_amount|floatformat:2 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6>{% trans "Net Pay" %}</h6>
+                                        <p class="h5 text-primary"><strong>₱{{ entry.net_pay|floatformat:2 }}</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 mt-4">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">{% trans "Notes" %}</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="text-danger">{{ form.notes.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% trans "Save Entry" %}
+                            </button>
+                            <a href="{% url 'hr:payroll_period_detail' entry.payroll_period.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> {% trans "Cancel" %}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

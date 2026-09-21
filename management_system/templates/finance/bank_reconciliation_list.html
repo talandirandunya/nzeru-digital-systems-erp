@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% block title %}Bank Reconciliations{% endblock %}
+
+{% block content %}
+{% include 'finance/_nav.html' %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">{% trans "Bank Reconciliations" %}</h3>
+                    <div>
+                        <a href="{% url 'finance:bank_statement_upload' %}" class="btn btn-success me-2">
+                            <i class="fas fa-upload"></i> {% trans "Upload Statement" %}
+                        </a>
+                        <a href="{% url 'finance:bank_reconciliation_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> {% trans "New Reconciliation" %}
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if reconciliations %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans "Bank Account" %}</th>
+                                        <th>{% trans "Statement Date" %}</th>
+                                        <th>{% trans "Reconciled Date" %}</th>
+                                        <th>{% trans "Bank Balance" %}</th>
+                                        <th>{% trans "Book Balance" %}</th>
+                                        <th>{% trans "Difference" %}</th>
+                                        <th>{% trans "Status" %}</th>
+                                        <th>{% trans "Actions" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reconciliation in reconciliations %}
+                                    <tr>
+                                        <td>{{ reconciliation.bank_account.name }}</td>
+                                        <td>{{ reconciliation.statement.statement_date|date:"M d, Y" }}</td>
+                                        <td>{{ reconciliation.reconciled_date|date:"M d, Y" }}</td>
+                                        <td class="text-end">{{ reconciliation.bank_balance|floatformat:2 }}</td>
+                                        <td class="text-end">{{ reconciliation.book_balance|floatformat:2 }}</td>
+                                        <td class="text-end">
+                                            <span class="{% if reconciliation.difference == 0 %}text-success{% else %}text-danger{% endif %}">
+                                                {{ reconciliation.difference|floatformat:2 }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if reconciliation.difference == 0 %}
+                                                <span class="badge bg-success">{% trans "Reconciled" %}</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">{% trans "Pending" %}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'finance:bank_reconciliation_detail' reconciliation.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> {% trans "View" %}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-balance-scale fa-3x text-muted mb-3"></i>
+                            <h4>{% trans "No Bank Reconciliations" %}</h4>
+                            <p class="text-muted">{% trans "Upload a bank statement to get started with reconciliation." %}</p>
+                            <a href="{% url 'finance:bank_statement_upload' %}" class="btn btn-success">
+                                <i class="fas fa-upload"></i> {% trans "Upload Statement" %}
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,381 @@
+{% extends 'marketplace/marketplace_base.html' %}
+{% load i18n %}
+{% block title %}Order #{{ order.order_number }} - {{ block.super }}{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Order #{{ order.order_number }}</h2>
+            <p class="text-muted mb-0">Placed on {{ order.created_at|date:"F d, Y H:i" }}</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'marketplace:order_pdf' order.pk %}" class="btn btn-primary">
+                <i class="fas fa-file-pdf me-2"></i>{% trans "Télécharger la Facture (PDF)" %}
+            </a>
+            <a href="{% url 'marketplace:order_print' order.pk %}" target="_blank" class="btn btn-outline-primary">
+                <i class="fas fa-print me-2"></i>{% trans "Print Receipt" %}
+            </a>
+            {% if order.company.whatsapp_number %}
+            <a href="https://wa.me/{{ order.company.whatsapp_number|cut:'+'|cut:' ' }}?text=Hello,%20I%20have%20a%20question%20about%20Order%20%23{{ order.order_number }}" target="_blank" class="btn btn-success">
+                <i class="fab fa-whatsapp me-2"></i>{% trans "WhatsApp Merchant" %}
+            </a>
+            {% endif %}
+            <a href="{% url 'marketplace:order_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>{% trans "Back to My Orders" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Order Status -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{% trans "Order Status" %}</h5>
+        </div>
+        <div class="card-body">
+            <!-- Tracking Timeline -->
+            {% if order.status != 'cancelled' %}
+            <div class="row mb-4">
+                <div class="col-12 px-4">
+                    <div class="position-relative mb-4 mt-2">
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 
+                                {% if order.status == 'pending' %}0%
+                                {% elif order.status == 'confirmed' %}25%
+                                {% elif order.status == 'processing' %}50%
+                                {% elif order.status == 'shipped' %}75%
+                                {% elif order.status == 'delivered' %}100%
+                                {% endif %};" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="d-flex justify-content-between position-absolute top-50 start-0 translate-middle-y w-100" style="margin-top: -3px;">
+                            <!-- Node 1: Pending -->
+                            <div class="text-center position-relative">
+                                <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 10px; z-index: 2;">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <span class="position-absolute start-50 translate-middle-x mt-1 text-muted fw-bold small" style="white-space: nowrap; font-size:11px;">{% trans "Pending" %}</span>
+                            </div>
+                            <!-- Node 2: Confirmed -->
+                            <div class="text-center position-relative">
+                                <div class="rounded-circle {% if order.status in 'confirmed,processing,shipped,delivered' %}bg-success text-white{% else %}bg-secondary text-light{% endif %} d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 10px; z-index: 2;">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <span class="position-absolute start-50 translate-middle-x mt-1 text-muted fw-bold small" style="white-space: nowrap; font-size:11px;">{% trans "Confirmed" %}</span>
+                            </div>
+                            <!-- Node 3: Processing -->
+                            <div class="text-center position-relative">
+                                <div class="rounded-circle {% if order.status in 'processing,shipped,delivered' %}bg-success text-white{% else %}bg-secondary text-light{% endif %} d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 10px; z-index: 2;">
+                                    <i class="fas fa-cog fa-spin"></i>
+                                </div>
+                                <span class="position-absolute start-50 translate-middle-x mt-1 text-muted fw-bold small" style="white-space: nowrap; font-size:11px;">{% trans "Processing" %}</span>
+                            </div>
+                            <!-- Node 4: Shipped -->
+                            <div class="text-center position-relative">
+                                <div class="rounded-circle {% if order.status in 'shipped,delivered' %}bg-success text-white{% else %}bg-secondary text-light{% endif %} d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 10px; z-index: 2;">
+                                    <i class="fas fa-truck"></i>
+                                </div>
+                                <span class="position-absolute start-50 translate-middle-x mt-1 text-muted fw-bold small" style="white-space: nowrap; font-size:11px;">{% trans "Shipped" %}</span>
+                            </div>
+                            <!-- Node 5: Delivered -->
+                            <div class="text-center position-relative">
+                                <div class="rounded-circle {% if order.status == 'delivered' %}bg-success text-white{% else %}bg-secondary text-light{% endif %} d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 10px; z-index: 2;">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <span class="position-absolute start-50 translate-middle-x mt-1 text-muted fw-bold small" style="white-space: nowrap; font-size:11px;">{% trans "Delivered" %}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="height: 35px;"></div> <!-- spacer -->
+            {% endif %}
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <strong>{% trans "Status:" %}</strong>
+                        <span class="badge ms-2
+                            {% if order.status == 'pending' %}bg-warning
+                            {% elif order.status == 'confirmed' %}bg-info
+                            {% elif order.status == 'processing' %}bg-secondary
+                            {% elif order.status == 'shipped' %}bg-primary
+                            {% elif order.status == 'delivered' %}bg-success
+                            {% elif order.status == 'cancelled' %}bg-danger
+                            {% endif %} fs-6">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="mb-3 d-flex align-items-center flex-wrap gap-2">
+                        <strong>{% trans "Payment Status:" %}</strong>
+                        <span class="badge
+                            {% if order.payment_status == 'pending' %}bg-warning
+                            {% elif order.payment_status == 'paid' %}bg-success
+                            {% elif order.payment_status == 'refunded' %}bg-info
+                            {% elif order.payment_status == 'failed' %}bg-danger
+                            {% endif %} fs-6">
+                            {{ order.get_payment_status_display }}
+                        </span>
+                        {% if order.payment_status == 'pending' and order.status != 'cancelled' %}
+                        <a href="{% url 'marketplace:payment_gateway' order.pk %}" class="btn btn-warning btn-sm py-1 px-2 fw-bold text-dark">
+                            <i class="fas fa-credit-card me-1"></i>{% trans "Pay Now" %}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    {% if order.status == 'pending' %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>{% trans "Note:" %}</strong> {% trans "You can cancel this order if needed." %}
+                        <form method="post" action="{% url 'marketplace:cancel_order' order.pk %}" class="d-inline ms-2">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Are you sure you want to cancel this order?')">
+                                <i class="fas fa-times me-1"></i>{% trans "Cancel Order" %}
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                    {% if order.status == 'delivered' %}
+                        {% with return_req=order.return_requests.first %}
+                        {% if return_req %}
+                        <div class="alert alert-info border-0 shadow-sm">
+                            <i class="fas fa-undo me-2"></i>
+                            <strong>{% trans "Return Request:" %}</strong>
+                            <span class="badge 
+                                {% if return_req.status == 'pending' %}bg-warning
+                                {% elif return_req.status == 'approved' %}bg-success
+                                {% else %}bg-danger{% endif %} ms-1 text-uppercase">{{ return_req.get_status_display }}</span>
+                            <div class="mt-2 small text-muted">
+                                <strong>{% trans "Reason:" %}</strong> {{ return_req.reason }}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="card bg-light border-0 shadow-sm" style="border-radius: 0.75rem;">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-2 text-dark"><i class="fas fa-undo me-2 text-danger"></i>{% trans "Need to return this order?" %}</h6>
+                                <p class="small text-muted mb-3">{% trans "You can request a return or refund for this delivered order." %}</p>
+                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="collapse" data-bs-target="#returnFormCollapse">
+                                    <i class="fas fa-undo me-1"></i>{% trans "Request Return / Refund" %}
+                                </button>
+                                <div class="collapse mt-3" id="returnFormCollapse">
+                                    <form method="post" action="{% url 'marketplace:request_return' order.pk %}">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <label class="form-label small text-muted">{% trans "Please specify your reason for return:" %}</label>
+                                            <textarea class="form-control form-control-sm" name="reason" rows="3" required placeholder="{% trans 'Enter details here...' %}"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-sm btn-danger w-100">
+                                            {% trans "Submit Request" %}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Order Items -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-shopping-bag me-2"></i>{% trans "Order Items" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{% trans "Item" %}</th>
+                                    <th>{% trans "Unit Price" %}</th>
+                                    <th>{% trans "Quantity" %}</th>
+                                    <th class="text-end">{% trans "Total" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items.all %}
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>{{ item.item_name }}</strong>
+                                            <br>
+                                            <small class="text-muted">Code: {{ item.item_code }}</small>
+                                        </div>
+                                    </td>
+                                    <td>FCFA {{ item.unit_price|floatformat:0 }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td class="text-end"><strong>FCFA {{ item.subtotal|floatformat:0 }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-group-divider">
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>{% trans "Subtotal:" %}</strong></td>
+                                    <td class="text-end">FCFA {{ order.subtotal|floatformat:0 }}</td>
+                                </tr>
+                                {% if order.tax %}
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>{% trans "Tax:" %}</strong></td>
+                                    <td class="text-end">FCFA {{ order.tax|floatformat:0 }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if order.shipping %}
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>{% trans "Shipping:" %}</strong></td>
+                                    <td class="text-end">FCFA {{ order.shipping|floatformat:0 }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr class="table-primary">
+                                    <td colspan="3" class="text-end"><h5 class="mb-0 fw-bold">{% trans "TOTAL:" %}</h5></td>
+                                    <td class="text-end"><h5 class="mb-0 fw-bold">FCFA {{ order.total|floatformat:0 }}</h5></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Shipping Address -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>{% trans "Shipping Address" %}</h5>
+                </div>
+                <div class="card-body">
+                    <address class="mb-0">
+                        {{ order.shipping_address }}<br>
+                        {{ order.shipping_city }}, {{ order.shipping_country }}<br>
+                        <strong>Phone: {{ order.shipping_phone }}</strong>
+                    </address>
+                </div>
+            </div>
+
+            <!-- Order Timeline -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>{% trans "Order Timeline" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item mb-3">
+                            <div class="timeline-marker bg-success"></div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title mb-1">{% trans "Order Placed" %}</h6>
+                                <small class="text-muted">{{ order.created_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                        {% if order.confirmed_at %}
+                        <div class="timeline-item mb-3">
+                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title mb-1">{% trans "Order Confirmed" %}</h6>
+                                <small class="text-muted">{{ order.confirmed_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if order.shipped_at %}
+                        <div class="timeline-item mb-3">
+                            <div class="timeline-marker bg-primary"></div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title mb-1">{% trans "Order Shipped" %}</h6>
+                                <small class="text-muted">{{ order.shipped_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if order.delivered_at %}
+                        <div class="timeline-item mb-3">
+                            <div class="timeline-marker bg-success"></div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title mb-1">{% trans "Order Delivered" %}</h6>
+                                <small class="text-muted">{{ order.delivered_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if order.status == 'cancelled' %}
+                        <div class="timeline-item mb-3">
+                            <div class="timeline-marker bg-danger"></div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title mb-1">{% trans "Order Cancelled" %}</h6>
+                                <small class="text-muted">{{ order.updated_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            {% if order.notes %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>{% trans "Order Notes" %}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ order.notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #e9ecef;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 5px;
+    border-left: 3px solid #007bff;
+}
+
+.timeline-title {
+    color: #495057;
+    font-weight: 600;
+}
+
+.timeline-text {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 0;
+}
+</style>
+{% endblock %}

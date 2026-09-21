@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% block title %}Create Bank Reconciliation{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">{% trans "Create Bank Reconciliation" %}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.bank_account.id_for_label }}" class="form-label">{% trans "Bank Account" %}</label>
+                                    {{ form.bank_account }}
+                                    {% if form.bank_account.errors %}
+                                        <div class="text-danger">{{ form.bank_account.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.statement.id_for_label }}" class="form-label">{% trans "Bank Statement" %}</label>
+                                    {{ form.statement }}
+                                    {% if form.statement.errors %}
+                                        <div class="text-danger">{{ form.statement.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.reconciled_date.id_for_label }}" class="form-label">{% trans "Reconciled Date" %}</label>
+                                    {{ form.reconciled_date }}
+                                    {% if form.reconciled_date.errors %}
+                                        <div class="text-danger">{{ form.reconciled_date.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.bank_balance.id_for_label }}" class="form-label">{% trans "Bank Balance" %}</label>
+                                    {{ form.bank_balance }}
+                                    {% if form.bank_balance.errors %}
+                                        <div class="text-danger">{{ form.bank_balance.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.book_balance.id_for_label }}" class="form-label">{% trans "Book Balance" %}</label>
+                                    {{ form.book_balance }}
+                                    {% if form.book_balance.errors %}
+                                        <div class="text-danger">{{ form.book_balance.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% trans "Create Reconciliation" %}
+                            </button>
+                            <a href="{% url 'finance:bank_reconciliation_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> {% trans "Cancel" %}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

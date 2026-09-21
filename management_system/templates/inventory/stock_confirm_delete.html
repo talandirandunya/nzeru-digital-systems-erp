@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h4>{% trans "Confirm Delete" %}</h4>
+                <p>{% trans "Are you sure you want to delete stock item:" %} <strong>{{ stock.name }}</strong>?</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
+                    <a href="{% url 'inventory:stock_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Invite Team Member" %} — {{ request.user.company.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="mb-0"><i class="fas fa-envelope-open-text text-primary me-2"></i>{% trans "Invite Team Member" %}</h2>
+    <small class="text-muted">{% trans "Invitations expire after 7 days." %}</small>
+  </div>
+  <a href="{% url 'accounts:company_profile' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="fas fa-arrow-left me-1"></i>{% trans "Back" %}
+  </a>
+</div>
+
+<div class="row g-4">
+  <!-- Send invite form -->
+  <div class="col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-header"><i class="fas fa-paper-plane me-2"></i>{% trans "Send Invitation" %}</div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+          {{ form|crispy }}
+          <button type="submit" class="btn btn-primary w-100 mt-2">
+            <i class="fas fa-paper-plane me-2"></i>{% trans "Send Invitation" %}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invitation list -->
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-header"><i class="fas fa-list me-2"></i>{% trans "Sent Invitations" %}</div>
+      <div class="card-body p-0">
+        {% if invitations %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>{% trans "Email" %}</th>
+                <th>{% trans "Sent" %}</th>
+                <th>{% trans "Status" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for inv in invitations %}
+              <tr>
+                <td class="fw-semibold">{{ inv.email }}</td>
+                <td class="text-muted small">{{ inv.created_at|date:"d M Y" }}</td>
+                <td>
+                  {% if inv.accepted_at %}
+                    <span class="badge bg-success">{% trans "Accepted" %}</span>
+                  {% elif inv.is_expired %}
+                    <span class="badge bg-secondary">{% trans "Expired" %}</span>
+                  {% else %}
+                    <span class="badge bg-warning">{% trans "Pending" %}</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+          <i class="fas fa-envelope fa-2x mb-3 d-block"></i>
+          {% trans "No invitations sent yet." %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ contact.name }} — CRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-1">
+        <li class="breadcrumb-item"><a href="{% url 'crm:contact_list' %}">{% trans "Contacts" %}</a></li>
+        <li class="breadcrumb-item active">{{ contact.name }}</li>
+      </ol>
+    </nav>
+    <h2 class="mb-0"><i class="fas fa-user text-primary me-2"></i>{{ contact.name }}</h2>
+    {% if contact.organization %}<span class="text-muted">{{ contact.organization }}</span>{% endif %}
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'crm:contact_edit' contact.pk %}" class="btn btn-outline-primary btn-sm">
+      <i class="fas fa-edit me-1"></i>{% trans "Edit" %}
+    </a>
+    <a href="{% url 'crm:contact_delete' contact.pk %}" class="btn btn-outline-danger btn-sm">
+      <i class="fas fa-trash me-1"></i>{% trans "Delete" %}
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Left: contact info + marketplace link -->
+  <div class="col-md-4">
+    <div class="card shadow-sm mb-3">
+      <div class="card-header fw-semibold">{% trans "Contact Info" %}</div>
+      <div class="card-body">
+        {% if contact.email %}
+        <p class="mb-2"><i class="fas fa-envelope text-muted me-2"></i>
+          <a href="mailto:{{ contact.email }}">{{ contact.email }}</a></p>
+        {% endif %}
+        {% if contact.phone %}
+        <p class="mb-2"><i class="fas fa-phone text-muted me-2"></i>{{ contact.phone }}</p>
+        {% endif %}
+        {% if contact.organization %}
+        <p class="mb-2"><i class="fas fa-building text-muted me-2"></i>{{ contact.organization }}</p>
+        {% endif %}
+        <p class="mb-0 text-muted small">{% trans "Added" %} {{ contact.created_at|date:"d M Y" }}</p>
+      </div>
+    </div>
+
+    {% if contact.marketplace_client %}
+    <div class="card shadow-sm border-info mb-3">
+      <div class="card-header bg-info bg-opacity-10 fw-semibold text-info">
+        <i class="fas fa-store me-1"></i>{% trans "Marketplace Client" %}
+      </div>
+      <div class="card-body">
+        <p class="mb-1 fw-semibold">{{ contact.marketplace_client.get_full_name }}</p>
+        <p class="mb-1 small text-muted">{{ contact.marketplace_client.email }}</p>
+        {% if contact.marketplace_client.city %}
+        <p class="mb-0 small text-muted">{{ contact.marketplace_client.city }}, {{ contact.marketplace_client.country }}</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Add note form -->
+    <div class="card shadow-sm">
+      <div class="card-header fw-semibold">{% trans "Add Activity" %}</div>
+      <div class="card-body">
+        <form method="post" action="{% url 'crm:note_add' contact.pk %}">
+          {% csrf_token %}
+          <div class="mb-2">
+            <select name="note_type" class="form-select form-select-sm">
+              <option value="note">{% trans "Note" %}</option>
+              <option value="call">{% trans "Phone Call" %}</option>
+              <option value="email">{% trans "Email" %}</option>
+              <option value="meeting">{% trans "Meeting" %}</option>
+              <option value="other">{% trans "Other" %}</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <textarea name="content" class="form-control form-control-sm" rows="3" placeholder="{% trans 'Write a note…' %}" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-sm btn-primary w-100">{% trans "Add Note" %}</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: opportunities + activity log -->
+  <div class="col-md-8">
+    <!-- Opportunities -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">{% trans "Opportunities" %}</span>
+        <a href="{% url 'crm:opportunity_create' %}?contact={{ contact.pk }}" class="btn btn-sm btn-primary">
+          <i class="fas fa-plus me-1"></i>{% trans "New" %}
+        </a>
+      </div>
+      <div class="card-body p-0">
+        {% if opportunities %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead><tr>
+              <th>{% trans "Title" %}</th><th>{% trans "Stage" %}</th><th>{% trans "Value" %}</th><th>{% trans "Follow-up" %}</th><th></th>
+            </tr></thead>
+            <tbody>
+            {% for opp in opportunities %}
+            <tr>
+              <td class="fw-semibold">{{ opp.title }}</td>
+              <td>
+                {% if opp.stage == 'won' %}<span class="badge bg-success">{% trans "Won" %}</span>
+                {% elif opp.stage == 'lost' %}<span class="badge bg-danger">{% trans "Lost" %}</span>
+                {% elif opp.stage == 'proposal' %}<span class="badge bg-warning text-dark">{% trans "Proposal" %}</span>
+                {% elif opp.stage == 'qualified' %}<span class="badge bg-info text-dark">{% trans "Qualified" %}</span>
+                {% else %}<span class="badge bg-secondary">{% trans "Prospect" %}</span>{% endif %}
+              </td>
+              <td>FCFA {{ opp.value|floatformat:0 }}</td>
+              <td>
+                {% if opp.follow_up_date %}
+                  {% if opp.is_overdue_followup %}
+                  <span class="text-danger small"><i class="fas fa-exclamation-circle me-1"></i>{{ opp.follow_up_date|date:"d M" }}</span>
+                  {% else %}
+                  <span class="text-muted small">{{ opp.follow_up_date|date:"d M Y" }}</span>
+                  {% endif %}
+                {% else %}—{% endif %}
+              </td>
+              <td class="text-end">
+                <a href="{% url 'crm:opportunity_edit' opp.pk %}" class="btn btn-sm btn-outline-secondary">
+                  <i class="fas fa-edit"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-4">{% trans "No opportunities yet." %}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Activity log -->
+    <div class="card shadow-sm">
+      <div class="card-header fw-semibold">{% trans "Activity Log" %}</div>
+      <div class="card-body p-0">
+        {% if notes %}
+        <ul class="list-group list-group-flush">
+          {% for note in notes %}
+          <li class="list-group-item">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <span class="badge
+                  {% if note.note_type == 'call' %}bg-success
+                  {% elif note.note_type == 'meeting' %}bg-primary
+                  {% elif note.note_type == 'email' %}bg-info text-dark
+                  {% else %}bg-secondary{% endif %} me-2">
+                  {{ note.get_note_type_display }}
+                </span>
+                <span class="text-muted small">{{ note.created_at|date:"d M Y H:i" }}
+                  {% if note.author %}· {{ note.author.get_full_name }}{% endif %}
+                </span>
+              </div>
+              <form method="post" action="{% url 'crm:note_delete' note.pk %}" class="d-inline"
+                    onsubmit="return confirm('{% trans "Delete this note?" %}')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  <i class="fas fa-times"></i>
+                </button>
+              </form>
+            </div>
+            <p class="mb-0 mt-1">{{ note.content }}</p>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="text-center text-muted py-4">{% trans "No activity recorded yet." %}</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

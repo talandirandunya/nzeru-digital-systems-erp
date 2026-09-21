@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}My Leave Requests{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0"><i class="fas fa-umbrella-beach text-primary me-2"></i>{% trans "My Leave Requests" %}</h2>
+  <a href="{% url 'hr:my_leave_create' %}" class="btn btn-primary btn-sm">
+    <i class="fas fa-plus me-1"></i>{% trans "Request Leave" %}
+  </a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>{% trans "Type" %}</th>
+            <th>{% trans "Period" %}</th>
+            <th class="text-center">{% trans "Days" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th>{% trans "Submitted" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for leave in leaves %}
+        <tr>
+          <td><span class="badge bg-light text-dark border">{{ leave.get_leave_type_display }}</span></td>
+          <td class="small">
+            {{ leave.start_date|date:"d M Y" }} → {{ leave.end_date|date:"d M Y" }}
+          </td>
+          <td class="text-center fw-semibold">{{ leave.duration_days }}</td>
+          <td>
+            {% if leave.status == 'approved' %}<span class="badge bg-success">{% trans "Approved" %}</span>
+            {% elif leave.status == 'denied' %}<span class="badge bg-danger">{% trans "Denied" %}</span>
+            {% else %}<span class="badge bg-warning text-dark">{% trans "Pending" %}</span>{% endif %}
+            {% if leave.is_active %}<span class="badge bg-info text-dark ms-1">{% trans "Active now" %}</span>{% endif %}
+          </td>
+          <td class="text-muted small">{{ leave.requested_at|date:"d M Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center text-muted py-4">{% trans "You have no leave requests yet." %}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

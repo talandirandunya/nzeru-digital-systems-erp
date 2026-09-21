@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% block title %}Bank Reconciliation Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Bank Reconciliation: {{ reconciliation.bank_account.name }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>{% trans "Bank Balance" %}</h6>
+                                    <h4 class="text-primary">{{ reconciliation.bank_balance|floatformat:2 }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>{% trans "Book Balance" %}</h6>
+                                    <h4 class="text-info">{{ reconciliation.book_balance|floatformat:2 }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>{% trans "Difference" %}</h6>
+                                    <h4 class="{% if reconciliation.difference == 0 %}text-success{% else %}text-danger{% endif %}">
+                                        {{ reconciliation.difference|floatformat:2 }}
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>{% trans "Status" %}</h6>
+                                    {% if reconciliation.difference == 0 %}
+                                        <span class="badge bg-success fs-6">{% trans "Reconciled" %}</span>
+                                    {% else %}
+                                        <span class="badge bg-warning fs-6">{% trans "Pending" %}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>{% trans "Unreconciled Bank Transactions" %}</h5>
+                            {% if bank_transactions %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>{% trans "Date" %}</th>
+                                                <th>{% trans "Description" %}</th>
+                                                <th>{% trans "Amount" %}</th>
+                                                <th>{% trans "Action" %}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for transaction in bank_transactions %}
+                                            <tr>
+                                                <td>{{ transaction.date|date:"M d" }}</td>
+                                                <td>{{ transaction.description|truncatechars:30 }}</td>
+                                                <td class="text-end">{{ transaction.amount|floatformat:2 }}</td>
+                                                <td>
+                                                    <form method="post" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="bank_transaction_id" value="{{ transaction.pk }}">
+                                                        <select name="accounting_transaction_id" class="form-select form-select-sm d-inline-block w-auto">
+                                                            <option value="">{% trans "Select match..." %}</option>
+                                                            {% for acct_trans in accounting_transactions %}
+                                                                {% if acct_trans.amount == transaction.amount %}
+                                                                    <option value="{{ acct_trans.pk }}">
+                                                                        {{ acct_trans.date|date:"M d" }} - {{ acct_trans.description|truncatechars:20 }} ({{ acct_trans.amount|floatformat:2 }})
+                                                                    </option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                        <button type="submit" class="btn btn-sm btn-success ms-1">{% trans "Match" %}</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">{% trans "All bank transactions have been reconciled." %}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5>{% trans "Recent Accounting Transactions" %}</h5>
+                            {% if accounting_transactions %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>{% trans "Date" %}</th>
+                                                <th>{% trans "Description" %}</th>
+                                                <th>{% trans "Amount" %}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for transaction in accounting_transactions|slice:":10" %}
+                                            <tr>
+                                                <td>{{ transaction.date|date:"M d" }}</td>
+                                                <td>{{ transaction.description|truncatechars:30 }}</td>
+                                                <td class="text-end">{{ transaction.amount|floatformat:2 }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">{% trans "No recent accounting transactions found." %}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{% url 'finance:bank_reconciliation_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> {% trans "Back to Reconciliations" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

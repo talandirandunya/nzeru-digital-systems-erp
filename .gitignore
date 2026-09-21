@@ -1,0 +1,57 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+*.sqlite3
+db.sqlite3
+media/*
+!media/.gitkeep
+staticfiles/
+.pytest_cache/
+.venv/
+venv/
+env/
+.idea/
+.vscode/
+*.log
+*.mo
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+management_system/staticfiles/
+management_system/media/
+
+# Environment
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Deployment (uploaded media persisted on the VPS via bind mount)
+deploy/media/*
+!deploy/media/.gitkeep
+
+# IDE
+.claude/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

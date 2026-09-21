@@ -1,0 +1,349 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>
+    {% if print_type == 'proforma' %}
+      {% trans "PROFORMA INVOICE" %}
+    {% else %}
+      {% trans "INVOICE" %}
+    {% endif %} — {{ invoice.invoice_number }}
+  </title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: #333;
+      margin: 40px;
+      padding: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      background-color: #fff;
+    }
+    .invoice-box {
+      max-width: 800px;
+      margin: auto;
+      padding: 30px;
+      border: 1px solid #eee;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #333;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+    .company-details h2 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      color: #111;
+      font-weight: 700;
+    }
+    .company-details p {
+      margin: 0 0 4px 0;
+      color: #666;
+    }
+    .invoice-title {
+      text-align: right;
+    }
+    .invoice-title h1 {
+      margin: 0 0 8px 0;
+      font-size: 28px;
+      color: #1a5a6b;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+    .invoice-meta-table {
+      font-size: 13px;
+      border-collapse: collapse;
+    }
+    .invoice-meta-table td {
+      padding: 4px 8px;
+    }
+    .invoice-meta-table td.label {
+      color: #666;
+      font-weight: 600;
+      text-align: right;
+    }
+    .invoice-meta-table td.value {
+      font-weight: 700;
+    }
+    .billing-section {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      gap: 40px;
+    }
+    .billing-box {
+      flex: 1;
+      background: #fdfdfd;
+      border: 1px solid #eef;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .billing-box h3 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #888;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 6px;
+    }
+    .billing-box p {
+      margin: 0 0 6px 0;
+      font-size: 13px;
+    }
+    .invoice-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+    }
+    .invoice-table th {
+      background: #f7f7f9;
+      border-bottom: 2px solid #ddd;
+      padding: 10px 12px;
+      font-weight: 700;
+      text-align: left;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #666;
+    }
+    .invoice-table td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+    }
+    .invoice-table th.text-end,
+    .invoice-table td.text-end {
+      text-align: right;
+    }
+    .totals-section {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 40px;
+    }
+    .totals-table {
+      width: 250px;
+      border-collapse: collapse;
+    }
+    .totals-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #eee;
+    }
+    .totals-table td.label {
+      text-align: right;
+      color: #666;
+      font-weight: 600;
+    }
+    .totals-table td.value {
+      text-align: right;
+      font-weight: 700;
+    }
+    .totals-table tr.grand-total td {
+      border-bottom: 2px double #333;
+      font-size: 16px;
+      color: #1a5a6b;
+    }
+    .invoice-notes {
+      margin-top: 40px;
+      font-size: 12px;
+      color: #666;
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+    }
+    .invoice-notes h4 {
+      margin: 0 0 6px 0;
+      font-weight: 700;
+      color: #333;
+    }
+    
+    /* Print overrides */
+    @media print {
+      body {
+        margin: 20px;
+        font-size: 12px;
+      }
+      .invoice-box {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+    
+    .no-print-bar {
+      max-width: 800px;
+      margin: 0 auto 20px auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      padding: 10px 20px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="no-print-bar no-print">
+    <div>
+      <strong>{% trans "Print Preview" %}</strong> — 
+      {% if print_type == 'proforma' %}
+        {% trans "PROFORMA INVOICE" %}
+      {% else %}
+        {% trans "OFFICIAL INVOICE" %}
+      {% endif %}
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <button onclick="window.print();" style="padding: 6px 14px; background: #1a5a6b; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">
+        {% trans "Print / Save PDF" %}
+      </button>
+      <button onclick="window.close();" style="padding: 6px 14px; background: #6c757d; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">
+        {% trans "Close" %}
+      </button>
+    </div>
+  </div>
+
+  <div class="invoice-box">
+    <!-- Invoice Header -->
+    <div class="invoice-header">
+      <div class="company-details">
+        <h2>{{ invoice.company.name }}</h2>
+        <p>{{ invoice.company.address|linebreaksbr }}</p>
+        {% if invoice.company.contact_email %}
+          <p>{% trans "Email" %}: {{ invoice.company.contact_email }}</p>
+        {% endif %}
+        {% if invoice.company.contact_phone %}
+          <p>{% trans "Phone" %}: {{ invoice.company.contact_phone }}</p>
+        {% endif %}
+      </div>
+      
+      <div class="invoice-title">
+        <h1>
+          {% if print_type == 'proforma' %}
+            {% trans "PROFORMA INVOICE" %}
+          {% else %}
+            {% trans "INVOICE" %}
+          {% endif %}
+        </h1>
+        <table class="invoice-meta-table" style="margin-left: auto;">
+          <tr>
+            <td class="label">{% trans "Invoice #" %}</td>
+            <td class="value">
+              {% if print_type == 'proforma' %}
+                PRO-{{ invoice.invoice_number }}
+              {% else %}
+                INV-{{ invoice.invoice_number }}
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td class="label">{% trans "Date" %}</td>
+            <td class="value">{{ invoice.date|date:"d M Y" }}</td>
+          </tr>
+          <tr>
+            <td class="label">{% trans "Due Date" %}</td>
+            <td class="value">{{ invoice.due_date|date:"d M Y" }}</td>
+          </tr>
+          <tr>
+            <td class="label">{% trans "Status" %}</td>
+            <td class="value">
+              {% if print_type == 'proforma' %}
+                {% trans "Proforma" %}
+              {% else %}
+                {{ invoice.get_status_display }}
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Billing Info -->
+    <div class="billing-section">
+      <div class="billing-box">
+        <h3>{% trans "Client / Bill To" %}</h3>
+        <p><strong>{{ invoice.client_name }}</strong></p>
+        {% if invoice.client_address %}
+          <p>{{ invoice.client_address|linebreaksbr }}</p>
+        {% endif %}
+        {% if invoice.client_email %}
+          <p>{% trans "Email" %}: {{ invoice.client_email }}</p>
+        {% endif %}
+      </div>
+      
+      <div class="billing-box" style="visibility: hidden;">
+        <!-- Placeholder to maintain flex alignment balance -->
+      </div>
+    </div>
+
+    <!-- Invoice Items -->
+    <table class="invoice-table">
+      <thead>
+        <tr>
+          <th>{% trans "Description" %}</th>
+          <th class="text-end" style="width: 100px;">{% trans "Quantity" %}</th>
+          <th class="text-end" style="width: 120px;">{% trans "Unit Price" %}</th>
+          <th class="text-end" style="width: 150px;">{% trans "Total" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for line in lines %}
+          <tr>
+            <td>{{ line.description }}</td>
+            <td class="text-end">{{ line.quantity }}</td>
+            <td class="text-end">FCFA {{ line.unit_price|floatformat:0 }}</td>
+            <td class="text-end fw-semibold">FCFA {{ line.line_total|floatformat:0 }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4" class="text-center" style="color: #888;">{% trans "No items found." %}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Totals -->
+    <div class="totals-section">
+      <table class="totals-table">
+        <tr>
+          <td class="label">{% trans "Subtotal" %}</td>
+          <td class="value">FCFA {{ invoice.subtotal|floatformat:0 }}</td>
+        </tr>
+        {% if invoice.tax_amount > 0 %}
+          <tr>
+            <td class="label">{% trans "Tax" %} ({{ invoice.tax_rate }}%)</td>
+            <td class="value">FCFA {{ invoice.tax_amount|floatformat:0 }}</td>
+          </tr>
+        {% endif %}
+        <tr class="grand-total">
+          <td class="label">{% trans "Total" %}</td>
+          <td class="value">FCFA {{ invoice.total|floatformat:0 }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Notes -->
+    {% if invoice.notes %}
+      <div class="invoice-notes">
+        <h4>{% trans "Notes & Terms" %}</h4>
+        <p>{{ invoice.notes|linebreaksbr }}</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    window.onload = function() {
+      // Auto-trigger window print on load
+      setTimeout(function() {
+        window.print();
+      }, 500);
+    };
+  </script>
+</body>
+</html>

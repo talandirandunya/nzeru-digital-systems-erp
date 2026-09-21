@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Edit task: {{ tache.titre }} — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+          <li class="breadcrumb-item"><a href="{% url 'projects:project_list' %}">{% trans "Projects" %}</a></li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'projects:project_detail' project.pk %}">{{ project.name }}</a>
+          </li>
+          <li class="breadcrumb-item active">{% trans "Edit task" %}</li>
+        </ol>
+      </nav>
+      <h2 class="mb-0">
+        <i class="fas fa-edit text-primary me-2"></i>{% trans "Edit task" %}
+      </h2>
+      <p class="text-muted mb-0 mt-1">{{ tache.titre }}</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'projects:project_detail' project.pk %}" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-arrow-left me-1"></i>{% trans "Back to project" %}
+      </a>
+      <a href="{% url 'projects:sous_tache_detail' tache.pk %}" class="btn btn-outline-primary btn-sm">
+        <i class="fas fa-eye me-1"></i>{% trans "Task detail" %}
+      </a>
+    </div>
+  </div>
+
+  {% if form.errors %}
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <h6 class="alert-heading mb-2">
+      <i class="fas fa-exclamation-triangle me-1"></i>{% trans "Please correct the following errors:" %}
+    </h6>
+    <ul class="mb-0 small">
+      {% for field in form %}{% for error in field.errors %}
+      <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+      {% endfor %}{% endfor %}
+      {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="post" action="{% url 'projects:sous_tache_edit' tache.pk %}">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label" for="{{ form.titre.id_for_label }}">{% trans "Title" %} <span class="text-danger">*</span></label>
+            {{ form.titre }}
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="{{ form.description.id_for_label }}">{% trans "Description" %}</label>
+            {{ form.description }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.assigne_a.id_for_label }}">{% trans "Assigned to" %}</label>
+            {{ form.assigne_a }}
+            <div class="form-text">{% trans "Choose a team member or leave unassigned." %}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.priorite.id_for_label }}">{% trans "Priority" %}</label>
+            {{ form.priorite }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.status.id_for_label }}">{% trans "Status" %}</label>
+            {{ form.status }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.depend_de.id_for_label }}">{% trans "Depends on" %}</label>
+            {{ form.depend_de }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.date_debut.id_for_label }}">{% trans "Start date" %}</label>
+            {{ form.date_debut }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.date_echeance.id_for_label }}">{% trans "Due date" %}</label>
+            {{ form.date_echeance }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.duree_estimee.id_for_label }}">{% trans "Estimated hours" %}</label>
+            {{ form.duree_estimee }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.ordre.id_for_label }}">{% trans "Display order" %}</label>
+            {{ form.ordre }}
+          </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i>{% trans "Save changes" %}
+          </button>
+          <a href="{% url 'projects:project_detail' project.pk %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

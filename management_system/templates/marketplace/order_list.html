@@ -1,0 +1,187 @@
+{% extends 'marketplace/marketplace_base.html' %}
+{% load i18n %}
+{% block title %}My Orders - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.order-card { transition: all 0.2s; border-left: 3px solid rgba(0,0,0,0.08); }
+.order-card:hover { border-left-color: var(--primary-color); box-shadow: var(--card-shadow-hover); }
+[data-bs-theme="dark"] .order-card { border-left-color: rgba(255,255,255,0.08); }
+[data-bs-theme="dark"] .order-card:hover { border-left-color: var(--primary-color); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-shopping-bag me-2"></i>{% trans "My Orders" %}</h2>
+        <a href="{% url 'marketplace:shop' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>{% trans "Continue Shopping" %}
+        </a>
+    </div>
+
+<!-- Order Statistics -->
+<div class="row g-3 mb-4 row-cols-2 row-cols-md-4">
+    <div class="col">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-3 flex-shrink-0">
+                    <i class="fas fa-box fa-lg text-primary"></i>
+                </div>
+                <div>
+                    <p class="text-muted small mb-0">{% trans "Total" %}</p>
+                    <h3 class="mb-0 fw-bold">{{ total_orders }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-warning bg-opacity-10 p-3 flex-shrink-0">
+                    <i class="fas fa-clock fa-lg text-warning"></i>
+                </div>
+                <div>
+                    <p class="text-muted small mb-0">{% trans "Pending" %}</p>
+                    <h3 class="mb-0 fw-bold">{{ pending_orders }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-info bg-opacity-10 p-3 flex-shrink-0">
+                    <i class="fas fa-check-circle fa-lg text-info"></i>
+                </div>
+                <div>
+                    <p class="text-muted small mb-0">{% trans "Confirmed" %}</p>
+                    <h3 class="mb-0 fw-bold">{{ confirmed_orders }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-success bg-opacity-10 p-3 flex-shrink-0">
+                    <i class="fas fa-truck fa-lg text-success"></i>
+                </div>
+                <div>
+                    <p class="text-muted small mb-0">{% trans "Shipped" %}</p>
+                    <h3 class="mb-0 fw-bold">{{ shipped_orders }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders -->
+{% if recent_orders %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>{% trans "Recent Orders" %}</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            {% for order in recent_orders %}
+            <div class="col-md-6">
+                <div class="card order-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="card-title mb-1">Order #{{ order.order_number }}</h6>
+                                <small class="text-muted">{{ order.created_at|date:"M d, Y" }}</small>
+                            </div>
+                            <span class="badge
+                                {% if order.status == 'pending' %}bg-warning
+                                {% elif order.status == 'confirmed' %}bg-info
+                                {% elif order.status == 'shipped' %}bg-primary
+                                {% elif order.status == 'delivered' %}bg-success
+                                {% elif order.status == 'cancelled' %}bg-danger
+                                {% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </div>
+                        <p class="card-text mb-2 mt-2">
+                            <strong>FCFA {{ order.total|floatformat:0 }}</strong> · {{ order.items.count }} item{{ order.items.count|pluralize }}
+                        </p>
+                        <a href="{% url 'marketplace:order_detail' order.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye me-1"></i>{% trans "View Details" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- All Orders Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-list me-2"></i>{% trans "All Orders" %}</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>{% trans "Order #" %}</th>
+                        <th>{% trans "Date" %}</th>
+                        <th>{% trans "Items" %}</th>
+                        <th>{% trans "Total" %}</th>
+                        <th>{% trans "Status" %}</th>
+                        <th>{% trans "Actions" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td><strong>{{ order.order_number }}</strong></td>
+                        <td>{{ order.created_at|date:"M d, Y" }}</td>
+                        <td>{{ order.items.count }} item{{ order.items.count|pluralize }}</td>
+                        <td><strong>FCFA {{ order.total|floatformat:0 }}</strong></td>
+                        <td>
+                            <span class="badge
+                                {% if order.status == 'pending' %}bg-warning
+                                {% elif order.status == 'confirmed' %}bg-info
+                                {% elif order.status == 'processing' %}bg-secondary
+                                {% elif order.status == 'shipped' %}bg-primary
+                                {% elif order.status == 'delivered' %}bg-success
+                                {% elif order.status == 'cancelled' %}bg-danger
+                                {% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'marketplace:order_detail' order.pk %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye me-1"></i>{% trans "View" %}
+                            </a>
+                            {% if order.status == 'pending' %}
+                            <form method="post" action="{% url 'marketplace:cancel_order' order.pk %}" class="d-inline ms-1">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Cancel this order?')">
+                                    <i class="fas fa-times me-1"></i>{% trans "Cancel" %}
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                            {% trans "No orders yet —" %} <a href="{% url 'marketplace:shop' %}">{% trans "start shopping" %}</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

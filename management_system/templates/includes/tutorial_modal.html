@@ -1,0 +1,313 @@
+{% load i18n %}
+
+<!-- First Login Interactive Onboarding Tutorial Modal -->
+<div class="modal fade" id="onboardingTutorialModal" tabindex="-1" aria-labelledby="onboardingTutorialLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem; overflow: hidden;">
+            <!-- Modal Header with Progress Bar -->
+            <div class="bg-primary text-white p-4 position-relative">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-white text-primary fw-bold uppercase px-3 py-1" id="tutorialStepBadge">{% trans "Step 1 of 6" %}</span>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="skipTutorialBtn"></button>
+                </div>
+                <h4 class="modal-title fw-bold" id="onboardingTutorialLabel">{% trans "Welcome to Zentral ERP!" %}</h4>
+                <p class="mb-0 text-white-50 small" id="tutorialStepSubtitle">{% trans "Let's take a quick tour to explore your workspace." %}</p>
+
+                <div class="progress mt-3" style="height: 6px; background-color: rgba(255,255,255,0.25);">
+                    <div class="progress-bar bg-warning" role="progressbar" id="tutorialProgressBar" style="width: 16.6%;" aria-valuenow="16.6" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+
+            <!-- Modal Body Carousel/Slide Content -->
+            <div class="modal-body p-4 min-vh-30">
+                <!-- Step 1: Welcome -->
+                <div class="tutorial-slide" id="tutorial-slide-1">
+                    <div class="text-center py-3">
+                        <div class="avatar-lg bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-rocket fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">{% trans "Welcome to Your Enterprise Command Center" %}</h5>
+                        <p class="text-muted col-lg-10 mx-auto">
+                            {% trans "Zentral ERP connects all departments of your business — Inventory, Orders, Finance, CRM, Projects, and HR — into one real-time dashboard." %}
+                        </p>
+                        <div class="row g-3 mt-3 text-start">
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded border text-center">
+                                    <i class="fas fa-boxes text-primary fa-lg mb-2"></i>
+                                    <h6 class="fw-bold mb-1">{% trans "Real-Time Stock" %}</h6>
+                                    <small class="text-muted">{% trans "Track inventory levels & low stock alerts" %}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded border text-center">
+                                    <i class="fas fa-shopping-cart text-success fa-lg mb-2"></i>
+                                    <h6 class="fw-bold mb-1">{% trans "Manage Orders" %}</h6>
+                                    <small class="text-muted">{% trans "Process online & quick in-store sales" %}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded border text-center">
+                                    <i class="fas fa-file-invoice-dollar text-warning fa-lg mb-2"></i>
+                                    <h6 class="fw-bold mb-1">{% trans "Automated Finance" %}</h6>
+                                    <small class="text-muted">{% trans "Automatic General Ledger entries" %}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Sidebar Navigation -->
+                <div class="tutorial-slide d-none" id="tutorial-slide-2">
+                    <div class="py-2">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar bg-success bg-opacity-10 text-success rounded-circle p-3 me-3">
+                                <i class="fas fa-bars fa-xl"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">{% trans "Navigating Your System" %}</h5>
+                                <small class="text-muted">{% trans "Access every module seamlessly from the left sidebar" %}</small>
+                            </div>
+                        </div>
+                        <ul class="list-group list-group-flush border-top border-bottom my-3">
+                            <li class="list-group-item d-flex align-items-center py-3">
+                                <i class="fas fa-tachometer-alt text-primary fa-lg me-3 style-w24"></i>
+                                <div>
+                                    <strong class="d-block">{% trans "Dashboard" %}</strong>
+                                    <small class="text-muted">{% trans "View high-level revenue stats, active projects, and system alerts." %}</small>
+                                </div>
+                            </li>
+                            <li class="list-group-item d-flex align-items-center py-3">
+                                <i class="fas fa-boxes text-info fa-lg me-3 style-w24"></i>
+                                <div>
+                                    <strong class="d-block">{% trans "Inventory Management" %}</strong>
+                                    <small class="text-muted">{% trans "Add products, import bulk stock, and view stock valuation reports." %}</small>
+                                </div>
+                            </li>
+                            <li class="list-group-item d-flex align-items-center py-3">
+                                <i class="fas fa-shopping-cart text-success fa-lg me-3 style-w24"></i>
+                                <div>
+                                    <strong class="d-block">{% trans "Manage Orders & Walk-in Sales" %}</strong>
+                                    <small class="text-muted">{% trans "Review incoming marketplace orders or record instant POS walk-in sales." %}</small>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Step 3: Quick In-Store Orders -->
+                <div class="tutorial-slide d-none" id="tutorial-slide-3">
+                    <div class="py-2">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar bg-warning bg-opacity-10 text-warning-emphasis rounded-circle p-3 me-3">
+                                <i class="fas fa-cash-register fa-xl"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">{% trans "Quick In-Store Sales (POS)" %}</h5>
+                                <small class="text-muted">{% trans "Instant multi-product order creation with live stock deduction" %}</small>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-light rounded border mb-3">
+                            <h6 class="fw-bold text-primary mb-2"><i class="fas fa-bolt me-2"></i>{% trans "How Quick In-Store Orders Work:" %}</h6>
+                            <ol class="mb-0 ps-3 small text-muted">
+                                <li class="mb-2">{% trans "Go to <strong>Manage Orders &rarr; Quick In-Store Order</strong>." %}</li>
+                                <li class="mb-2">{% trans "Select an existing client or enter walk-in customer details." %}</li>
+                                <li class="mb-2">{% trans "Click <strong>+ Add Product</strong> to add as many products as needed without limits." %}</li>
+                                <li>{% trans "Submit the order — stock is decremented immediately and posted to Finance." %}</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Marketplace Accounting Mapping -->
+                <div class="tutorial-slide d-none" id="tutorial-slide-4">
+                    <div class="py-2">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar bg-primary bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                                <i class="fas fa-file-invoice-dollar fa-xl"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">{% trans "Marketplace Accounting Mapping" %}</h5>
+                                <small class="text-muted">{% trans "Automatic General Ledger posting for marketplace orders" %}</small>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-light rounded border mb-3">
+                            <p class="small text-muted mb-3">
+                                {% trans "Configure how marketplace sales automatically map into your General Ledger under <strong>Finance &rarr; Marketplace Settings</strong>." %}
+                            </p>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <div class="p-2 bg-white rounded border small">
+                                        <strong class="text-primary d-block mb-1"><i class="fas fa-book me-1"></i>{% trans "Sales Journal" %}</strong>
+                                        <span class="text-muted">{% trans "Specifies the target journal for recording sales entries." %}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-2 bg-white rounded border small">
+                                        <strong class="text-success d-block mb-1"><i class="fas fa-hand-holding-usd me-1"></i>{% trans "Accounts Receivable" %}</strong>
+                                        <span class="text-muted">{% trans "Default asset account for pending order receivables." %}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-2 bg-white rounded border small">
+                                        <strong class="text-warning-emphasis d-block mb-1"><i class="fas fa-chart-line me-1"></i>{% trans "Sales Revenue Account" %}</strong>
+                                        <span class="text-muted">{% trans "Income account credited for item product sales." %}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-2 bg-white rounded border small">
+                                        <strong class="text-danger d-block mb-1"><i class="fas fa-percentage me-1"></i>{% trans "Sales Tax Account" %}</strong>
+                                        <span class="text-muted">{% trans "Liability account credited for collected sales tax." %}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5: Direct Payment Contacts -->
+                <div class="tutorial-slide d-none" id="tutorial-slide-5">
+                    <div class="py-2">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar bg-info bg-opacity-10 text-info rounded-circle p-3 me-3">
+                                <i class="fab fa-whatsapp fa-xl"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">{% trans "Customer Payment Contacts" %}</h5>
+                                <small class="text-muted">{% trans "Direct WhatsApp & Mobile Money setup" %}</small>
+                            </div>
+                        </div>
+                        <div class="card border-0 bg-light p-3 mb-3">
+                            <p class="small text-muted mb-3">
+                                {% trans "Set up your merchant WhatsApp, Orange Money, and MTN Mobile Money numbers under <strong>Company Settings &rarr; Payment Settings</strong>." %}
+                            </p>
+                            <div class="row g-2 text-center">
+                                <div class="col-4">
+                                    <div class="p-2 bg-white rounded border">
+                                        <i class="fab fa-whatsapp text-success fs-4 d-block mb-1"></i>
+                                        <small class="fw-bold d-block">WhatsApp</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 bg-white rounded border">
+                                        <i class="fas fa-wallet text-warning fs-4 d-block mb-1"></i>
+                                        <small class="fw-bold d-block">Orange Money</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 bg-white rounded border">
+                                        <i class="fas fa-mobile text-warning fs-4 d-block mb-1"></i>
+                                        <small class="fw-bold d-block">MTN MoMo</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 6: Ready to Go -->
+                <div class="tutorial-slide d-none" id="tutorial-slide-6">
+                    <div class="text-center py-4">
+                        <div class="avatar-lg bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold text-success mb-2">{% trans "You're Ready to Roll!" %}</h4>
+                        <p class="text-muted col-lg-9 mx-auto mb-4">
+                            {% trans "Your workspace is fully configured. You can replay this tutorial anytime by clicking the <strong>Help / Guide</strong> icon in the header." %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer Controls -->
+            <div class="modal-footer bg-light p-3 d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary px-4" id="tutorialPrevBtn" disabled>
+                    <i class="fas fa-chevron-left me-1"></i>{% trans "Previous" %}
+                </button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary px-4 fw-bold" id="tutorialNextBtn">
+                        {% trans "Next" %}<i class="fas fa-chevron-right ms-1"></i>
+                    </button>
+                    <button type="button" class="btn btn-success px-4 fw-bold d-none" id="tutorialFinishBtn" data-bs-dismiss="modal">
+                        <i class="fas fa-check me-1"></i>{% trans "Get Started" %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modalEl = document.getElementById('onboardingTutorialModal');
+    if (!modalEl) return;
+
+    const modal = new bootstrap.Modal(modalEl);
+    const totalSteps = 6;
+    let currentStep = 1;
+
+    const badge = document.getElementById('tutorialStepBadge');
+    const subtitle = document.getElementById('tutorialStepSubtitle');
+    const progressBar = document.getElementById('tutorialProgressBar');
+    const prevBtn = document.getElementById('tutorialPrevBtn');
+    const nextBtn = document.getElementById('tutorialNextBtn');
+    const finishBtn = document.getElementById('tutorialFinishBtn');
+
+    const stepTitles = [
+        '{% trans "Welcome to Your Enterprise Command Center" %}',
+        '{% trans "Navigating Your System" %}',
+        '{% trans "Quick In-Store Sales (POS)" %}',
+        '{% trans "Marketplace Accounting Mapping" %}',
+        '{% trans "Customer Payment Contacts" %}',
+        '{% trans "You\'re Ready to Roll!" %}'
+    ];
+
+    function showStep(step) {
+        currentStep = step;
+        document.querySelectorAll('.tutorial-slide').forEach(s => s.classList.add('d-none'));
+        const activeSlide = document.getElementById(`tutorial-slide-${step}`);
+        if (activeSlide) activeSlide.classList.remove('d-none');
+
+        badge.textContent = `Step ${step} of ${totalSteps}`;
+        subtitle.textContent = stepTitles[step - 1];
+        const pct = (step / totalSteps) * 100;
+        progressBar.style.width = `${pct}%`;
+
+        prevBtn.disabled = (step === 1);
+        if (step === totalSteps) {
+            nextBtn.classList.add('d-none');
+            finishBtn.classList.remove('d-none');
+        } else {
+            nextBtn.classList.remove('d-none');
+            finishBtn.classList.add('d-none');
+        }
+    }
+
+    prevBtn.addEventListener('click', () => { if (currentStep > 1) showStep(currentStep - 1); });
+    nextBtn.addEventListener('click', () => { if (currentStep < totalSteps) showStep(currentStep + 1); });
+
+    function markTutorialComplete() {
+        localStorage.setItem('zentral_tutorial_seen', 'true');
+    }
+
+    finishBtn.addEventListener('click', markTutorialComplete);
+    document.getElementById('skipTutorialBtn').addEventListener('click', markTutorialComplete);
+
+    // Auto-launch tutorial on first login (if not seen yet)
+    const hasSeen = localStorage.getItem('zentral_tutorial_seen');
+    if (!hasSeen && (document.body.getAttribute('data-user-authenticated') === 'true' || true)) {
+        setTimeout(() => {
+            showStep(1);
+            modal.show();
+        }, 600);
+    }
+
+    // Replay tutorial event binding
+    document.querySelectorAll('.replay-tutorial-trigger').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showStep(1);
+            modal.show();
+        });
+    });
+});
+</script>

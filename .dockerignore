@@ -1,0 +1,44 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+
+# Django
+management_system/db.sqlite3
+management_system/staticfiles/
+management_system/media/
+management_system/.env
+
+# Docker
+Dockerfile
+docker-compose.yml
+docker-compose.prod.yml
+.dockerignore
+
+# Deployment (nginx/certbot are separate images, not needed inside the app image)
+deploy/
+
+# Claude / IDE
+.claude/
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Virtualenv
+env/
+venv/

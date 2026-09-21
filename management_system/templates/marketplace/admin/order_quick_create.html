@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Quick In-Store Order" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'marketplace:admin_order_dashboard' %}">{% trans "Dashboard" %}</a></li>
+      <li class="breadcrumb-item active">{% trans "Quick In-Store Order" %}</li>
+    </ol>
+  </nav>
+
+  <div class="row justify-content-center">
+    <div class="col-md-9">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0"><i class="fas fa-cash-register me-2"></i>{% trans "Quick In-Store Order" %}</h5>
+          <span class="badge bg-light text-primary">{% trans "Instant Stock Deduction" %}</span>
+        </div>
+        <div class="card-body p-4">
+          <form method="post" id="quick-order-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger mb-4">
+              <i class="fas fa-exclamation-circle me-2"></i>
+              {% for error in form.non_field_errors %}{{ error }}<br>{% endfor %}
+            </div>
+            {% endif %}
+
+            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-user-tag me-2"></i>{% trans "Customer Information" %}</h6>
+            <div class="mb-3">
+              {{ form.client|as_crispy_field }}
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-md-6">{{ form.first_name|as_crispy_field }}</div>
+              <div class="col-md-6">{{ form.last_name|as_crispy_field }}</div>
+              <div class="col-md-6">{{ form.phone|as_crispy_field }}</div>
+              <div class="col-md-6">{{ form.email|as_crispy_field }}</div>
+            </div>
+            <p class="text-muted small mb-4">{% trans "Leave \"Existing Client\" empty and fill name + phone for a walk-in customer." %}</p>
+
+            <hr class="my-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="text-primary fw-bold mb-0"><i class="fas fa-boxes me-2"></i>{% trans "Products" %}</h6>
+              <button type="button" id="add-product-row-btn" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>{% trans "Add Product" %}
+              </button>
+            </div>
+
+            <div class="table-responsive mb-3">
+              <table class="table table-bordered align-middle" id="products-table">
+                <thead class="table-light">
+                  <tr>
+                    <th style="min-width: 250px;">{% trans "Product" %}</th>
+                    <th style="width: 120px;">{% trans "Unit Price" %}</th>
+                    <th style="width: 110px;">{% trans "Quantity" %}</th>
+                    <th style="width: 130px;">{% trans "Subtotal" %}</th>
+                    <th style="width: 60px;" class="text-center">{% trans "Action" %}</th>
+                  </tr>
+                </thead>
+                <tbody id="product-rows-container">
+                  <!-- Dynamic Product Rows rendering here -->
+                </tbody>
+                <tfoot>
+                  <tr class="table-light fw-bold">
+                    <td colspan="3" class="text-end">{% trans "Total Order Value" %}:</td>
+                    <td colspan="2" class="text-success fs-5" id="grand-total-display">FCFA 0</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <hr class="my-4">
+            <h6 class="text-primary fw-bold mb-3"><i class="fas fa-receipt me-2"></i>{% trans "Payment & Notes" %}</h6>
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">{{ form.payment_method|as_crispy_field }}</div>
+              <div class="col-md-12">{{ form.payment_notes|as_crispy_field }}</div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+              <button type="submit" class="btn btn-success btn-lg px-4">
+                <i class="fas fa-check-circle me-2"></i>{% trans "Create Order & Deduct Stock" %}
+              </button>
+              <a href="{% url 'marketplace:admin_order_dashboard' %}" class="btn btn-outline-secondary btn-lg">{% trans "Cancel" %}</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const container = document.getElementById('product-rows-container');
+  const addBtn = document.getElementById('add-product-row-btn');
+  const grandTotalDisplay = document.getElementById('grand-total-display');
+
+  // Stock options from form queryset
+  const stockOptionsHTML = `
+    <option value="">-- {% trans "Select Product" %} --</option>
+    {% for stock in form.stock_queryset %}
+    <option value="{{ stock.pk }}" data-price="{{ stock.selling_price|default:0 }}" data-stock="{{ stock.quantity }}">
+      {{ stock.name }} (FCFA {{ stock.selling_price|default:0|floatformat:0 }} | {{ stock.quantity }} in stock)
+    </option>
+    {% endfor %}
+  `;
+
+  function createRow() {
+    const tr = document.createElement('tr');
+    tr.className = 'product-row';
+    tr.innerHTML = `
+      <td>
+        <select name="product_id" class="form-select product-select" required>
+          ${stockOptionsHTML}
+        </select>
+      </td>
+      <td class="unit-price-cell text-muted">FCFA 0</td>
+      <td>
+        <input type="number" name="quantity" class="form-control qty-input" value="1" min="1" required>
+      </td>
+      <td class="subtotal-cell fw-bold text-dark">FCFA 0</td>
+      <td class="text-center">
+        <button type="button" class="btn btn-outline-danger btn-sm remove-row-btn" title="Remove Product">
+          <i class="fas fa-trash"></i>
+        </button>
+      </td>
+    `;
+    container.appendChild(tr);
+    attachRowEvents(tr);
+    updateTotals();
+  }
+
+  function attachRowEvents(tr) {
+    const select = tr.querySelector('.product-select');
+    const qtyInput = tr.querySelector('.qty-input');
+    const removeBtn = tr.querySelector('.remove-row-btn');
+
+    select.addEventListener('change', function() {
+      const selectedOpt = select.options[select.selectedIndex];
+      const maxStock = parseInt(selectedOpt.getAttribute('data-stock') || '999999');
+      qtyInput.max = maxStock;
+      updateTotals();
+    });
+
+    qtyInput.addEventListener('input', updateTotals);
+
+    removeBtn.addEventListener('click', function() {
+      if (container.querySelectorAll('.product-row').length > 1) {
+        tr.remove();
+        updateTotals();
+      } else {
+        alert('{% trans "At least one product is required." %}');
+      }
+    });
+  }
+
+  function updateTotals() {
+    let grandTotal = 0;
+    const rows = container.querySelectorAll('.product-row');
+    rows.forEach(tr => {
+      const select = tr.querySelector('.product-select');
+      const qtyInput = tr.querySelector('.qty-input');
+      const unitPriceCell = tr.querySelector('.unit-price-cell');
+      const subtotalCell = tr.querySelector('.subtotal-cell');
+
+      const selectedOpt = select ? select.options[select.selectedIndex] : null;
+      const price = selectedOpt && selectedOpt.value ? parseFloat(selectedOpt.getAttribute('data-price') || 0) : 0;
+      const qty = parseInt(qtyInput ? qtyInput.value : 1) || 1;
+
+      const subtotal = price * qty;
+      grandTotal += subtotal;
+
+      unitPriceCell.textContent = `FCFA ${price.toLocaleString()}`;
+      subtotalCell.textContent = `FCFA ${subtotal.toLocaleString()}`;
+    });
+
+    grandTotalDisplay.textContent = `FCFA ${grandTotal.toLocaleString()}`;
+  }
+
+  addBtn.addEventListener('click', createRow);
+
+  // Initialize with first row
+  createRow();
+});
+</script>
+{% endblock %}

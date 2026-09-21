@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}Audit Events{% endblock %}
+{% block content %}<h2>Audit events</h2><table class="table"><thead><tr><th>When</th><th>Actor</th><th>Module</th><th>Action</th><th>Object</th><th>Reason</th></tr></thead><tbody>{% for event in events %}<tr><td>{{ event.created_at }}</td><td>{{ event.actor|default:'System' }}</td><td>{{ event.module }}</td><td>{{ event.action }}</td><td>{{ event.object_type }} #{{ event.object_id }}</td><td>{{ event.reason }}</td></tr>{% empty %}<tr><td colspan="6">No audit events.</td></tr>{% endfor %}</tbody></table>{% endblock %}

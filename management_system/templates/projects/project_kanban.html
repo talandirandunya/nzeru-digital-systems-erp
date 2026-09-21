@@ -1,0 +1,399 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Kanban Board - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .projects-kanban-wrap {
+        width: 100%;
+        min-width: 0;
+    }
+    .kanban-board {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        overflow-x: auto;
+        overflow-y: visible;
+        padding-bottom: 1.25rem;
+        min-height: min(70vh, 900px);
+        -webkit-overflow-scrolling: touch;
+        scrollbar-color: #adb5bd #e9ecef;
+    }
+    .kanban-column {
+        flex: 0 0 clamp(260px, 28vw, 320px);
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 15px;
+        min-height: 480px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .kanban-column-header {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .kanban-card {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        cursor: grab;
+        transition: all 0.2s;
+        border-left: 4px solid #dee2e6;
+    }
+    .kanban-card:hover {
+        box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+    }
+    .kanban-card.priority-critical {
+        border-left-color: #dc3545;
+    }
+    .kanban-card.priority-high {
+        border-left-color: #fd7e14;
+    }
+    .kanban-card.priority-medium {
+        border-left-color: #ffc107;
+    }
+    .kanban-card.priority-low {
+        border-left-color: #198754;
+    }
+    .column-planning {
+        border-top: 3px solid #6c757d;
+    }
+    .column-in-progress {
+        border-top: 3px solid #0d6efd;
+    }
+    .column-on-hold {
+        border-top: 3px solid #ffc107;
+    }
+    .column-completed {
+        border-top: 3px solid #198754;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0"><i class="fas fa-columns me-2"></i>{% trans "Kanban Board" %}</h1>
+            <p class="text-muted mb-0">{% trans "Drag and drop projects to change their status" %}</p>
+        </div>
+        <div>
+            <a href="{% url 'projects:project_list' %}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-list me-2"></i>{% trans "List View" %}
+            </a>
+            <a href="{% url 'projects:project_calendar' %}" class="btn btn-outline-info me-2">
+                <i class="fas fa-calendar me-2"></i>{% trans "Calendar" %}
+            </a>
+            <a href="{% url 'projects:project_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>{% trans "New Project" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="projects-kanban-wrap">
+    <div class="kanban-board">
+        <!-- Planning Column -->
+        <div class="kanban-column column-planning" data-status="planning">
+            <div class="kanban-column-header">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2 text-secondary"></i>{% trans "Planning" %}</h5>
+                    <small class="text-muted">{{ planning_projects.count }} project{{ planning_projects.count|pluralize }}</small>
+                </div>
+                <span class="badge bg-secondary">{{ planning_projects.count }}</span>
+            </div>
+            
+            {% for project in planning_projects %}
+            <div class="kanban-card priority-{{ project.priority }}" data-project-id="{{ project.id }}" draggable="true">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="mb-0">{{ project.name }}</h6>
+                    <span class="badge 
+                        {% if project.priority == 'critical' %}bg-danger
+                        {% elif project.priority == 'high' %}bg-warning
+                        {% elif project.priority == 'medium' %}bg-info
+                        {% elif project.priority == 'low' %}bg-secondary
+                        {% endif %} ms-2">
+                        {{ project.get_priority_display }}
+                    </span>
+                </div>
+                
+                {% if project.description %}
+                <p class="text-muted small mb-2">{{ project.description|truncatewords:15 }}</p>
+                {% endif %}
+                
+                <div class="small text-muted mb-2">
+                    <i class="fas fa-calendar me-1"></i>{{ project.start_date|date:"M d" }} - {{ project.end_date|date:"M d" }}
+                </div>
+                
+                <div class="progress mb-2" style="height: 5px;">
+                    <div class="progress-bar bg-secondary" style="width: {{ project.completion_percentage }}%"></div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="fas fa-tasks me-1"></i>{{ project.sous_taches.count }} tasks
+                    </small>
+                    <a href="{% url 'projects:project_detail' project.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-inbox fa-2x mb-2"></i>
+                <p class="mb-0">{% trans "No projects in planning" %}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- In Progress Column -->
+        <div class="kanban-column column-in-progress" data-status="in_progress">
+            <div class="kanban-column-header">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-spinner me-2 text-primary"></i>{% trans "In Progress" %}</h5>
+                    <small class="text-muted">{{ in_progress_projects.count }} project{{ in_progress_projects.count|pluralize }}</small>
+                </div>
+                <span class="badge bg-primary">{{ in_progress_projects.count }}</span>
+            </div>
+            
+            {% for project in in_progress_projects %}
+            <div class="kanban-card priority-{{ project.priority }}" data-project-id="{{ project.id }}" draggable="true">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="mb-0">{{ project.name }}</h6>
+                    <span class="badge 
+                        {% if project.priority == 'critical' %}bg-danger
+                        {% elif project.priority == 'high' %}bg-warning
+                        {% elif project.priority == 'medium' %}bg-info
+                        {% elif project.priority == 'low' %}bg-secondary
+                        {% endif %} ms-2">
+                        {{ project.get_priority_display }}
+                    </span>
+                </div>
+                
+                {% if project.description %}
+                <p class="text-muted small mb-2">{{ project.description|truncatewords:15 }}</p>
+                {% endif %}
+                
+                <div class="small text-muted mb-2">
+                    <i class="fas fa-calendar me-1"></i>{{ project.start_date|date:"M d" }} - {{ project.end_date|date:"M d" }}
+                </div>
+                
+                <div class="progress mb-2" style="height: 5px;">
+                    <div class="progress-bar bg-primary" style="width: {{ project.completion_percentage }}%"></div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="fas fa-tasks me-1"></i>{{ project.sous_taches.count }} tasks
+                    </small>
+                    <a href="{% url 'projects:project_detail' project.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-inbox fa-2x mb-2"></i>
+                <p class="mb-0">{% trans "No projects in progress" %}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- On Hold Column -->
+        <div class="kanban-column column-on-hold" data-status="on_hold">
+            <div class="kanban-column-header">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-pause-circle me-2 text-warning"></i>{% trans "On Hold" %}</h5>
+                    <small class="text-muted">{{ on_hold_projects.count }} project{{ on_hold_projects.count|pluralize }}</small>
+                </div>
+                <span class="badge bg-warning">{{ on_hold_projects.count }}</span>
+            </div>
+            
+            {% for project in on_hold_projects %}
+            <div class="kanban-card priority-{{ project.priority }}" data-project-id="{{ project.id }}" draggable="true">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="mb-0">{{ project.name }}</h6>
+                    <span class="badge 
+                        {% if project.priority == 'critical' %}bg-danger
+                        {% elif project.priority == 'high' %}bg-warning
+                        {% elif project.priority == 'medium' %}bg-info
+                        {% elif project.priority == 'low' %}bg-secondary
+                        {% endif %} ms-2">
+                        {{ project.get_priority_display }}
+                    </span>
+                </div>
+                
+                {% if project.description %}
+                <p class="text-muted small mb-2">{{ project.description|truncatewords:15 }}</p>
+                {% endif %}
+                
+                <div class="small text-muted mb-2">
+                    <i class="fas fa-calendar me-1"></i>{{ project.start_date|date:"M d" }} - {{ project.end_date|date:"M d" }}
+                </div>
+                
+                <div class="progress mb-2" style="height: 5px;">
+                    <div class="progress-bar bg-warning" style="width: {{ project.completion_percentage }}%"></div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="fas fa-tasks me-1"></i>{{ project.sous_taches.count }} tasks
+                    </small>
+                    <a href="{% url 'projects:project_detail' project.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-inbox fa-2x mb-2"></i>
+                <p class="mb-0">{% trans "No projects on hold" %}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Completed Column -->
+        <div class="kanban-column column-completed" data-status="completed">
+            <div class="kanban-column-header">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-check-circle me-2 text-success"></i>{% trans "Completed" %}</h5>
+                    <small class="text-muted">{{ completed_projects.count }} project{{ completed_projects.count|pluralize }}</small>
+                </div>
+                <span class="badge bg-success">{{ completed_projects.count }}</span>
+            </div>
+            
+            {% for project in completed_projects %}
+            <div class="kanban-card priority-{{ project.priority }}" data-project-id="{{ project.id }}" draggable="true">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="mb-0">{{ project.name }}</h6>
+                    <span class="badge 
+                        {% if project.priority == 'critical' %}bg-danger
+                        {% elif project.priority == 'high' %}bg-warning
+                        {% elif project.priority == 'medium' %}bg-info
+                        {% elif project.priority == 'low' %}bg-secondary
+                        {% endif %} ms-2">
+                        {{ project.get_priority_display }}
+                    </span>
+                </div>
+                
+                {% if project.description %}
+                <p class="text-muted small mb-2">{{ project.description|truncatewords:15 }}</p>
+                {% endif %}
+                
+                <div class="small text-muted mb-2">
+                    <i class="fas fa-calendar me-1"></i>{{ project.start_date|date:"M d" }} - {{ project.end_date|date:"M d" }}
+                </div>
+                
+                <div class="progress mb-2" style="height: 5px;">
+                    <div class="progress-bar bg-success" style="width: {{ project.completion_percentage }}%"></div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="fas fa-tasks me-1"></i>{{ project.sous_taches.count }} tasks
+                    </small>
+                    <a href="{% url 'projects:project_detail' project.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-inbox fa-2x mb-2"></i>
+                <p class="mb-0">{% trans "No completed projects" %}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Drag and drop functionality
+let draggedCard = null;
+
+document.querySelectorAll('.kanban-card').forEach(card => {
+    card.addEventListener('dragstart', function(e) {
+        draggedCard = this;
+        this.style.opacity = '0.5';
+    });
+
+    card.addEventListener('dragend', function(e) {
+        this.style.opacity = '1';
+    });
+});
+
+document.querySelectorAll('.kanban-column').forEach(column => {
+    column.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.background = '#e9ecef';
+    });
+
+    column.addEventListener('dragleave', function(e) {
+        this.style.background = '#f8f9fa';
+    });
+
+    column.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.style.background = '#f8f9fa';
+        
+        if (draggedCard) {
+            const projectId = draggedCard.dataset.projectId;
+            const newStatus = this.dataset.status;
+            
+            // Update project status via AJAX
+            updateProjectStatus(projectId, newStatus);
+        }
+    });
+});
+
+function updateProjectStatus(projectId, newStatus) {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+        '{{ csrf_token }}';
+    const url = "{% url 'projects:project_update_status' 999999999 %}".replace('999999999', String(projectId));
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(async (response) => {
+        let data = {};
+        try {
+            data = await response.json();
+        } catch (e) {
+            throw new Error('Server returned an invalid response');
+        }
+        if (!response.ok) {
+            throw new Error(data.error || ('HTTP ' + response.status));
+        }
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Failed to update project status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(error.message || 'An error occurred while updating the project');
+    });
+}
+</script>
+{% endblock %}

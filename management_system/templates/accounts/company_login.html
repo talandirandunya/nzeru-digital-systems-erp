@@ -1,0 +1,49 @@
+{% extends 'accounts/base_auth.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Company Login" %} — NZERU ERP{% endblock %}
+
+{% block content %}
+<div class="auth-card-header">
+  <h1>{% trans "Welcome back" %}</h1>
+  <p>{% trans "Sign in to your company account" %}</p>
+</div>
+<div class="auth-card-body">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger mb-4">
+      <i class="fas fa-exclamation-circle me-2"></i>{{ form.non_field_errors }}
+    </div>
+    {% endif %}
+    {{ form|crispy }}
+    <div class="d-grid mt-4 mb-3">
+      <button type="submit" class="btn btn-primary btn-lg">
+        <i class="fas fa-sign-in-alt me-2"></i>{% trans "Sign In" %}
+      </button>
+    </div>
+    <div class="text-center mb-3" style="font-size:13px;">
+      <a href="{% url 'accounts:password_reset' %}" style="color:var(--muted);">{% trans "Forgot your password?" %}</a>
+    </div>
+    <div style="height:1px;background:var(--border);margin:20px 0;"></div>
+    <div class="text-center" style="font-size:13px;color:var(--muted);">
+      <p class="mb-2">{% trans "Don't have a company account?" %} <a href="{% url 'accounts:company_register' %}" style="font-weight:600;">{% trans "Register" %}</a></p>
+      <p class="mb-0">{% trans "No account? Ask your company admin for an invitation." %}</p>
+    </div>
+    <div class="text-center mt-4" style="font-size:12px; color:var(--muted); line-height:1.6;">
+      <div class="fw-bold text-white">NZERU ERP</div>
+      <div>Developed by Nzeru Digital Systems</div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const first = document.querySelector('input[type="text"], input[type="email"]');
+  if (first) first.focus();
+});
+</script>
+{% endblock %}

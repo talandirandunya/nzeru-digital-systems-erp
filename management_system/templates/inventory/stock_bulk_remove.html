@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h4 class="mb-0"><i class="fas fa-file-export text-danger me-2"></i>{% trans "Bulk Stock Removal" %}</h4>
+            </div>
+            
+            <div class="card-body">
+                <div class="alert alert-danger mb-4">
+                    <h5><i class="fas fa-exclamation-triangle me-2"></i>{% trans "Warning:" %}</h5>
+                    <p class="mb-0">
+                        {% trans "This action will" %} <strong>{% trans "permanently deduct stock quantities" %}</strong> {% trans "from your inventory.
+                        Each removal will be recorded as a stock-out transaction." %}
+                    </p>
+                </div>
+                
+                <div class="alert alert-info mb-4">
+                    <h6><i class="fas fa-info-circle me-2"></i>{% trans "Process:" %}</h6>
+                    <ol class="mb-0">
+                        <li>{% trans "Download the template and fill in the items to remove" %}</li>
+                        <li>{% trans "Upload the completed Excel file" %}</li>
+                        <li>{% trans "System will validate each item and quantity" %}</li>
+                        <li>{% trans "Items with insufficient stock will be skipped" %}</li>
+                        <li>{% trans "Successful removals will create stock-out transactions" %}</li>
+                    </ol>
+                </div>
+                
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>{% trans "Column" %}</th>
+                                <th>{% trans "Required" %}</th>
+                                <th>{% trans "Description" %}</th>
+                                <th>{% trans "Validation" %}</th>
+                                <th>{% trans "Example" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>{% trans "item_code" %}</code></td>
+                                <td><span class="badge bg-danger">{% trans "Yes" %}</span></td>
+                                <td>{% trans "Item code (must exist in system)" %}</td>
+                                <td>{% trans "Must match existing item code" %}</td>
+                                <td>{% trans "ITEM-001" %}</td>
+                            </tr>
+                            <tr>
+                                <td><code>{% trans "quantity" %}</code></td>
+                                <td><span class="badge bg-danger">{% trans "Yes" %}</span></td>
+                                <td>{% trans "Quantity to remove" %}</td>
+                                <td>{% trans "Must be positive number ≤ available stock" %}</td>
+                                <td>10</td>
+                            </tr>
+                            <tr>
+                                <td><code>{% trans "remarks" %}</code></td>
+                                <td><span class="badge bg-secondary">{% trans "No" %}</span></td>
+                                <td>{% trans "Reason for removal" %}</td>
+                                <td>{% trans "Optional text" %}</td>
+                                <td>{% trans "Used for Project ABC" %}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-lightbulb me-2"></i>{% trans "Tips:" %}</h6>
+                    <ul class="mb-0">
+                        <li>{% trans "Check stock levels before preparing the file" %}</li>
+                        <li>{% trans "Use the Inventory list to verify item codes" %}</li>
+                        <li>{% trans "Test with a small batch first" %}</li>
+                        <li>{% trans "Keep a backup of your Excel file" %}</li>
+                    </ul>
+                </div>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="excel_file" class="form-label">
+                            <strong>{% trans "Select Excel File:" %}</strong>
+                        </label>
+                        <input type="file" class="form-control" id="excel_file" name="excel_file" 
+                               accept=".xlsx, .xls" required>
+                        <div class="form-text">{% trans "Only .xlsx and .xls files are supported" %}</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger" id="submitBtn">
+                            <i class="fas fa-trash-alt me-2"></i>{% trans "Process Bulk Removal" %}
+                        </button>
+                        <a href="{% url 'inventory:stock_download_removal_template' %}" class="btn btn-info">
+                            <i class="fas fa-download me-2"></i>{% trans "Download Template" %}
+                        </a>
+                        <a href="{% url 'inventory:stock_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>{% trans "Cancel" %}
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const submitBtn = document.querySelector('#submitBtn');
+    const form = document.querySelector('form');
+    const fileInput = document.querySelector('#excel_file');
+    
+    submitBtn.addEventListener('click', function(e) {
+        if (!fileInput.files.length) {
+            e.preventDefault();
+            alert('Please select an Excel file to upload.');
+            return;
+        }
+        
+        const warningMsg = '⚠️ WARNING: BULK STOCK REMOVAL ⚠️\n\n' +
+                          'This action will:\n' +
+                          '• Deduct stock from inventory\n' +
+                          '• Create stock-out transactions\n' +
+                          '• Reduce item quantities permanently\n\n' +
+                          'Are you absolutely sure you want to proceed?\n' +
+                          'This action cannot be undone.';
+        
+        if (!confirm(warningMsg)) {
+            e.preventDefault();
+        }
+    });
+    
+    form.addEventListener('submit', function(e) {
+        if (!fileInput.files.length) {
+            e.preventDefault();
+            alert('Please select an Excel file to upload.');
+            return;
+        }
+        
+        const fileName = fileInput.files[0].name;
+        if (!fileName.match(/\.(xlsx|xls)$/i)) {
+            e.preventDefault();
+            alert('Please select an Excel file (.xlsx or .xls)');
+            return;
+        }
+    });
+});
+</script>
+{% endblock %}

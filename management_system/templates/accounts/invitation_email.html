@@ -1,0 +1,11 @@
+You've been invited to join {{ company.name }} on Zentral.
+
+{% if invited_by %}{{ invited_by.get_full_name }} has invited you to join their team.{% endif %}
+
+Click the link below to set up your account. This invitation expires in {{ expiry_days }} days.
+
+{{ accept_url }}
+
+If you did not expect this invitation, you can safely ignore this email.
+
+— The Zentral Team

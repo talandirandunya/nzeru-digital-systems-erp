@@ -1,0 +1,38 @@
+{% extends 'accounts/base_auth.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Join" %} {{ invitation.company.name }} — Zentral{% endblock %}
+
+{% block content %}
+<div class="auth-card-header">
+  <h1>{% trans "You've been invited" %}</h1>
+  <p>
+    {% if invitation.invited_by %}
+      <strong>{{ invitation.invited_by.get_full_name }}</strong> {% trans "has invited you to join" %}
+    {% else %}
+      {% trans "You have been invited to join" %}
+    {% endif %}
+    <strong>{{ invitation.company.name }}</strong>.
+  </p>
+</div>
+<div class="auth-card-body">
+  <div class="mb-4 p-3 rounded" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;">
+    <small class="text-muted d-block mb-1">{% trans "Joining as" %}</small>
+    <span class="fw-semibold">{{ invitation.email }}</span>
+  </div>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger mb-3">{{ form.non_field_errors }}</div>
+    {% endif %}
+    {{ form|crispy }}
+    <div class="d-grid mt-4">
+      <button type="submit" class="btn btn-primary btn-lg">
+        <i class="fas fa-check me-2"></i>{% trans "Create My Account" %}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

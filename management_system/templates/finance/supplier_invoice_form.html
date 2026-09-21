@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ title }} — Finance{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-1">
+        <li class="breadcrumb-item"><a href="{% url 'finance:supplier_invoice_list' %}">{% trans "Supplier Invoices" %}</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+      </ol>
+    </nav>
+    <h2 class="mb-0"><i class="fas fa-file-invoice text-primary me-2"></i>{{ title }}</h2>
+  </div>
+</div>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-lg-8">
+      <!-- Invoice Header -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">{% trans "Invoice Details" %}</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              {{ form.invoice_number.label_tag }}
+              {{ form.invoice_number }}
+              {% if form.invoice_number.errors %}
+              <div class="invalid-feedback d-block">{{ form.invoice_number.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              {{ form.date.label_tag }}
+              {{ form.date }}
+              {% if form.date.errors %}
+              <div class="invalid-feedback d-block">{{ form.date.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              {{ form.due_date.label_tag }}
+              {{ form.due_date }}
+              {% if form.due_date.errors %}
+              <div class="invalid-feedback d-block">{{ form.due_date.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              {{ form.tax_rate.label_tag }}
+              {{ form.tax_rate }}
+              {% if form.tax_rate.errors %}
+              <div class="invalid-feedback d-block">{{ form.tax_rate.errors }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supplier Details -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">{% trans "Supplier Details" %}</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              {{ form.supplier_name.label_tag }}
+              {{ form.supplier_name }}
+              {% if form.supplier_name.errors %}
+              <div class="invalid-feedback d-block">{{ form.supplier_name.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-12">
+              {{ form.supplier_address.label_tag }}
+              {{ form.supplier_address }}
+              {% if form.supplier_address.errors %}
+              <div class="invalid-feedback d-block">{{ form.supplier_address.errors }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invoice Lines -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">{% trans "Invoice Lines" %}</h5>
+        </div>
+        <div class="card-body">
+          {{ formset.management_form }}
+          <div id="invoice-lines">
+            {% for line_form in formset %}
+            <div class="invoice-line mb-3 p-3 border rounded-3">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  {{ line_form.description.label_tag }}
+                  {{ line_form.description }}
+                  {% if line_form.description.errors %}
+                  <div class="invalid-feedback d-block">{{ line_form.description.errors }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-2">
+                  {{ line_form.quantity.label_tag }}
+                  {{ line_form.quantity }}
+                  {% if line_form.quantity.errors %}
+                  <div class="invalid-feedback d-block">{{ line_form.quantity.errors }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-2">
+                  {{ line_form.unit_price.label_tag }}
+                  {{ line_form.unit_price }}
+                  {% if line_form.unit_price.errors %}
+                  <div class="invalid-feedback d-block">{{ line_form.unit_price.errors }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-3">
+                  {{ line_form.account.label_tag }}
+                  {{ line_form.account }}
+                  {% if line_form.account.errors %}
+                  <div class="invalid-feedback d-block">{{ line_form.account.errors }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                  {% if formset.can_delete %}
+                  {{ line_form.DELETE }}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="add-line">
+            <i class="fas fa-plus me-1"></i>{% trans "Add Line" %}
+          </button>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">{% trans "Notes" %}</h5>
+        </div>
+        <div class="card-body">
+          {{ form.notes }}
+          {% if form.notes.errors %}
+          <div class="invalid-feedback d-block">{{ form.notes.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <!-- Summary -->
+      <div class="card shadow-sm sticky-top" style="top: 20px;">
+        <div class="card-header">
+          <h5 class="mb-0">{% trans "Summary" %}</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i>{% trans "Save Invoice" %}
+            </button>
+            <a href="{% url 'finance:supplier_invoice_list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+// Add new line functionality
+document.getElementById('add-line').addEventListener('click', function() {
+    const linesContainer = document.getElementById('invoice-lines');
+    const lineCount = linesContainer.children.length;
+    const newLine = linesContainer.children[0].cloneNode(true);
+    
+    // Update form indices
+    const inputs = newLine.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        if (input.name) {
+            input.name = input.name.replace(/-0-/g, `-${lineCount}-`);
+            input.id = input.id.replace(/-0-/g, `-${lineCount}-`);
+        }
+        if (input.type === 'checkbox' || input.type === 'text' || input.type === 'number') {
+            input.value = '';
+        }
+    });
+    
+    linesContainer.appendChild(newLine);
+});
+</script>
+{% endblock %}

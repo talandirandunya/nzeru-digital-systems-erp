@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ stock.name }}</h2>
+    <div>
+        <a href="{% url 'inventory:stock_transaction' stock.pk %}" class="btn btn-primary me-2">
+            <i class="fas fa-exchange-alt me-1"></i>{% trans "New Transaction" %}
+        </a>
+        <a href="{% url 'inventory:stock_edit' stock.pk %}" class="btn btn-warning me-2">
+            <i class="fas fa-edit me-1"></i>{% trans "Edit" %}
+        </a>
+        <a href="{% url 'inventory:stock_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>{% trans "Back to List" %}
+        </a>
+    </div>
+</div>
+
+<!-- Stock Details -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">{% trans "Item Information" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <th width="40%">{% trans "Item Code:" %}</th>
+                                <td>
+                                    <strong>{{ stock.item_code }}</strong>
+                                    {% if stock.needs_reorder %}
+                                    <span class="badge bg-danger ms-2">{% trans "Low Stock" %}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Name:" %}</th>
+                                <td>{{ stock.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Category:" %}</th>
+                                <td>
+                                    {% if stock.category %}
+                                    <span class="badge bg-info">{{ stock.category.name }}</span>
+                                    {% else %}
+                                    <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Description:" %}</th>
+                                <td>{{ stock.description|default:"No description" }}</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Supplier:" %}</th>
+                                <td>{{ stock.supplier_name|default:"—" }}</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Supplier Contact:" %}</th>
+                                <td>{{ stock.supplier_contact|default:"—" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <th width="40%">{% trans "Quantity:" %}</th>
+                                <td>
+                                    <strong>{{ stock.quantity }}</strong>
+                                    <small class="text-muted">{{ stock.get_unit_display }}</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Cost Price:" %}</th>
+                                <td>FCFA {{ stock.cost_price|floatformat:0 }}</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Selling Price:" %}</th>
+                                <td>FCFA {{ stock.selling_price|floatformat:0 }}</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Marketplace Visible:" %}</th>
+                                <td>
+                                    {% if stock.is_marketplace_visible %}
+                                        <span class="badge bg-success">{% trans "Yes" %}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{% trans "No" %}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Total Value:" %}</th>
+                                <td>
+                                    <strong class="text-success">FCFA {{ stock.total_value|floatformat:0 }}</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Reorder Level:" %}</th>
+                                <td>{{ stock.reorder_level }}</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Location:" %}</th>
+                                <td>{{ stock.location|default:"—" }}</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Last Restocked:" %}</th>
+                                <td>{{ stock.last_restocked|date:"M d, Y"|default:"Never" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">{% trans "Stock Status" %}</h5>
+                
+                <!-- Stock Level Indicator -->
+                <div class="stock-level-indicator mb-4">
+                    {% with percentage=stock.quantity|add:0|default:0 %}
+                    {% if percentage <= 0 %}
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-danger" style="width: 100%">{% trans "Out of Stock" %}</div>
+                    </div>
+                    {% elif percentage <= stock.reorder_level %}
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-warning" style="width: {{ percentage }}%">{% trans "Low Stock" %}</div>
+                    </div>
+                    {% else %}
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-success" style="width: {{ percentage }}%">{% trans "In Stock" %}</div>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                    
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            Current: {{ stock.quantity }} | Reorder Level: {{ stock.reorder_level }}
+                        </small>
+                    </div>
+                </div>
+                
+                <!-- Transaction Summary -->
+                <div class="transaction-summary">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="text-success">{{ total_in }}</h4>
+                            <small>{% trans "Total In" %}</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-danger">{{ total_out }}</h4>
+                            <small>{% trans "Total Out" %}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-history me-2"></i>{% trans "Recent Transactions" %}</h5>
+        <a href="{% url 'inventory:stock_transaction_journal' %}?stock={{ stock.pk }}" class="btn btn-sm btn-outline-primary">
+            {% trans "View All Transactions" %}
+        </a>
+    </div>
+    <div class="card-body">
+        {% if recent_transactions %}
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>{% trans "Date" %}</th>
+                        <th>{% trans "Type" %}</th>
+                        <th>{% trans "Quantity" %}</th>
+                        <th>{% trans "Remarks" %}</th>
+                        <th>{% trans "User" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in recent_transactions %}
+                    <tr>
+                        <td>{{ transaction.transaction_date|date:"M d, Y H:i" }}</td>
+                        <td>
+                            {% if transaction.transaction_type == 'in' %}
+                            <span class="badge bg-success">{{ transaction.get_transaction_type_display }}</span>
+                            {% elif transaction.transaction_type == 'out' %}
+                            <span class="badge bg-warning">{{ transaction.get_transaction_type_display }}</span>
+                            {% else %}
+                            <span class="badge bg-info">{{ transaction.get_transaction_type_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if transaction.transaction_type == 'in' %}
+                            <span class="text-success">+{{ transaction.quantity }}</span>
+                            {% elif transaction.transaction_type == 'out' %}
+                            <span class="text-danger">-{{ transaction.quantity }}</span>
+                            {% else %}
+                            {{ transaction.quantity }}
+                            {% endif %}
+                            {{ stock.get_unit_display }}
+                        </td>
+                        <td>{{ transaction.remarks|default:"—" }}</td>
+                        <td>{{ transaction.user.get_full_name|default:"System" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-history fa-2x text-muted mb-3"></i>
+            <h5>{% trans "No transactions yet" %}</h5>
+            <p class="text-muted">{% trans "Perform your first transaction to see history here." %}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="mt-4">
+    <div class="d-flex justify-content-between">
+        <div>
+            <a href="{% url 'inventory:stock_transaction' stock.pk %}" class="btn btn-primary me-2">
+                <i class="fas fa-exchange-alt me-1"></i>{% trans "New Transaction" %}
+            </a>
+            <a href="{% url 'inventory:stock_edit' stock.pk %}" class="btn btn-warning me-2">
+                <i class="fas fa-edit me-1"></i>{% trans "Edit Item" %}
+            </a>
+            <a href="mailto:{{ stock.supplier_contact }}" class="btn btn-outline-info me-2">
+                <i class="fas fa-envelope me-1"></i>{% trans "Contact Supplier" %}
+            </a>
+        </div>
+        <div>
+            <a href="{% url 'inventory:stock_delete' stock.pk %}" class="btn btn-danger me-2">
+                <i class="fas fa-trash me-1"></i>{% trans "Delete" %}
+            </a>
+            <a href="{% url 'inventory:stock_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i>{% trans "Back to List" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.stock-level-indicator .progress {
+    border-radius: 15px;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+}
+
+.stock-level-indicator .progress-bar {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+{% endblock %}

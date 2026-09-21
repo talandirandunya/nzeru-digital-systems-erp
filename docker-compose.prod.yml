@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # $$ (escaped) defers expansion to the shell running inside the container at
+      # healthcheck time, reading the real POSTGRES_USER/POSTGRES_DB set via env_file
+      # above — NOT Compose's own ${VAR} file-level substitution, which depends on
+      # Compose finding a .env in its "project directory" and can silently resolve to
+      # blank depending on where the command is invoked from.
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      # Bound to localhost only — not reachable from the internet. Connect via an
+      # SSH tunnel, e.g.: ssh -L 5433:127.0.0.1:5433 <user>@<vps-ip>
+      # then point DBeaver/pgAdmin at localhost:5433 on your machine.
+      - "127.0.0.1:5433:5432"
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      # Bind mount (not a named volume) so the panel's host-level Nginx can serve
+      # /media/ directly from ./deploy/media without reaching into Docker's volume
+      # storage. See DEPLOY.md for the reverse-proxy + media location snippet.
+      - ./deploy/media:/app/management_system/media
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      # Loopback-only, same pattern as this VPS's other apps (e.g. le-poloo).
+      # The panel (aaPanel/BT Panel) owns 80/443 and reverse-proxies your domain
+      # to this port — nothing here is reachable from the internet directly.
+      # Change 8010 if it's already taken by something else on this VPS.
+      - "0.0.0.0:8010:8000"
+
+volumes:
+  postgres_data:

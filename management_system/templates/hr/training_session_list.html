@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Training Sessions — HR{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0"><i class="fas fa-calendar-alt text-primary me-2"></i>{% trans "Training Sessions" %}</h2>
+  <a href="{% url 'hr:training_session_create' %}" class="btn btn-primary btn-sm">
+    <i class="fas fa-plus me-1"></i>{% trans "New Session" %}
+  </a>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <input type="text" name="q" class="form-control form-control-sm" placeholder="Search sessions…" value="{{ query }}">
+      </div>
+      <div class="col-md-3">
+        <select name="status" class="form-select form-select-sm">
+          <option value="">{% trans "All statuses" %}</option>
+          {% for value,label in session_statuses %}
+          <option value="{{ value }}" {% if session_status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary btn-sm">{% trans "Filter" %}</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>{% trans "Course" %}</th>
+          <th>{% trans "Session" %}</th>
+          <th>{% trans "Schedule" %}</th>
+          <th>{% trans "Location" %}</th>
+          <th>{% trans "Enrolled" %}</th>
+          <th>{% trans "Status" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for session in sessions %}
+        <tr>
+          <td>
+            <strong>{{ session.course.title }}</strong>
+          </td>
+          <td>
+            <strong>{{ session.session_name }}</strong>
+            {% if session.instructor %}
+            <div class="text-muted small">Instructor: {{ session.instructor.get_full_name }}</div>
+            {% endif %}
+          </td>
+          <td>
+            <div>{{ session.start_date|date:"M d, Y" }} - {{ session.end_date|date:"M d, Y" }}</div>
+            {% if session.start_time and session.end_time %}
+            <div class="text-muted small">{{ session.start_time|time:"g:i A" }} - {{ session.end_time|time:"g:i A" }}</div>
+            {% endif %}
+          </td>
+          <td>{{ session.location|default:'—' }}</td>
+          <td>
+            {{ session.enrolled_count }}/{{ session.max_participants|default:'∞' }}
+            {% if session.enrolled_count >= session.max_participants %}
+            <span class="badge bg-warning ms-1">{% trans "Full" %}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if session.status == 'scheduled' %}
+            <span class="badge bg-primary">{% trans "Scheduled" %}</span>
+            {% elif session.status == 'in_progress' %}
+            <span class="badge bg-success">{% trans "In Progress" %}</span>
+            {% elif session.status == 'completed' %}
+            <span class="badge bg-secondary">{% trans "Completed" %}</span>
+            {% elif session.status == 'cancelled' %}
+            <span class="badge bg-danger">{% trans "Cancelled" %}</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <a href="{% url 'hr:training_session_edit' session.pk %}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></a>
+            <a href="{% url 'hr:training_session_delete' session.pk %}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
+            {% if session.status == 'scheduled' %}
+            <a href="{% url 'hr:training_session_enroll' session.pk %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-users"></i></a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted py-4">{% trans "No training sessions found." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if sessions.has_other_pages %}
+<nav class="mt-3">
+  <ul class="pagination pagination-sm justify-content-center">
+    {% if sessions.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page={{ sessions.previous_page_number }}">{% trans "Previous" %}</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">{{ sessions.number }} / {{ sessions.paginator.num_pages }}</span></li>
+    {% if sessions.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ sessions.next_page_number }}">{% trans "Next" %}</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Delete Leave Request — HR{% endblock %}
+{% block content %}
+<div class="card shadow-sm border-danger" style="max-width: 520px; margin: 2rem auto;">
+  <div class="card-header bg-danger text-white fw-semibold">
+    <i class="fas fa-exclamation-triangle me-2"></i>{% trans "Delete Leave Request" %}
+  </div>
+  <div class="card-body">
+    <p>{% trans "Are you sure you want to delete this leave request?" %}</p>
+    <dl class="row mb-0">
+      <dt class="col-sm-4">{% trans "Employee" %}</dt>
+      <dd class="col-sm-8">{{ leave.employee.full_name }}</dd>
+      <dt class="col-sm-4">{% trans "Type" %}</dt>
+      <dd class="col-sm-8">{{ leave.get_leave_type_display }}</dd>
+      <dt class="col-sm-4">{% trans "Period" %}</dt>
+      <dd class="col-sm-8">{{ leave.start_date }} → {{ leave.end_date }} ({{ leave.duration_days }} days)</dd>
+      <dt class="col-sm-4">{% trans "Status" %}</dt>
+      <dd class="col-sm-8">{{ leave.get_status_display }}</dd>
+    </dl>
+  </div>
+  <div class="card-footer d-flex gap-2">
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">
+        <i class="fas fa-trash me-1"></i>{% trans "Confirm Delete" %}
+      </button>
+    </form>
+    <a href="{% url 'hr:leave_list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+  </div>
+</div>
+{% endblock %}

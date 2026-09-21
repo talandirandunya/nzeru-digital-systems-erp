@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load i18n %}
+<!-- marketplace/templates/marketplace/admin/order_confirm.html -->
+
+{% block title %}Confirm Order #{{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'marketplace:admin_order_dashboard' %}">{% trans "Dashboard" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'marketplace:admin_order_list' %}">{% trans "Orders" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'marketplace:admin_order_detail' order.pk %}">{{ order.order_number }}</a></li>
+            <li class="breadcrumb-item active">{% trans "Confirm Order" %}</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Confirm Order #{{ order.order_number }}</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Order Summary -->
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading">{% trans "Order Summary" %}</h6>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <p class="mb-1"><strong>{% trans "Client:" %}</strong> {{ order.client.get_full_name }}</p>
+                                <p class="mb-1"><strong>{% trans "Email:" %}</strong> {{ order.client.email }}</p>
+                                <p class="mb-1"><strong>{% trans "Order Date:" %}</strong> {{ order.created_at|date:"M d, Y H:i" }}</p>
+                            </div>
+                            <div class="col-sm-6">
+                                <p class="mb-1"><strong>{% trans "Total Amount:" %}</strong> FCFA {{ order.total }}</p>
+                                <p class="mb-1"><strong>{% trans "Payment Status:" %}</strong> 
+                                    <span class="badge bg-{% if order.payment_status == 'paid' %}success{% elif order.payment_status == 'pending' %}warning{% elif order.payment_status == 'refunded' %}info{% else %}danger{% endif %}">
+                                        {{ order.get_payment_status_display }}
+                                    </span>
+                                </p>
+                                <p class="mb-1"><strong>{% trans "Current Status:" %}</strong> 
+                                    <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Items List -->
+                    <h6 class="mb-3">{% trans "Order Items" %}</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Item" %}</th>
+                                    <th>{% trans "Code" %}</th>
+                                    <th>{% trans "Quantity" %}</th>
+                                    <th>{% trans "Unit Price" %}</th>
+                                    <th>{% trans "Subtotal" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items.all %}
+                                    <tr>
+                                        <td>{{ item.item_name }}</td>
+                                        <td>{{ item.item_code }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>FCFA {{ item.unit_price }}</td>
+                                        <td>FCFA {{ item.subtotal }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>{% trans "Subtotal:" %}</strong></td>
+                                    <td>FCFA {{ order.subtotal }}</td>
+                                </tr>
+                                {% if order.tax > 0 %}
+                                    <tr>
+                                        <td colspan="4" class="text-end"><strong>{% trans "Tax:" %}</strong></td>
+                                        <td>FCFA {{ order.tax }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if order.shipping > 0 %}
+                                    <tr>
+                                        <td colspan="4" class="text-end"><strong>{% trans "Shipping:" %}</strong></td>
+                                        <td>FCFA {{ order.shipping }}</td>
+                                    </tr>
+                                {% endif %}
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>{% trans "Total:" %}</strong></td>
+                                    <td><strong>FCFA {{ order.total }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <!-- Shipping Address -->
+                    <div class="mt-4">
+                        <h6 class="mb-2">{% trans "Shipping Address" %}</h6>
+                        <p class="mb-0">{{ order.shipping_address }}</p>
+                        <p class="mb-0">{{ order.shipping_city }}, {{ order.shipping_country }}<br><strong>{{ order.shipping_phone }}</strong></p>
+                    </div>
+
+                    {% if order.notes %}
+                        <div class="mt-3">
+                            <h6 class="mb-2">{% trans "Order Notes" %}</h6>
+                            <p class="mb-0">{{ order.notes }}</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Confirmation Form -->
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>{% trans "Please confirm the following before proceeding:" %}</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>{% trans "All items are in stock and available" %}</li>
+                                <li>{% trans "Payment has been verified (if applicable)" %}</li>
+                                <li>{% trans "Shipping address is complete and valid" %}</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'marketplace:admin_order_detail' order.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>{% trans "Back to Order" %}
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check me-2"></i>{% trans "Confirm Order" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Erpis — Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #0d1117; color: #e6edf3; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #484f58; }
+    select option { background: #21262d; color: #e6edf3; }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .screen-enter { animation: fadeSlideIn 0.22s ease both; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel">
+// ─── TOKENS ────────────────────────────────────────────────────────────────
+const DARK_T = {
+  bg: '#0d1117', surface: '#161b22', surface2: '#21262d',
+  border: '#30363d', text: '#e6edf3', muted: '#8b949e', mutedDim: '#484f58',
+  sidebarBg: '#080d12',
+};
+const LIGHT_T = {
+  bg: '#f3f4f6', surface: '#ffffff', surface2: '#f0f1f3',
+  border: '#e1e4e8', text: '#1c2128', muted: '#57606a', mutedDim: '#8c959f',
+  sidebarBg: '#ffffff',
+};
+let T = DARK_T;
+const AC = {
+  emerald:{ main:'oklch(0.70 0.17 162)', dim:'oklch(0.70 0.17 162 / 0.15)' },
+  blue:   { main:'oklch(0.65 0.17 245)', dim:'oklch(0.65 0.17 245 / 0.15)' },
+  amber:  { main:'oklch(0.78 0.17 75)',  dim:'oklch(0.78 0.17 75 / 0.15)'  },
+  purple: { main:'oklch(0.68 0.17 300)', dim:'oklch(0.68 0.17 300 / 0.15)' },
+  red:    { main:'oklch(0.62 0.20 25)',  dim:'oklch(0.62 0.20 25 / 0.15)'  },
+};
+
+// ─── DATA ──────────────────────────────────────────────────────────────────
+const DATA = {
+  dashboard: {
+    stats: [
+      { label:'Total Employees', value:'142', sub:'128 active', icon:'fa-users', color:'emerald' },
+      { label:'Active Projects', value:'18',  sub:'3 overdue',  icon:'fa-project-diagram', color:'blue' },
+      { label:'Stock Items',     value:'864', sub:'12 low stock',icon:'fa-boxes', color:'amber' },
+      { label:'Total Balance',   value:'FCFA 4.2M', sub:'+FCFA 280K this month', icon:'fa-wallet', color:'purple' },
+    ],
+    projects: [
+      { name:'Website Redesign',  status:'in_progress', progress:68 },
+      { name:'Mobile App v2',     status:'in_progress', progress:42 },
+      { name:'ERP Migration',     status:'on_hold',     progress:25 },
+      { name:'Payroll System',    status:'completed',   progress:100 },
+      { name:'CRM Integration',   status:'in_progress', progress:55 },
+    ],
+    employees: [
+      { id:'EMP-001', name:'Kofi Mensah',       dept:'Engineering', status:'active',   initials:'KM' },
+      { id:'EMP-002', name:'Fatima Ouedraogo',  dept:'Finance',     status:'active',   initials:'FO' },
+      { id:'EMP-003', name:'Yann Traoré',       dept:'HR',          status:'on_leave', initials:'YT' },
+      { id:'EMP-004', name:'Aisha Bamba',       dept:'Sales',       status:'active',   initials:'AB' },
+    ],
+  },
+  finance: {
+    stats: [
+      { label:'Total Balance',  value:'FCFA 4,280,000', sub:'across 6 accounts', icon:'fa-wallet',      color:'emerald' },
+      { label:'Total Credits',  value:'FCFA 1,820,000', sub:'all time',           icon:'fa-arrow-down',  color:'emerald' },
+      { label:'Total Debits',   value:'FCFA 940,000',   sub:'all time',           icon:'fa-arrow-up',    color:'red' },
+      { label:'Net This Month', value:'+FCFA 280,000',  sub:'↑480K · ↓200K',     icon:'fa-calendar-alt',color:'emerald' },
+    ],
+    transactions: [
+      { date:'29 Apr', account:'Operations',    desc:'Office supplies',          credit:null,      debit:'45,000' },
+      { date:'28 Apr', account:'Sales Revenue', desc:'Client payment – Inv#1042',credit:'320,000', debit:null },
+      { date:'27 Apr', account:'Payroll',       desc:'April payroll',            credit:null,      debit:'980,000' },
+      { date:'26 Apr', account:'Sales Revenue', desc:'Client payment – Inv#1039',credit:'150,000', debit:null },
+      { date:'25 Apr', account:'Operations',    desc:'Internet & utilities',     credit:null,      debit:'18,500' },
+      { date:'24 Apr', account:'Sales Revenue', desc:'Marketplace batch',        credit:'88,000',  debit:null },
+    ],
+    accounts: [
+      { name:'Sales Revenue', balance:'2,100,000' },
+      { name:'Operations',    balance:'980,000' },
+      { name:'Payroll',       balance:'740,000' },
+      { name:'Tax Reserve',   balance:'310,000' },
+      { name:'Petty Cash',    balance:'150,000' },
+    ],
+  },
+  employees: [
+    { id:'EMP-001', name:'Kofi Mensah',       email:'k.mensah@erpis.io',       dept:'Engineering', role:'Manager',    status:'active',   salary:'1,200,000', joined:'Jan 12, 2022', initials:'KM' },
+    { id:'EMP-002', name:'Fatima Ouedraogo',  email:'f.ouedraogo@erpis.io',    dept:'Finance',     role:'Accountant', status:'active',   salary:'980,000',   joined:'Mar 3, 2021',  initials:'FO' },
+    { id:'EMP-003', name:'Yann Traoré',       email:'y.traore@erpis.io',       dept:'HR',          role:'HR Manager', status:'on_leave', salary:'1,050,000', joined:'Jun 19, 2020', initials:'YT' },
+    { id:'EMP-004', name:'Aisha Bamba',       email:'a.bamba@erpis.io',        dept:'Sales',       role:'Secretary',  status:'active',   salary:'850,000',   joined:'Aug 7, 2023',  initials:'AB' },
+    { id:'EMP-005', name:'Moussa Coulibaly',  email:'m.coulibaly@erpis.io',    dept:'Engineering', role:'Employee',   status:'active',   salary:'780,000',   joined:'Feb 14, 2024', initials:'MC' },
+    { id:'EMP-006', name:'Nadia Sawadogo',    email:'n.sawadogo@erpis.io',     dept:'Marketing',   role:'Employee',   status:'inactive', salary:'720,000',   joined:'Apr 1, 2023',  initials:'NS' },
+    { id:'EMP-007', name:'Ibrahim Kone',      email:'i.kone@erpis.io',         dept:'Engineering', role:'Employee',   status:'active',   salary:'820,000',   joined:'Sep 22, 2022', initials:'IK' },
+  ],
+  inventory: {
+    stats: [
+      { label:'Total Items',   value:'864',         sub:'14 categories',   icon:'fa-boxes',              color:'blue' },
+      { label:'Total Value',   value:'FCFA 8.4M',   sub:'at cost price',   icon:'fa-dollar-sign',        color:'emerald' },
+      { label:'Low Stock',     value:'12',          sub:'need reorder',    icon:'fa-exclamation-triangle',color:'amber' },
+      { label:'Out of Stock',  value:'3',           sub:'urgent',          icon:'fa-times-circle',       color:'red' },
+    ],
+    lowStock: [
+      { code:'STK-042', name:'Printer Paper A4',    cat:'Office',       qty:5,  reorder:20 },
+      { code:'STK-118', name:'Laptop Charger 65W',  cat:'Electronics',  qty:2,  reorder:10 },
+      { code:'STK-077', name:'Hand Sanitizer 500ml',cat:'Hygiene',      qty:8,  reorder:30 },
+      { code:'STK-203', name:'Ballpoint Pens (box)',cat:'Office',       qty:1,  reorder:15 },
+    ],
+    txns: [
+      { time:'14:22', code:'STK-042', name:'Printer Paper A4',    type:'out', qty:10, user:'Kofi Mensah' },
+      { time:'11:05', code:'STK-310', name:'USB-C Hub',            type:'in',  qty:25, user:'Aisha Bamba' },
+      { time:'09:48', code:'STK-077', name:'Hand Sanitizer 500ml',type:'out', qty:12, user:'Moussa Coulibaly' },
+      { time:'08:30', code:'STK-210', name:'Whiteboard Markers',   type:'adj', qty:40, user:'System' },
+    ],
+  },
+  hr: {
+    stats: [
+      { label:'Pending Requests', value:'4',  icon:'fa-clock',        color:'amber'  },
+      { label:'Approved',         value:'28', icon:'fa-check-circle', color:'emerald'},
+      { label:'On Leave Now',     value:'3',  icon:'fa-user-clock',   color:'blue'   },
+      { label:'Positions',        value:'22', icon:'fa-briefcase',    color:'purple' },
+    ],
+    pending: [
+      { name:'Yann Traoré',      type:'Annual Leave',    from:'5 May',  to:'12 May 2026', days:7  },
+      { name:'Moussa Coulibaly', type:'Sick Leave',      from:'30 Apr', to:'2 May 2026',  days:3  },
+      { name:'Nadia Sawadogo',   type:'Maternity Leave', from:'1 Jun',  to:'30 Aug 2026', days:90 },
+      { name:'Ibrahim Kone',     type:'Personal Leave',  from:'6 May',  to:'6 May 2026',  days:1  },
+    ],
+    onLeave:[
+      { name:'Yann Traoré',     returns:'12 May' },
+      { name:'Aminata Diallo',  returns:'3 May'  },
+      { name:'Sékou Barry',     returns:'30 Apr' },
+    ],
+    upcoming:[
+      { name:'Kofi Mensah',    type:'Annual Leave',   from:'15 May', to:'22 May' },
+      { name:'Fatima Ouedraogo',type:'Personal Leave',from:'10 May', to:'11 May' },
+    ],
+  },
+  meetings: {
+    upcoming:[
+      { title:'Q2 Finance Review',          date:'30 Apr', month:'Apr', time:'10:00', dur:'90 min', att:6, loc:'Board Room A' },
+      { title:'Engineering Sprint Planning',date:'1 May',  month:'May', time:'09:00', dur:'60 min', att:8, loc:'Remote' },
+      { title:'HR Policy Update',           date:'2 May',  month:'May', time:'14:00', dur:'45 min', att:4, loc:'Conf Room 2' },
+      { title:'Client Onboarding – TechCo', date:'5 May',  month:'May', time:'11:00', dur:'60 min', att:5, loc:'Remote' },
+    ],
+    recent:[
+      { title:'Weekly Standup',       date:'28 Apr 2026', att:10, notes:true,  actions:3 },
+      { title:'Budget Planning FY26', date:'25 Apr 2026', att:5,  notes:true,  actions:7 },
+      { title:'Inventory Audit',      date:'22 Apr 2026', att:4,  notes:false, actions:2 },
+    ],
+  },
+  marketplace: {
+    stats:[
+      { label:'Orders Today',   value:'24',           sub:'+12% vs yesterday', icon:'fa-shopping-cart',  color:'blue'   },
+      { label:'Pending',        value:'8',            sub:'need processing',   icon:'fa-clock',           color:'amber'  },
+      { label:'Shipped',        value:'13',           sub:'in transit',        icon:'fa-truck',           color:'emerald'},
+      { label:'Revenue Today',  value:'FCFA 184,000', sub:'12 paid orders',    icon:'fa-money-bill-wave', color:'purple' },
+    ],
+    orders:[
+      { id:'#ORD-1081', customer:'Marie Dupont',      items:3, total:'24,500', status:'pending',   date:'29 Apr, 14:32' },
+      { id:'#ORD-1080', customer:'Jean-Paul Aka',     items:1, total:'8,000',  status:'shipped',   date:'29 Apr, 13:15' },
+      { id:'#ORD-1079', customer:'Sylvie Koffi',      items:5, total:'61,000', status:'delivered', date:'29 Apr, 11:44' },
+      { id:'#ORD-1078', customer:'René Ouédraogo',    items:2, total:'18,000', status:'shipped',   date:'29 Apr, 10:20' },
+      { id:'#ORD-1077', customer:'Aminata Ba',        items:4, total:'32,500', status:'pending',   date:'29 Apr, 09:05' },
+      { id:'#ORD-1076', customer:'Ismaïla Faye',      items:1, total:'15,000', status:'cancelled', date:'28 Apr, 17:50' },
+    ],
+  },
+};
+
+// ─── PRIMITIVES ────────────────────────────────────────────────────────────
+
+function Avatar({ initials, size = 34 }) {
+  const palette = ['#1a6b45','#1a4a6b','#6b3a1a','#4a1a6b','#1a5a6b','#4a6b1a'];
+  const bg = palette[(initials.charCodeAt(0) + (initials.charCodeAt(1)||0)) % palette.length];
+  return (
+    <div style={{
+      width:size, height:size, borderRadius:'50%', background:bg,
+      color:'#fff', display:'flex', alignItems:'center', justifyContent:'center',
+      fontSize:size*0.34, fontWeight:700, flexShrink:0, letterSpacing:'0.02em',
+    }}>{initials}</div>
+  );
+}
+
+function Badge({ status }) {
+  const map = {
+    active:     { label:'Active',     c: AC.emerald.main },
+    on_leave:   { label:'On Leave',   c: AC.amber.main   },
+    inactive:   { label:'Inactive',   c: T.muted         },
+    terminated: { label:'Terminated', c: AC.red.main     },
+    in_progress:{ label:'In Progress',c: AC.blue.main    },
+    completed:  { label:'Completed',  c: AC.emerald.main },
+    on_hold:    { label:'On Hold',    c: AC.amber.main   },
+    cancelled:  { label:'Cancelled',  c: AC.red.main     },
+    pending:    { label:'Pending',    c: AC.amber.main   },
+    shipped:    { label:'Shipped',    c: AC.blue.main    },
+    delivered:  { label:'Delivered',  c: AC.emerald.main },
+  };
+  const cfg = map[status] || { label:status, c:T.muted };
+  return (
+    <span style={{
+      display:'inline-flex', alignItems:'center', gap:5,
+      fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:20,
+      background:cfg.c+'22', color:cfg.c, border:`1px solid ${cfg.c}44`,
+    }}>
+      <span style={{ width:5, height:5, borderRadius:'50%', background:cfg.c }}></span>
+      {cfg.label}
+    </span>
+  );
+}
+
+function KpiCard({ label, value, sub, icon, color='emerald' }) {
+  const ac = AC[color] || AC.emerald;
+  const [hov, setHov] = React.useState(false);
+  return (
+    <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{
+      background:T.surface, border:`1px solid ${hov ? ac.main : T.border}`,
+      borderRadius:12, padding:'20px 22px', display:'flex', alignItems:'center', gap:16,
+      transition:'border-color 0.2s, transform 0.2s, box-shadow 0.2s',
+      transform: hov?'translateY(-2px)':'none',
+      boxShadow: hov?'0 8px 24px rgba(0,0,0,0.25)':'0 1px 4px rgba(0,0,0,0.2)',
+      flex:1, minWidth:0, cursor:'default',
+    }}>
+      <div style={{ width:48, height:48, borderRadius:12, background:ac.dim, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+        <i className={`fas ${icon}`} style={{ color:ac.main, fontSize:20 }}></i>
+      </div>
+      <div style={{ minWidth:0 }}>
+        <div style={{ fontSize:12, color:T.muted, marginBottom:2 }}>{label}</div>
+        <div style={{ fontSize:22, fontWeight:700, color:T.text, letterSpacing:'-0.5px' }}>{value}</div>
+        {sub && <div style={{ fontSize:11, color:T.muted, marginTop:2 }}>{sub}</div>}
+      </div>
+    </div>
+  );
+}
+
+function ProgressBar({ pct }) {
+  const c = pct===100 ? AC.emerald.main : pct>=50 ? AC.blue.main : AC.amber.main;
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+      <div style={{ flex:1, height:5, borderRadius:3, background:T.surface2, overflow:'hidden' }}>
+        <div style={{ width:`${pct}%`, height:'100%', background:c, borderRadius:3 }}></div>
+      </div>
+      <span style={{ fontSize:11, color:T.muted, minWidth:28, textAlign:'right' }}>{pct}%</span>
+    </div>
+  );
+}
+
+function Card({ children, style }) {
+  return (
+    <div style={{ background:T.surface, border:`1px solid ${T.border}`, borderRadius:12, overflow:'hidden', ...style }}>
+      {children}
+    </div>
+  );
+}
+
+function CardHeader({ icon, iconColor, title, onAction, actionLabel }) {
+  return (
+    <div style={{ padding:'14px 20px', borderBottom:`1px solid ${T.border}`, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+        {icon && <i className={`fas ${icon}`} style={{ color:iconColor||T.muted, fontSize:14 }}></i>}
+        <span style={{ fontWeight:600, fontSize:14, color:T.text }}>{title}</span>
+      </div>
+      {onAction && (
+        <button onClick={onAction} style={{
+          fontSize:12, color:T.muted, background:'none', border:`1px solid ${T.border}`,
+          borderRadius:6, padding:'4px 10px', cursor:'pointer',
+        }}>{actionLabel||'View all'}</button>
+      )}
+    </div>
+  );
+}
+
+function DataTable({ cols, rows, emptyMsg='No data.' }) {
+  return (
+    <div style={{ overflowX:'auto' }}>
+      <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
+        <thead>
+          <tr style={{ borderBottom:`1px solid ${T.border}` }}>
+            {cols.map((c,i) => (
+              <th key={i} style={{ padding:'10px 16px', textAlign:c.right?'right':'left', color:T.muted, fontWeight:600, fontSize:11, letterSpacing:'0.05em', textTransform:'uppercase', whiteSpace:'nowrap' }}>{c.label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length===0 ? (
+            <tr><td colSpan={cols.length} style={{ padding:32, textAlign:'center', color:T.muted }}>{emptyMsg}</td></tr>
+          ) : rows.map((row,ri) => (
+            <tr key={ri} style={{ borderBottom:`1px solid ${T.border}22` }}
+              onMouseEnter={e=>e.currentTarget.style.background=T.surface2}
+              onMouseLeave={e=>e.currentTarget.style.background='transparent'}
+            >
+              {cols.map((c,ci) => (
+                <td key={ci} style={{ padding:'12px 16px', color:T.text, textAlign:c.right?'right':'left' }}>
+                  {c.render ? c.render(row) : row[c.key]}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function Btn({ children, variant='primary', icon, onClick, small, acHue }) {
+  const [hov, setHov] = React.useState(false);
+  const ac = acHue ? `oklch(0.70 0.17 ${acHue})` : AC.emerald.main;
+  const acDim = acHue ? `oklch(0.70 0.17 ${acHue} / 0.15)` : AC.emerald.dim;
+  const base = { display:'inline-flex', alignItems:'center', gap:6, borderRadius:8, fontWeight:600, cursor:'pointer', fontSize:small?12:13, padding:small?'5px 12px':'8px 16px', border:'1px solid transparent', transition:'all 0.15s' };
+  let s = {};
+  if (variant==='primary') s = { ...base, background:hov?ac+'cc':ac, color:'#0d1117', borderColor:ac };
+  else if (variant==='ghost') s = { ...base, background:hov?T.surface2:'transparent', color:T.muted, borderColor:'transparent' };
+  else s = { ...base, background:hov?acDim:'transparent', color:ac, borderColor:hov?ac+'66':T.border };
+  return (
+    <button style={s} onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
+      {icon && <i className={`fas ${icon}`}></i>}
+      {children}
+    </button>
+  );
+}
+
+function PageHeader({ title, icon, acHue, children }) {
+  const ac = acHue ? `oklch(0.70 0.17 ${acHue})` : AC.emerald.main;
+  const dim = acHue ? `oklch(0.70 0.17 ${acHue} / 0.15)` : AC.emerald.dim;
+  return (
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:24 }}>
+      <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+        <div style={{ width:38, height:38, borderRadius:10, background:dim, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <i className={`fas ${icon}`} style={{ color:ac, fontSize:16 }}></i>
+        </div>
+        <h1 style={{ margin:0, fontSize:22, fontWeight:700, color:T.text, letterSpacing:'-0.4px' }}>{title}</h1>
+      </div>
+      <div style={{ display:'flex', gap:8 }}>{children}</div>
+    </div>
+  );
+}
+
+// ─── SIDEBAR ───────────────────────────────────────────────────────────────
+const NAV = [
+  { id:'dashboard',   label:'Dashboard',   icon:'fa-home' },
+  { id:'employees',   label:'Employees',   icon:'fa-users' },
+  { id:'finance',     label:'Finance',     icon:'fa-wallet' },
+  { id:'hr',          label:'HR',          icon:'fa-user-tie' },
+  { id:'inventory',   label:'Inventory',   icon:'fa-boxes' },
+  { id:'meetings',    label:'Meetings',    icon:'fa-calendar-alt' },
+  { id:'marketplace', label:'Marketplace', icon:'fa-shopping-cart' },
+];
+
+function Sidebar({ active, onNav, collapsed, acHue }) {
+  const ac = acHue ? `oklch(0.70 0.17 ${acHue})` : AC.emerald.main;
+  const dim = acHue ? `oklch(0.70 0.17 ${acHue} / 0.15)` : AC.emerald.dim;
+  return (
+    <aside style={{
+      width:collapsed?64:220, minWidth:collapsed?64:220,
+      background:T.sidebarBg, borderRight:`1px solid ${T.border}`,
+      display:'flex', flexDirection:'column', height:'100vh',
+      position:'sticky', top:0, transition:'width 0.25s, min-width 0.25s',
+      overflow:'hidden', flexShrink:0,
+    }}>
+      {/* Logo */}
+      <div style={{ height:60, display:'flex', alignItems:'center', padding:collapsed?'0 16px':'0 20px', borderBottom:`1px solid ${T.border}`, gap:10 }}>
+        <div style={{ width:32, height:32, borderRadius:8, background:ac, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+          <i className="fas fa-bolt" style={{ color:'#0d1117', fontSize:14 }}></i>
+        </div>
+        {!collapsed && <span style={{ fontWeight:800, fontSize:18, color:T.text, letterSpacing:'-0.5px' }}>Erpis</span>}
+      </div>
+
+      {/* Nav */}
+      <nav style={{ flex:1, padding:'12px 8px', display:'flex', flexDirection:'column', gap:2 }}>
+        {NAV.map(item => {
+          const isA = active===item.id;
+          return (
+            <button key={item.id} onClick={()=>onNav(item.id)} style={{
+              display:'flex', alignItems:'center', gap:12,
+              padding:collapsed?'10px 0':'10px 12px', borderRadius:8, border:'none', cursor:'pointer',
+              background:isA?dim:'transparent', color:isA?ac:T.muted,
+              width:'100%', textAlign:'left', justifyContent:collapsed?'center':'flex-start',
+              transition:'background 0.15s, color 0.15s',
+            }}
+              onMouseEnter={e=>{ if(!isA){ e.currentTarget.style.background=T.surface2; e.currentTarget.style.color=T.text; } }}
+              onMouseLeave={e=>{ if(!isA){ e.currentTarget.style.background='transparent'; e.currentTarget.style.color=T.muted; } }}
+            >
+              <i className={`fas ${item.icon}`} style={{ fontSize:15, flexShrink:0, width:18, textAlign:'center' }}></i>
+              {!collapsed && <span style={{ fontSize:13.5, fontWeight:isA?600:400 }}>{item.label}</span>}
+              {isA && !collapsed && <div style={{ marginLeft:'auto', width:4, height:4, borderRadius:'50%', background:ac }}></div>}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* User */}
+      <div style={{ padding:collapsed?'12px 8px':'12px 16px', borderTop:`1px solid ${T.border}`, display:'flex', alignItems:'center', gap:10 }}>
+        <Avatar initials="AD" size={32} />
+        {!collapsed && (
+          <div style={{ minWidth:0 }}>
+            <div style={{ fontSize:12.5, fontWeight:600, color:T.text, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>Amara Diallo</div>
+            <div style={{ fontSize:11, color:T.muted }}>Admin</div>
+          </div>
+        )}
+      </div>
+    </aside>
+  );
+}
+
+// ─── TOP BAR ───────────────────────────────────────────────────────────────
+function TopBar({ onToggle, isDark, onThemeToggle }) {
+  return (
+    <div style={{ height:60, display:'flex', alignItems:'center', padding:'0 24px', borderBottom:`1px solid ${T.border}`, background:T.surface, gap:16, flexShrink:0 }}>
+      <button onClick={onToggle} style={{ background:'none', border:'none', color:T.muted, cursor:'pointer', fontSize:16, padding:4, borderRadius:6, transition:'color 0.15s' }}
+        onMouseEnter={e=>e.target.style.color=T.text} onMouseLeave={e=>e.target.style.color=T.muted}>
+        <i className="fas fa-bars"></i>
+      </button>
+      <div style={{ flex:1, maxWidth:340, display:'flex', alignItems:'center', gap:8, background:T.surface2, border:`1px solid ${T.border}`, borderRadius:8, padding:'7px 12px' }}>
+        <i className="fas fa-search" style={{ color:T.mutedDim, fontSize:13 }}></i>
+        <input placeholder="Search…" style={{ background:'none', border:'none', outline:'none', color:T.text, fontSize:13, width:'100%' }} />
+        <span style={{ fontSize:10, color:T.mutedDim, border:`1px solid ${T.border}`, borderRadius:4, padding:'1px 5px' }}>⌘K</span>
+      </div>
+      <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:8 }}>
+        {/* Theme toggle */}
+        <button onClick={onThemeToggle} title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          style={{ width:36, height:36, borderRadius:8, background:T.surface2, border:`1px solid ${T.border}`, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', color:T.muted, transition:'color 0.15s, border-color 0.15s' }}
+          onMouseEnter={e=>{ e.currentTarget.style.color=T.text; e.currentTarget.style.borderColor=T.mutedDim; }}
+          onMouseLeave={e=>{ e.currentTarget.style.color=T.muted; e.currentTarget.style.borderColor=T.border; }}>
+          <i className={`fas ${isDark ? 'fa-sun' : 'fa-moon'}`} style={{ fontSize:14 }}></i>
+        </button>
+        <button style={{ width:36, height:36, borderRadius:8, background:T.surface2, border:`1px solid ${T.border}`, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', position:'relative', color:T.muted }}>
+          <i className="fas fa-bell" style={{ fontSize:14 }}></i>
+          <span style={{ position:'absolute', top:6, right:6, width:7, height:7, background:AC.red.main, borderRadius:'50%', border:`1.5px solid ${T.surface}` }}></span>
+        </button>
+        <div style={{ fontSize:12, color:T.muted, paddingLeft:8 }}>
+          <i className="fas fa-calendar-alt" style={{ marginRight:6 }}></i>Apr 29, 2026
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── SCREENS ───────────────────────────────────────────────────────────────
+
+function ScreenDashboard({ acHue }) {
+  const d = DATA.dashboard;
+  return (
+    <div>
+      <PageHeader title="Dashboard" icon="fa-home" acHue={acHue}>
+        <Btn variant="outline" icon="fa-download" small acHue={acHue}>Export</Btn>
+        <Btn variant="primary" icon="fa-plus" small acHue={acHue}>Quick Add</Btn>
+      </PageHeader>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+        {d.stats.map((s,i) => <KpiCard key={i} {...s} />)}
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, marginBottom:20 }}>
+        <Card>
+          <CardHeader icon="fa-project-diagram" iconColor={AC.blue.main} title="Recent Projects" onAction={()=>{}} actionLabel="View all" />
+          <DataTable cols={[
+            { label:'Project', key:'name' },
+            { label:'Status', render:r=><Badge status={r.status} /> },
+            { label:'Progress', render:r=><ProgressBar pct={r.progress} /> },
+          ]} rows={d.projects} />
+        </Card>
+        <Card>
+          <CardHeader icon="fa-users" iconColor={AC.emerald.main} title="Recent Employees" onAction={()=>{}} actionLabel="View all" />
+          <DataTable cols={[
+            { label:'Employee', render:r=>(
+              <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                <Avatar initials={r.initials} />
+                <div><div style={{ fontWeight:600, color:T.text, fontSize:13 }}>{r.name}</div><div style={{ fontSize:11, color:T.muted }}>{r.id}</div></div>
+              </div>
+            )},
+            { label:'Dept', render:r=><span style={{ fontSize:12, color:T.muted }}>{r.dept}</span> },
+            { label:'Status', render:r=><Badge status={r.status} /> },
+          ]} rows={d.employees} />
+        </Card>
+      </div>
+      <Card>
+        <CardHeader icon="fa-wallet" iconColor={AC.purple.main} title="Finance — This Month" onAction={()=>{}} actionLabel="Open Finance" />
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)' }}>
+          {[
+            { label:'Total Balance', value:'FCFA 4,280,000', color:T.text },
+            { label:'Credits In', value:'+FCFA 480,000', color:AC.emerald.main },
+            { label:'Debits Out', value:'-FCFA 200,000', color:AC.red.main },
+          ].map((f,i) => (
+            <div key={i} style={{ padding:'20px 24px', borderRight:i<2?`1px solid ${T.border}`:'none' }}>
+              <div style={{ fontSize:12, color:T.muted, marginBottom:6 }}>{f.label}</div>
+              <div style={{ fontSize:20, fontWeight:700, color:f.color }}>{f.value}</div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function ScreenFinance({ acHue }) {
+  const d = DATA.finance;
+  return (
+    <div>
+      <PageHeader title="Finance" icon="fa-wallet" acHue={acHue}>
+        <Btn variant="outline" icon="fa-file-invoice-dollar" small acHue={acHue}>New Invoice</Btn>
+        <Btn variant="primary" icon="fa-plus" small acHue={acHue}>New Transaction</Btn>
+      </PageHeader>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+        {d.stats.map((s,i) => <KpiCard key={i} {...s} />)}
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:20 }}>
+        <Card>
+          <CardHeader icon="fa-exchange-alt" title="Recent Transactions" onAction={()=>{}} />
+          <DataTable cols={[
+            { label:'Date', render:r=><span style={{ color:T.muted, fontSize:12, fontFamily:'monospace' }}>{r.date}</span> },
+            { label:'Account', key:'account' },
+            { label:'Description', render:r=><span style={{ color:T.muted }}>{r.desc}</span> },
+            { label:'Credit', right:true, render:r=>r.credit
+                ? <span style={{ color:AC.emerald.main, fontWeight:600 }}>+{r.credit}</span>
+                : <span style={{ color:T.mutedDim }}>—</span> },
+            { label:'Debit', right:true, render:r=>r.debit
+                ? <span style={{ color:AC.red.main, fontWeight:600 }}>-{r.debit}</span>
+                : <span style={{ color:T.mutedDim }}>—</span> },
+          ]} rows={d.transactions} />
+        </Card>
+        <Card>
+          <CardHeader icon="fa-university" title="Top Accounts" onAction={()=>{}} actionLabel="All" />
+          <div>
+            {d.accounts.map((a,i) => (
+              <div key={i} onMouseEnter={e=>e.currentTarget.style.background=T.surface2} onMouseLeave={e=>e.currentTarget.style.background='transparent'}
+                style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 18px', borderBottom:i<d.accounts.length-1?`1px solid ${T.border}22`:'none', transition:'background 0.15s' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                  <div style={{ width:8, height:8, borderRadius:'50%', background:AC.emerald.main, opacity:0.7 }}></div>
+                  <span style={{ fontSize:13, color:T.text, fontWeight:500 }}>{a.name}</span>
+                </div>
+                <span style={{ fontSize:13, fontWeight:700, color:AC.emerald.main }}>{a.balance}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function ScreenEmployees({ acHue }) {
+  const [search, setSearch] = React.useState('');
+  const [sf, setSf] = React.useState('');
+  const all = DATA.employees;
+  const filtered = all.filter(e => {
+    const q = search.toLowerCase();
+    return (!q || e.name.toLowerCase().includes(q) || e.id.toLowerCase().includes(q))
+        && (!sf || e.status===sf);
+  });
+  const selStyle = { background:T.surface2, border:`1px solid ${T.border}`, borderRadius:8, padding:'7px 12px', color:T.text, fontSize:13, outline:'none', cursor:'pointer' };
+  return (
+    <div>
+      <PageHeader title="Employees" icon="fa-users" acHue={acHue}>
+        <Btn variant="outline" icon="fa-file-export" small acHue={acHue}>Export</Btn>
+        <Btn variant="outline" icon="fa-file-import" small acHue={acHue}>Import</Btn>
+        <Btn variant="primary" icon="fa-plus" small acHue={acHue}>Add Employee</Btn>
+      </PageHeader>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+        <KpiCard label="Total"    value={String(all.length)} icon="fa-users" color="blue" />
+        <KpiCard label="Active"   value={String(all.filter(e=>e.status==='active').length)} icon="fa-user-check" color="emerald" />
+        <KpiCard label="On Leave" value={String(all.filter(e=>e.status==='on_leave').length)} icon="fa-umbrella-beach" color="amber" />
+        <KpiCard label="Inactive" value={String(all.filter(e=>e.status==='inactive').length)} icon="fa-user-slash" color="red" />
+      </div>
+      <div style={{ background:T.surface, border:`1px solid ${T.border}`, borderRadius:12, padding:'14px 20px', marginBottom:20, display:'flex', gap:12, alignItems:'center', flexWrap:'wrap' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, background:T.surface2, border:`1px solid ${T.border}`, borderRadius:8, padding:'7px 12px', flex:'1 1 220px' }}>
+          <i className="fas fa-search" style={{ color:T.mutedDim, fontSize:13 }}></i>
+          <input placeholder="Search name, ID…" value={search} onChange={e=>setSearch(e.target.value)}
+            style={{ background:'none', border:'none', outline:'none', color:T.text, fontSize:13, width:'100%' }} />
+        </div>
+        <select value={sf} onChange={e=>setSf(e.target.value)} style={selStyle}>
+          <option value="">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="on_leave">On Leave</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <select style={selStyle}>
+          <option>All Departments</option>
+          <option>Engineering</option><option>Finance</option><option>HR</option><option>Sales</option><option>Marketing</option>
+        </select>
+        {(search||sf) && <Btn variant="ghost" icon="fa-times" small onClick={()=>{setSearch('');setSf('');}}>Clear</Btn>}
+      </div>
+      <Card>
+        <DataTable cols={[
+          { label:'Employee', render:r=>(
+            <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+              <Avatar initials={r.initials} />
+              <div><div style={{ fontWeight:600, color:T.text }}>{r.name}</div><div style={{ fontSize:11, color:T.muted }}>{r.id} · {r.email}</div></div>
+            </div>
+          )},
+          { label:'Department', render:r=><span style={{ fontSize:12, background:T.surface2, border:`1px solid ${T.border}`, borderRadius:6, padding:'3px 8px', color:T.muted }}>{r.dept}</span> },
+          { label:'Role', render:r=><span style={{ fontSize:12, color:T.muted }}>{r.role}</span> },
+          { label:'Status', render:r=><Badge status={r.status} /> },
+          { label:'Salary', right:true, render:r=><span style={{ fontFamily:'monospace', fontSize:13 }}>FCFA {r.salary}</span> },
+          { label:'Joined', render:r=><span style={{ fontSize:12, color:T.muted }}>{r.joined}</span> },
+          { label:'', render:r=>(
+            <div style={{ display:'flex', gap:6, justifyContent:'flex-end' }}>
+              {['fa-eye','fa-edit','fa-trash'].map((ic,i)=>(
+                <button key={i} onMouseEnter={e=>{e.currentTarget.style.color=T.text;e.currentTarget.style.borderColor=T.mutedDim;}} onMouseLeave={e=>{e.currentTarget.style.color=T.muted;e.currentTarget.style.borderColor=T.border;}}
+                  style={{ width:28, height:28, borderRadius:6, background:T.surface2, border:`1px solid ${T.border}`, color:T.muted, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12 }}>
+                  <i className={`fas ${ic}`}></i>
+                </button>
+              ))}
+            </div>
+          )},
+        ]} rows={filtered} emptyMsg="No employees match." />
+        <div style={{ padding:'12px 16px', borderTop:`1px solid ${T.border}`, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <span style={{ fontSize:12, color:T.muted }}>{filtered.length} employee{filtered.length!==1?'s':''}</span>
+          <Btn variant="outline" icon="fa-sitemap" small acHue={acHue}>Departments</Btn>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function ScreenHR({ acHue }) {
+  const d = DATA.hr;
+  const [tab, setTab] = React.useState('leaves');
+  const tabs = [{ id:'leaves', label:'Leave Requests' },{ id:'payroll', label:'Payroll' },{ id:'performance', label:'Performance' },{ id:'training', label:'Training' }];
+  return (
+    <div>
+      <PageHeader title="HR" icon="fa-user-tie" acHue={acHue}>
+        <Btn variant="outline" icon="fa-calendar-plus" small acHue={acHue}>New Leave</Btn>
+        <Btn variant="primary" icon="fa-plus" small acHue={acHue}>Quick Actions</Btn>
+      </PageHeader>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+        {d.stats.map((s,i)=><KpiCard key={i} {...s} />)}
+      </div>
+      <div style={{ display:'flex', gap:4, marginBottom:20, background:T.surface, border:`1px solid ${T.border}`, borderRadius:10, padding:4, width:'fit-content' }}>
+        {tabs.map(t=>(
+          <button key={t.id} onClick={()=>setTab(t.id)} style={{ padding:'7px 16px', borderRadius:7, border:'none', cursor:'pointer', fontSize:13, background:tab===t.id?T.surface2:'transparent', color:tab===t.id?T.text:T.muted, fontWeight:tab===t.id?600:400, transition:'all 0.15s' }}>{t.label}</button>
+        ))}
+      </div>
+      {tab==='leaves' && (
+        <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:20 }}>
+          <Card>
+            <CardHeader icon="fa-clock" iconColor={AC.amber.main} title="Pending Requests" />
+            {d.pending.map((lv,i)=>(
+              <div key={i} onMouseEnter={e=>e.currentTarget.style.background=T.surface2} onMouseLeave={e=>e.currentTarget.style.background='transparent'}
+                style={{ padding:'14px 18px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:i<d.pending.length-1?`1px solid ${T.border}22`:'none', transition:'background 0.15s' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                  <Avatar initials={lv.name.split(' ').map(n=>n[0]).join('')} size={34} />
+                  <div>
+                    <div style={{ fontWeight:600, color:T.text, fontSize:13 }}>{lv.name}</div>
+                    <div style={{ fontSize:11, color:T.muted }}>{lv.type} · {lv.from} → {lv.to} ({lv.days}d)</div>
+                  </div>
+                </div>
+                <div style={{ display:'flex', gap:6 }}>
+                  <button style={{ padding:'5px 12px', borderRadius:6, border:'none', cursor:'pointer', fontSize:12, fontWeight:600, background:AC.emerald.dim, color:AC.emerald.main }}>✓ Approve</button>
+                  <button style={{ padding:'5px 12px', borderRadius:6, border:'none', cursor:'pointer', fontSize:12, fontWeight:600, background:AC.red.dim, color:AC.red.main }}>✗ Deny</button>
+                </div>
+              </div>
+            ))}
+          </Card>
+          <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+            <Card>
+              <CardHeader icon="fa-umbrella-beach" iconColor={AC.blue.main} title="On Leave Now" />
+              {d.onLeave.map((lv,i)=>(
+                <div key={i} style={{ padding:'12px 18px', display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:i<d.onLeave.length-1?`1px solid ${T.border}22`:'none' }}>
+                  <span style={{ fontSize:13, fontWeight:500, color:T.text }}>{lv.name}</span>
+                  <span style={{ fontSize:11, color:T.muted }}>returns {lv.returns}</span>
+                </div>
+              ))}
+            </Card>
+            <Card>
+              <CardHeader icon="fa-calendar-alt" iconColor={AC.purple.main} title="Upcoming (30d)" />
+              {d.upcoming.map((lv,i)=>(
+                <div key={i} style={{ padding:'12px 18px', borderBottom:i<d.upcoming.length-1?`1px solid ${T.border}22`:'none' }}>
+                  <div style={{ fontSize:13, fontWeight:500, color:T.text }}>{lv.name}</div>
+                  <div style={{ fontSize:11, color:T.muted }}>{lv.type} · {lv.from} → {lv.to}</div>
+                </div>
+              ))}
+            </Card>
+          </div>
+        </div>
+      )}
+      {tab!=='leaves' && (
+        <Card>
+          <div style={{ padding:48, textAlign:'center', color:T.muted }}>
+            <i className="fas fa-tools" style={{ fontSize:32, marginBottom:12, display:'block', opacity:0.4 }}></i>
+            <div style={{ fontWeight:600, marginBottom:4, color:T.text }}>{tabs.find(t=>t.id===tab)?.label}</div>
+            <div style={{ fontSize:13 }}>This section is available in the full build.</div>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+function ScreenInventory({ acHue }) {
+  const d = DATA.inventory;
+  return (
+    <div>
+      <PageHeader title="Inventory" icon="fa-boxes" acHue={acHue}>
+        <Btn variant="outline" icon="fa-file-import" small acHue={acHue}>Import</Btn>
+        <Btn variant="primary" icon="fa-plus" small acHue={acHue}>Add Stock</Btn>
+      </PageHeader>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+        {d.stats.map((s,i)=><KpiCard key={i} {...s} />)}
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
+        <Card>
+          <CardHeader icon="fa-exclamation-triangle" iconColor={AC.amber.main} title="Low Stock Alerts" onAction={()=>{}} actionLabel="View report" />
+          <DataTable cols={[
+            { label:'Item', render:r=>(
+              <div><div style={{ fontWeight:600, color:T.text, fontSize:13 }}>{r.name}</div><div style={{ fontSize:11, color:T.muted }}>{r.code} · {r.cat}</div></div>
+            )},
+            { label:'Qty', render:r=><span style={{ color:AC.amber.main, fontWeight:700 }}>{r.qty}</span> },
+            { label:'Reorder', render:r=><span style={{ color:T.muted, fontSize:12 }}>{r.reorder}</span> },
+            { label:'', render:()=><button style={{ padding:'4px 10px', borderRadius:6, border:'none', cursor:'pointer', fontSize:11, fontWeight:600, background:AC.blue.dim, color:AC.blue.main }}>Restock</button> },
+          ]} rows={d.lowStock} />
+        </Card>
+        <Card>
+          <CardHeader icon="fa-history" title="Recent Transactions" onAction={()=>{}} actionLabel="View journal" />
+          <DataTable cols={[
+            { label:'Time', render:r=><span style={{ color:T.muted, fontSize:12, fontFamily:'monospace' }}>{r.time}</span> },
+            { label:'Item', render:r=><div><div style={{ fontSize:13, color:T.text }}>{r.name}</div><div style={{ fontSize:11, color:T.muted }}>{r.code}</div></div> },
+            { label:'Type', render:r=>{
+              const cfg={in:{l:'IN',c:AC.emerald.main},out:{l:'OUT',c:AC.red.main},adj:{l:'ADJ',c:AC.blue.main}};
+              const c=cfg[r.type];
+              return <span style={{ fontSize:11, fontWeight:700, color:c.c, background:c.c+'22', padding:'2px 8px', borderRadius:4 }}>{c.l}</span>;
+            }},
+            { label:'Qty', render:r=><span style={{ fontWeight:600, color:r.type==='in'?AC.emerald.main:r.type==='out'?AC.red.main:T.text }}>{r.type==='in'?'+':r.type==='out'?'-':''}{r.qty}</span> },
+            { label:'By', render:r=><span style={{ fontSize:12, color:T.muted }}>{r.user}</span> },
+          ]} rows={d.txns} />
+        </Card>
+        <Card>
+          <CardHeader icon="fa-chart-line" title="Monthly Movement" />
+          <div style={{ padding:'24px' }}>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, marginBottom:20 }}>
+              {[{label:'Stock In (30d)',value:'+1,240',color:AC.emerald.main},{label:'Stock Out (30d)',value:'-980',color:AC.red.main}].map((m,i)=>(
+                <div key={i} style={{ textAlign:'center' }}>
+                  <div style={{ fontSize:28, fontWeight:800, color:m.color }}>{m.value}</div>
+                  <div style={{ fontSize:12, color:T.muted, marginTop:4 }}>{m.label}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ height:10, borderRadius:5, overflow:'hidden', background:T.surface2, display:'flex' }}>
+              <div style={{ width:'56%', background:AC.emerald.main }}></div>
+              <div style={{ flex:1, background:AC.red.main }}></div>
+            </div>
+          </div>
+        </Card>
+        <Card>
+          <CardHeader icon="fa-bolt" iconColor={AC.amber.main} title="Quick Actions" />
+          <div style={{ padding:20, display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+            {[{icon:'fa-file-import',label:'Bulk Import',color:'blue'},{icon:'fa-chart-bar',label:'Reports',color:'emerald'},{icon:'fa-tags',label:'Categories',color:'amber'},{icon:'fa-exchange-alt',label:'Transaction',color:'purple'}].map((a,i)=>(
+              <button key={i} onMouseEnter={e=>{e.currentTarget.style.borderColor=AC[a.color].main;e.currentTarget.style.transform='translateY(-1px)';}} onMouseLeave={e=>{e.currentTarget.style.borderColor=T.border;e.currentTarget.style.transform='none';}}
+                style={{ background:T.surface2, border:`1px solid ${T.border}`, borderRadius:10, padding:'16px 12px', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:8, transition:'border-color 0.15s, transform 0.15s' }}>
+                <i className={`fas ${a.icon}`} style={{ color:AC[a.color].main, fontSize:18 }}></i>
+                <span style={{ fontSize:12, color:T.muted, fontWeight:500 }}>{a.label}</span>
+              </button>
+            ))}
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function ScreenMeetings({ acHue }) {
+  const d = DATA.meetings;
+  return (
+    <div>
+      <PageHeader title="Meetings" icon="fa-calendar-alt" acHue={acHue}>
+        <Btn variant="outline" icon="fa-chart-bar" small acHue={acHue}>Report</Btn>
+        <Btn variant="primary" icon="fa-plus" small acHue={acHue}>Schedule</Btn>
+      </PageHeader>
+      <div style={{ display:'grid', gridTemplateColumns:'3fr 2fr', gap:20 }}>
+        <Card>
+          <CardHeader icon="fa-calendar-alt" iconColor={AC.blue.main} title="Upcoming Meetings" />
+          {d.upcoming.map((m,i)=>(
+            <div key={i} onMouseEnter={e=>e.currentTarget.style.background=T.surface2} onMouseLeave={e=>e.currentTarget.style.background='transparent'}
+              style={{ padding:'16px 20px', display:'flex', alignItems:'center', gap:16, borderBottom:i<d.upcoming.length-1?`1px solid ${T.border}22`:'none', transition:'background 0.15s' }}>
+              <div style={{ width:48, flexShrink:0, textAlign:'center', background:AC.blue.dim, borderRadius:10, padding:'8px 4px' }}>
+                <div style={{ fontSize:10, color:AC.blue.main, fontWeight:700, textTransform:'uppercase' }}>{m.month}</div>
+                <div style={{ fontSize:20, fontWeight:800, color:T.text, lineHeight:1.1 }}>{m.date}</div>
+              </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontWeight:600, color:T.text, fontSize:14 }}>{m.title}</div>
+                <div style={{ fontSize:12, color:T.muted, marginTop:2 }}>{m.time} · {m.dur} · {m.loc}</div>
+              </div>
+              <div style={{ display:'flex', alignItems:'center', gap:6, flexShrink:0 }}>
+                <i className="fas fa-users" style={{ color:T.mutedDim, fontSize:11 }}></i>
+                <span style={{ fontSize:12, color:T.muted }}>{m.att}</span>
+              </div>
+            </div>
+          ))}
+        </Card>
+        <Card>
+          <CardHeader icon="fa-history" title="Recent Meetings" onAction={()=>{}} />
+          {d.recent.map((m,i)=>(
+            <div key={i} onMouseEnter={e=>e.currentTarget.style.background=T.surface2} onMouseLeave={e=>e.currentTarget.style.background='transparent'}
+              style={{ padding:'14px 18px', borderBottom:i<d.recent.length-1?`1px solid ${T.border}22`:'none', transition:'background 0.15s' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+                <div style={{ fontWeight:600, color:T.text, fontSize:13 }}>{m.title}</div>
+                <span style={{ fontSize:11, color:T.muted, flexShrink:0, marginLeft:8 }}>{m.date}</span>
+              </div>
+              <div style={{ display:'flex', gap:12, marginTop:6 }}>
+                <span style={{ fontSize:11, color:T.muted }}><i className="fas fa-users" style={{ marginRight:4 }}></i>{m.att}</span>
+                {m.notes && <span style={{ fontSize:11, color:AC.emerald.main }}><i className="fas fa-file-alt" style={{ marginRight:4 }}></i>Notes</span>}
+                {m.actions>0 && <span style={{ fontSize:11, color:AC.amber.main }}><i className="fas fa-tasks" style={{ marginRight:4 }}></i>{m.actions} actions</span>}
+              </div>
+            </div>
+          ))}
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function ScreenMarketplace({ acHue }) {
+  const d = DATA.marketplace;
+  const [sf, setSf] = React.useState('');
+  const filtered = d.orders.filter(o=>!sf||o.status===sf);
+  return (
+    <div>
+      <PageHeader title="Marketplace Orders" icon="fa-shopping-cart" acHue={acHue}>
+        <Btn variant="outline" icon="fa-store" small acHue={acHue}>Store Settings</Btn>
+        <Btn variant="primary" icon="fa-ship" small acHue={acHue}>Process Orders</Btn>
+      </PageHeader>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+        {d.stats.map((s,i)=><KpiCard key={i} {...s} />)}
+      </div>
+      <div style={{ display:'flex', gap:8, marginBottom:16, flexWrap:'wrap' }}>
+        {['','pending','shipped','delivered','cancelled'].map(s=>{
+          const isA=sf===s;
+          const ac2 = acHue ? `oklch(0.70 0.17 ${acHue})` : AC.emerald.main;
+          const dim2 = acHue ? `oklch(0.70 0.17 ${acHue} / 0.15)` : AC.emerald.dim;
+          return (
+            <button key={s} onClick={()=>setSf(s)} style={{ padding:'6px 14px', borderRadius:20, border:`1px solid ${isA?ac2:T.border}`, background:isA?dim2:'transparent', color:isA?ac2:T.muted, cursor:'pointer', fontSize:12, fontWeight:600, transition:'all 0.15s' }}>
+              {s===''?'All Orders':s.charAt(0).toUpperCase()+s.slice(1)}
+            </button>
+          );
+        })}
+      </div>
+      <Card>
+        <DataTable cols={[
+          { label:'Order', render:r=><span style={{ fontFamily:'monospace', fontSize:13, fontWeight:700, color:T.text }}>{r.id}</span> },
+          { label:'Customer', render:r=>(
+            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+              <Avatar initials={r.customer.split(' ').map(n=>n[0]).join('')} size={28} />
+              <span style={{ fontSize:13 }}>{r.customer}</span>
+            </div>
+          )},
+          { label:'Items', render:r=><span style={{ color:T.muted, fontSize:12 }}>{r.items} item{r.items>1?'s':''}</span> },
+          { label:'Total', right:true, render:r=><span style={{ fontWeight:700 }}>FCFA {r.total}</span> },
+          { label:'Status', render:r=><Badge status={r.status} /> },
+          { label:'Date', render:r=><span style={{ fontSize:12, color:T.muted }}>{r.date}</span> },
+          { label:'', render:r=>(
+            <div style={{ display:'flex', gap:6, justifyContent:'flex-end' }}>
+              {r.status==='pending' && <button style={{ padding:'4px 10px', borderRadius:6, border:'none', cursor:'pointer', fontSize:11, fontWeight:600, background:AC.emerald.dim, color:AC.emerald.main }}>Ship</button>}
+              <button style={{ padding:'4px 10px', borderRadius:6, border:`1px solid ${T.border}`, cursor:'pointer', fontSize:11, color:T.muted, background:'transparent' }}>View</button>
+            </div>
+          )},
+        ]} rows={filtered} />
+        <div style={{ padding:'12px 16px', borderTop:`1px solid ${T.border}`, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <span style={{ fontSize:12, color:T.muted }}>{filtered.length} order{filtered.length!==1?'s':''}</span>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+// ─── TWEAKS PANEL (inline) ─────────────────────────────────────────────────
+function TweaksInline({ tweaks, setTweak, onClose }) {
+  const acHue = tweaks.accentHue;
+  const ac = `oklch(0.70 0.17 ${acHue})`;
+  return (
+    <div style={{
+      position:'fixed', bottom:80, right:16, width:260,
+      background:T.surface, border:`1px solid ${T.border}`, borderRadius:14,
+      boxShadow:'0 16px 48px rgba(0,0,0,0.5)', zIndex:1000, padding:16,
+      fontFamily:'Plus Jakarta Sans, sans-serif',
+    }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+        <span style={{ fontWeight:700, fontSize:14, color:T.text }}>Tweaks</span>
+        <button onClick={onClose} style={{ background:'none', border:'none', color:T.muted, cursor:'pointer', fontSize:16 }}>×</button>
+      </div>
+      <div style={{ marginBottom:14 }}>
+        <div style={{ fontSize:11, color:T.muted, fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', marginBottom:8 }}>Accent Color</div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:6, marginBottom:8 }}>
+          {[{hue:162,l:'Emerald'},{hue:245,l:'Blue'},{hue:300,l:'Purple'},{hue:75,l:'Amber'},{hue:25,l:'Red'},{hue:200,l:'Cyan'}].map(c=>(
+            <button key={c.hue} title={c.l} onClick={()=>setTweak('accentHue',c.hue)} style={{
+              width:'100%', aspectRatio:'1', borderRadius:6, cursor:'pointer',
+              background:`oklch(0.70 0.17 ${c.hue})`,
+              border:`2px solid ${tweaks.accentHue===c.hue?'#fff':'transparent'}`,
+            }}></button>
+          ))}
+        </div>
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <input type="range" min={0} max={360} step={1} value={acHue} onChange={e=>setTweak('accentHue',Number(e.target.value))}
+            style={{ flex:1, accentColor:ac }} />
+          <span style={{ fontSize:12, color:T.muted, minWidth:30 }}>{acHue}°</span>
+        </div>
+      </div>
+      <div style={{ marginBottom:14 }}>
+        <div style={{ fontSize:11, color:T.muted, fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', marginBottom:8 }}>Theme</div>
+        <div style={{ display:'flex', gap:4 }}>
+          {['dark','light'].map(th=>(
+            <button key={th} onClick={()=>setTweak('theme',th)} style={{
+              flex:1, padding:'7px 0', borderRadius:7, border:`1px solid ${tweaks.theme===th?ac:T.border}`,
+              background:tweaks.theme===th?ac+'22':'transparent', color:tweaks.theme===th?ac:T.muted,
+              cursor:'pointer', fontSize:12, fontWeight:600, transition:'all 0.15s',
+              display:'flex', alignItems:'center', justifyContent:'center', gap:6,
+            }}>
+              <i className={`fas ${th==='dark'?'fa-moon':'fa-sun'}`} style={{ fontSize:11 }}></i>
+              {th.charAt(0).toUpperCase()+th.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={{ marginBottom:14 }}>
+        <div style={{ fontSize:11, color:T.muted, fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', marginBottom:8 }}>Density</div>
+        <div style={{ display:'flex', gap:4 }}>
+          {['compact','comfortable','spacious'].map(d=>(
+            <button key={d} onClick={()=>setTweak('density',d)} style={{
+              flex:1, padding:'5px 0', borderRadius:7, border:`1px solid ${tweaks.density===d?ac:T.border}`,
+              background:tweaks.density===d?ac+'22':'transparent', color:tweaks.density===d?ac:T.muted,
+              cursor:'pointer', fontSize:11, fontWeight:600, transition:'all 0.15s', textTransform:'capitalize',
+            }}>{d.slice(0,5)}</button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── MAIN APP ───────────────────────────────────────────────────────────────
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accentHue": 294,
+  "density": "spacious",
+  "sidebarCollapsed": false,
+  "theme": "dark"
+}/*EDITMODE-END*/;
+
+const SCREENS = {
+  dashboard:   ScreenDashboard,
+  employees:   ScreenEmployees,
+  finance:     ScreenFinance,
+  hr:          ScreenHR,
+  inventory:   ScreenInventory,
+  meetings:    ScreenMeetings,
+  marketplace: ScreenMarketplace,
+};
+
+function App() {
+  const [screen, setScreen] = React.useState('dashboard');
+  const [animKey, setAnimKey] = React.useState(0);
+  const [tweaks, setTweakState] = React.useState(TWEAK_DEFAULTS);
+  const [collapsed, setCollapsed] = React.useState(() => {
+    const s = localStorage.getItem('erpis-sidebar');
+    return s ? s==='true' : TWEAK_DEFAULTS.sidebarCollapsed;
+  });
+  const [showTweaks, setShowTweaks] = React.useState(false);
+
+  function setTweak(key, val) {
+    setTweakState(prev => {
+      const next = {...prev, [key]:val};
+      try { window.parent.postMessage({type:'__edit_mode_set_keys', edits:next},'*'); } catch(e){}
+      return next;
+    });
+  }
+
+  // Tweaks panel toggle from host
+  React.useEffect(() => {
+    const handler = (e) => {
+      if (e.data?.type === '__activate_edit_mode') setShowTweaks(true);
+      if (e.data?.type === '__deactivate_edit_mode') setShowTweaks(false);
+    };
+    window.addEventListener('message', handler);
+    window.parent.postMessage({type:'__edit_mode_available'},'*');
+    return () => window.removeEventListener('message', handler);
+  }, []);
+
+  const handleNav = (id) => {
+    if (id === screen) return;
+    setScreen(id);
+    setAnimKey(k => k+1);
+  };
+
+  const toggleSidebar = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    localStorage.setItem('erpis-sidebar', String(next));
+  };
+
+  // Apply theme tokens globally before render
+  T = tweaks.theme === 'light' ? LIGHT_T : DARK_T;
+
+  const density = tweaks.density;
+  const pad = density==='compact' ? '16px 20px' : density==='spacious' ? '32px 40px' : '24px 32px';
+  const Active = SCREENS[screen] || ScreenDashboard;
+  const acHue = tweaks.accentHue;
+  const ac = `oklch(0.70 0.17 ${acHue})`;
+
+  const isDark = tweaks.theme !== 'light';
+
+  return (
+    <div style={{ display:'flex', height:'100vh', overflow:'hidden', fontFamily:'Plus Jakarta Sans, sans-serif', background:T.bg }}>
+      <style>{`body{background:${T.bg}}select option{background:${T.surface2};color:${T.text}}::-webkit-scrollbar-thumb{background:${T.border}}`}</style>
+      <Sidebar active={screen} onNav={handleNav} collapsed={collapsed} acHue={acHue} />
+      <div style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0, overflow:'hidden' }}>
+        <TopBar onToggle={toggleSidebar} isDark={isDark} onThemeToggle={()=>setTweak('theme', isDark?'light':'dark')} />
+        <main style={{ flex:1, overflowY:'auto', padding:pad, background:T.bg }}>
+          <div key={animKey} className="screen-enter">
+            <Active acHue={acHue} />
+          </div>
+        </main>
+      </div>
+
+      {/* FAB for tweaks if opened standalone */}
+      {showTweaks && (
+        <TweaksInline tweaks={tweaks} setTweak={setTweak} onClose={()=>{setShowTweaks(false);try{window.parent.postMessage({type:'__edit_mode_dismissed'},'*');}catch(e){}}} />
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Employee Training — HR{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0"><i class="fas fa-users text-primary me-2"></i>{% trans "Employee Training" %}</h2>
+  <a href="{% url 'hr:employee_training_enroll' %}" class="btn btn-primary btn-sm">
+    <i class="fas fa-plus me-1"></i>{% trans "Enroll Employee" %}
+  </a>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <input type="text" name="employee" class="form-control form-control-sm" placeholder="Employee name…" value="{{ employee_query }}">
+      </div>
+      <div class="col-md-3">
+        <input type="text" name="course" class="form-control form-control-sm" placeholder="Course name…" value="{{ course_query }}">
+      </div>
+      <div class="col-md-3">
+        <select name="status" class="form-select form-select-sm">
+          <option value="">{% trans "All statuses" %}</option>
+          {% for value,label in training_statuses %}
+          <option value="{{ value }}" {% if training_status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary btn-sm">{% trans "Filter" %}</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>{% trans "Employee" %}</th>
+          <th>{% trans "Course" %}</th>
+          <th>{% trans "Session" %}</th>
+          <th>{% trans "Enrollment Date" %}</th>
+          <th>{% trans "Completion Date" %}</th>
+          <th>{% trans "Status" %}</th>
+          <th>{% trans "Score" %}</th>
+          <th class="text-end">{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for training in trainings %}
+        <tr>
+          <td>
+            <strong>{{ training.employee.get_full_name }}</strong>
+            <div class="text-muted small">{{ training.employee.employee_id }}</div>
+          </td>
+          <td>
+            <strong>{{ training.session.course.title }}</strong>
+          </td>
+          <td>
+            {{ training.session.session_name }}
+            <div class="text-muted small">{{ training.session.start_date|date:"M d, Y" }}</div>
+          </td>
+          <td>{{ training.enrollment_date|date:"M d, Y" }}</td>
+          <td>
+            {% if training.completion_date %}
+            {{ training.completion_date|date:"M d, Y" }}
+            {% else %}
+            —
+            {% endif %}
+          </td>
+          <td>
+            {% if training.status == 'enrolled' %}
+            <span class="badge bg-primary">{% trans "Enrolled" %}</span>
+            {% elif training.status == 'in_progress' %}
+            <span class="badge bg-warning">{% trans "In Progress" %}</span>
+            {% elif training.status == 'completed' %}
+            <span class="badge bg-success">{% trans "Completed" %}</span>
+            {% elif training.status == 'cancelled' %}
+            <span class="badge bg-danger">{% trans "Cancelled" %}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if training.score %}
+            {{ training.score }}%
+            {% else %}
+            —
+            {% endif %}
+          </td>
+          <td class="text-end">
+            {% if training.status == 'enrolled' or training.status == 'in_progress' %}
+            <form method="post" action="{% url 'hr:employee_training_complete' training.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-success" title="Complete"><i class="fas fa-check"></i></button>
+            </form>
+            {% endif %}
+            <a href="{% url 'hr:employee_training_edit' training.pk %}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></a>
+            <form method="post" action="{% url 'hr:employee_training_delete' training.pk %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center text-muted py-4">{% trans "No employee training records found." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if trainings.has_other_pages %}
+<nav class="mt-3">
+  <ul class="pagination pagination-sm justify-content-center">
+    {% if trainings.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page={{ trainings.previous_page_number }}">{% trans "Previous" %}</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">{{ trainings.number }} / {{ trainings.paginator.num_pages }}</span></li>
+    {% if trainings.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ trainings.next_page_number }}">{% trans "Next" %}</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

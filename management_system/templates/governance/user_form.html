@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if managed_user %}Edit {{ managed_user.get_full_name }}{% else %}Create user{% endif %}
+{% endblock %}
+
+{% block content %}
+    <h2>{% if managed_user %}Edit {{ managed_user.get_full_name }}{% else %}Create user{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-primary">Save</button>
+    </form>
+    {% if not managed_user %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const search = document.querySelector('[data-employee-search]');
+        const employee = document.getElementById('id_employee');
+        if (!search || !employee) return;
+        search.addEventListener('input', function () {
+            const query = search.value.toLowerCase().trim();
+            Array.from(employee.options).forEach(function (option) {
+                option.hidden = Boolean(query) && !option.text.toLowerCase().includes(query);
+            });
+        });
+    });
+    </script>
+    {% endif %}
+{% endblock %}

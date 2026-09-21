@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h4><i class="fas fa-exchange-alt"></i> {% trans "Stock Transaction" %}</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>{% trans "Item:" %}</strong> {{ stock.name }}<br>
+                    <strong>{% trans "Current Stock:" %}</strong> {{ stock.quantity }} {{ stock.get_unit_display }}
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i> {% trans "Record Transaction" %}
+                        </button>
+                        <a href="{% url 'inventory:stock_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

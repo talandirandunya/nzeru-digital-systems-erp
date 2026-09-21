@@ -1,0 +1,317 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Dashboard" %} — {{ request.user.company.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.kpi-clickable { transition: transform .15s, box-shadow .15s; cursor: pointer; }
+.kpi-clickable:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.18) !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# ---- Page header ---- #}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">
+            <i class="fas fa-tachometer-alt text-primary me-2" aria-hidden="true"></i>{% trans "Dashboard" %}
+        </h2>
+        <small class="text-muted">
+            {% trans "Welcome," %} {{ user.get_full_name }}
+            <span class="badge bg-secondary ms-1">{{ user.get_role_display }}</span>
+        </small>
+    </div>
+    <span class="text-muted small">
+        <i class="fas fa-calendar-alt me-1" aria-hidden="true"></i>
+        {{ now|date:"N j, Y" }}
+    </span>
+</div>
+
+{# ---- Stat cards — shown per role ---- #}
+<div class="row g-3 mb-4">
+
+    {# Employee stats — HR / admin / manager / accountant #}
+    {% if show_employee_stats %}
+    <div class="col-sm-6 col-xl-3">
+        <a href="{% url 'employees:employee_list' %}" class="text-decoration-none d-block h-100">
+        <div class="card border-0 shadow-sm h-100 kpi-clickable">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                    <i class="fas fa-users fa-lg text-primary" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <p class="text-muted small mb-0">{% trans "Total Employees" %}</p>
+                    <h3 class="mb-0 fw-bold">{{ total_employees|default:"0" }}</h3>
+                    <small class="text-success">{{ active_employees|default:"0" }} {% trans "active" %}</small>
+                </div>
+            </div>
+        </div>
+        </a>
+    </div>
+    {% endif %}
+
+    {# Project stats — users with project capability #}
+    {% if show_project_stats %}
+    <div class="col-sm-6 col-xl-3">
+        <a href="{% url 'projects:project_list' %}" class="text-decoration-none d-block h-100">
+        <div class="card border-0 shadow-sm h-100 kpi-clickable">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                    <i class="fas fa-project-diagram fa-lg text-success" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <p class="text-muted small mb-0">{% trans "Active Projects" %}</p>
+                    <h3 class="mb-0 fw-bold">{{ active_projects|default:"0" }}</h3>
+                    {% if overdue_projects %}
+                    <small class="text-danger">{{ overdue_projects }} {% trans "overdue" %}</small>
+                    {% else %}
+                    <small class="text-muted">{{ completed_projects|default:"0" }} {% trans "completed" %}</small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        </a>
+    </div>
+    {% endif %}
+
+    {# Inventory stats — users with inventory capability #}
+    {% if show_inventory_stats %}
+    <div class="col-sm-6 col-xl-3">
+        <a href="{% url 'inventory:stock_list' %}" class="text-decoration-none d-block h-100">
+        <div class="card border-0 shadow-sm h-100 kpi-clickable">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                    <i class="fas fa-boxes fa-lg text-info" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <p class="text-muted small mb-0">{% trans "Stock Items" %}</p>
+                    <h3 class="mb-0 fw-bold">{{ total_stock_items|default:"0" }}</h3>
+                    {% if low_stock_count %}
+                    <small class="text-warning">{{ low_stock_count }} {% trans "low stock" %}</small>
+                    {% else %}
+                    <small class="text-muted">{% trans "All levels OK" %}</small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        </a>
+    </div>
+    {% endif %}
+
+    {# Finance stats — admin / accountant / manager #}
+    {% if show_finance_stats %}
+    <div class="col-sm-6 col-xl-3">
+        <a href="{% url 'finance:index' %}" class="text-decoration-none d-block h-100">
+        <div class="card border-0 shadow-sm h-100 kpi-clickable">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                    <i class="fas fa-wallet fa-lg text-warning" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <p class="text-muted small mb-0">{% trans "Total Balance" %}</p>
+                    <h3 class="mb-0 fw-bold">FCFA {{ total_balance|floatformat:0|default:"0" }}</h3>
+                    <small class="text-success">+FCFA {{ monthly_credits|floatformat:0|default:"0" }} {% trans "this month" %}</small>
+                </div>
+            </div>
+        </div>
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+{% if pending_my_approval_count or submitted_for_approval_count or returned_approval_count or recent_approval_count %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="fas fa-check-double text-primary me-2" aria-hidden="true"></i>Approval Center</h6>
+        <a href="{% url 'governance:my_work' %}" class="btn btn-outline-primary btn-sm">Open approval work</a>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-sm-6 col-lg-3"><div class="border rounded p-3"><div class="text-muted small">Pending my approval</div><div class="fs-3 fw-bold">{{ pending_my_approval_count }}</div></div></div>
+            <div class="col-sm-6 col-lg-3"><div class="border rounded p-3"><div class="text-muted small">Submitted for approval</div><div class="fs-3 fw-bold">{{ submitted_for_approval_count }}</div></div></div>
+            <div class="col-sm-6 col-lg-3"><div class="border rounded p-3"><div class="text-muted small">Returned or rejected</div><div class="fs-3 fw-bold">{{ returned_approval_count }}</div></div></div>
+            <div class="col-sm-6 col-lg-3"><div class="border rounded p-3"><div class="text-muted small">Approved by me</div><div class="fs-3 fw-bold">{{ recent_approval_count }}</div></div></div>
+        </div>
+        {% if approval_requests %}
+        <div class="table-responsive mt-3"><table class="table table-sm mb-0"><thead><tr><th>Request</th><th>Type</th><th>Submitted by</th><th>Status</th><th></th></tr></thead><tbody>
+        {% for approval in approval_requests %}<tr><td>APR-{{ approval.pk }}</td><td>{{ approval.workflow.transaction_type }}</td><td>{{ approval.requester.get_full_name }}</td><td>{{ approval.get_status_display }}</td><td><a href="{% url 'governance:approval_detail' approval.pk %}" class="btn btn-sm btn-outline-secondary">Review</a></td></tr>{% endfor %}
+        </tbody></table></div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{# ---- Low stock alert (all roles who can see inventory) ---- #}
+{% if show_inventory_stats and low_stock_items %}
+<div class="alert alert-warning d-flex align-items-start mb-4" role="alert">
+    <i class="fas fa-exclamation-triangle me-2 mt-1 flex-shrink-0" aria-hidden="true"></i>
+    <div>
+        <strong>{{ low_stock_items|length }} {% trans "item" %}{{ low_stock_items|length|pluralize }} {% trans "below reorder level:" %}</strong>
+        {% for item in low_stock_items %}
+            <a href="{% url 'inventory:stock_detail' item.pk %}" class="ms-1 badge bg-warning text-dark text-decoration-none">
+                {{ item.name }} ({{ item.quantity }} {% trans "left" %})
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{# ---- Main content grid ---- #}
+<div class="row g-4">
+
+    {# Recent Projects — users with project capability #}
+    {% if show_project_stats %}
+    <div class="{% if show_employee_stats %}col-md-6{% else %}col-12{% endif %}">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="fas fa-project-diagram text-success me-2" aria-hidden="true"></i>
+                    {% trans "Recent Projects" %}
+                </h6>
+                <a href="{% url 'projects:project_list' %}" class="btn btn-outline-secondary btn-sm">{% trans "View all" %}</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Name" %}</th>
+                                <th>{% trans "Status" %}</th>
+                                <th>{% trans "Progress" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for project in recent_projects %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'projects:project_detail' project.pk %}"
+                                       class="text-decoration-none fw-semibold">
+                                        {{ project.name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge
+                                        {% if project.status == 'completed' %}bg-success
+                                        {% elif project.status == 'in_progress' %}bg-info
+                                        {% elif project.status == 'on_hold' %}bg-warning text-dark
+                                        {% elif project.status == 'cancelled' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ project.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height:6px;">
+                                            <div class="progress-bar
+                                                {% if project.completion_percentage == 100 %}bg-success
+                                                {% elif project.completion_percentage >= 50 %}bg-info
+                                                {% else %}bg-warning{% endif %}"
+                                                role="progressbar"
+                                                style="width:{{ project.completion_percentage }}%"
+                                                aria-valuenow="{{ project.completion_percentage }}"
+                                                aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted text-nowrap">{{ project.completion_percentage }}%</small>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-3">{% trans "No projects yet." %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# Recent Employees — HR / admin / manager / accountant only #}
+    {% if show_employee_stats %}
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="fas fa-users text-primary me-2" aria-hidden="true"></i>
+                    {% trans "Recent Employees" %}
+                </h6>
+                <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary btn-sm">{% trans "View all" %}</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>{% trans "ID" %}</th>
+                                <th>{% trans "Name" %}</th>
+                                <th>{% trans "Status" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for employee in recent_employees %}
+                            <tr>
+                                <td class="text-muted small">{{ employee.employee_id }}</td>
+                                <td>
+                                    <a href="{% url 'employees:employee_detail' employee.pk %}"
+                                       class="text-decoration-none fw-semibold">
+                                        {{ employee.full_name }}
+                                    </a>
+                                    <br><small class="text-muted">{{ employee.department|default:"—" }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge
+                                        {% if employee.status == 'active' %}bg-success
+                                        {% elif employee.status == 'on_leave' %}bg-warning text-dark
+                                        {% elif employee.status == 'terminated' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ employee.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-3">{% trans "No employees yet." %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+
+    {# Finance summary — admin / accountant / manager #}
+    {% if show_finance_stats %}
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="fas fa-wallet text-warning me-2" aria-hidden="true"></i>
+                    {% trans "Finance (this month)" %}
+                </h6>
+                <a href="{% url 'finance:index' %}" class="btn btn-outline-secondary btn-sm">{% trans "View" %}</a>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-7 fw-normal text-muted">{% trans "Total balance" %}</dt>
+                    <dd class="col-5 text-end fw-semibold">FCFA {{ total_balance|floatformat:0|default:"0.00" }}</dd>
+                    <dt class="col-7 fw-normal text-muted">{% trans "Credits in" %}</dt>
+                    <dd class="col-5 text-end text-success fw-semibold">+FCFA {{ monthly_credits|floatformat:0|default:"0.00" }}</dd>
+                    <dt class="col-7 fw-normal text-muted">{% trans "Debits out" %}</dt>
+                    <dd class="col-5 text-end text-danger fw-semibold">-FCFA {{ monthly_debits|floatformat:0|default:"0.00" }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Delete Position — HR{% endblock %}
+{% block content %}
+<div class="card shadow-sm border-danger" style="max-width: 480px; margin: 2rem auto;">
+  <div class="card-header bg-danger text-white fw-semibold">
+    <i class="fas fa-exclamation-triangle me-2"></i>{% trans "Delete Position" %}
+  </div>
+  <div class="card-body">
+    <p>{% trans "Are you sure you want to delete" %} <strong>{{ position.title }}</strong> (Grade {{ position.salary_grade }})?</p>
+    <p class="text-muted small">{% trans "Employees assigned to this position will have their position cleared." %}</p>
+  </div>
+  <div class="card-footer d-flex gap-2">
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i>{% trans "Confirm Delete" %}</button>
+    </form>
+    <a href="{% url 'hr:position_list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+  </div>
+</div>
+{% endblock %}

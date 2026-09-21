@@ -1,0 +1,423 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}HR Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0"><i class="fas fa-users-cog text-primary me-2"></i>{% trans "HR Dashboard" %}</h2>
+  <div class="d-flex gap-2 flex-wrap">
+    <!-- Quick Actions Dropdown -->
+    <div class="dropdown">
+      <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <i class="fas fa-plus me-1"></i>{% trans "Quick Actions" %}
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{% url 'hr:leave_create' %}"><i class="fas fa-calendar-plus me-2"></i>{% trans "New Leave Request" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'hr:position_create' %}"><i class="fas fa-briefcase me-2"></i>{% trans "New Position" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'hr:payroll_period_create' %}"><i class="fas fa-calendar-alt me-2"></i>{% trans "New Payroll Period" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'hr:salary_component_create' %}"><i class="fas fa-cogs me-2"></i>{% trans "New Salary Component" %}</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{% url 'hr:training_course_create' %}"><i class="fas fa-graduation-cap me-2"></i>{% trans "New Training Course" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'hr:training_session_create' %}"><i class="fas fa-calendar-plus me-2"></i>{% trans "New Training Session" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'hr:employee_training_list' %}"><i class="fas fa-users me-2"></i>{% trans "Manage Training Enrollments" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'hr:skill_create' %}"><i class="fas fa-star me-2"></i>{% trans "New Skill" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'hr:employee_skill_create' %}"><i class="fas fa-chart-line me-2"></i>{% trans "Add Skill Assessment" %}</a></li>
+      </ul>
+    </div>
+
+    <!-- Management Links -->
+    <a href="{% url 'hr:leave_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="fas fa-calendar-check me-1"></i>{% trans "Leave Mgmt" %}
+    </a>
+    <a href="{% url 'hr:position_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="fas fa-briefcase me-1"></i>{% trans "Positions" %}
+    </a>
+    <a href="{% url 'hr:payroll_period_list' %}" class="btn btn-outline-success btn-sm">
+      <i class="fas fa-money-bill-wave me-1"></i>{% trans "Payroll" %}
+    </a>
+    <a href="{% url 'hr:training_course_list' %}" class="btn btn-outline-info btn-sm">
+      <i class="fas fa-graduation-cap me-1"></i>{% trans "Training" %}
+    </a>
+    <a href="{% url 'hr:skill_list' %}" class="btn btn-outline-warning btn-sm">
+      <i class="fas fa-star me-1"></i>{% trans "Skills" %}
+    </a>
+  </div>
+</div>
+
+<!-- HR Navigation Cards -->
+<div class="row g-3 mb-4">
+  <!-- Leave Management -->
+  <div class="col-xl-2 col-lg-3 col-md-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center">
+        <div class="rounded-circle bg-primary bg-opacity-10 p-3 d-inline-block mb-2">
+          <i class="fas fa-calendar-minus fa-2x text-primary"></i>
+        </div>
+        <h6 class="card-title fw-bold mb-1">{% trans "Leave Management" %}</h6>
+        <div class="d-grid gap-2 mt-2">
+          <a href="{% url 'hr:leave_list' %}" class="btn btn-primary btn-sm">{% trans "View Leaves" %}</a>
+          <a href="{% url 'hr:leave_create' %}" class="btn btn-outline-primary btn-sm">{% trans "New Request" %}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Positions & Organization -->
+  <div class="col-xl-2 col-lg-3 col-md-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center">
+        <div class="rounded-circle bg-secondary bg-opacity-10 p-3 d-inline-block mb-2">
+          <i class="fas fa-briefcase fa-2x text-secondary"></i>
+        </div>
+        <h6 class="card-title fw-bold mb-1">{% trans "Positions" %}</h6>
+        <div class="d-grid gap-2 mt-2">
+          <a href="{% url 'hr:position_list' %}" class="btn btn-secondary btn-sm">{% trans "View Positions" %}</a>
+          <a href="{% url 'hr:position_create' %}" class="btn btn-outline-secondary btn-sm">{% trans "New Position" %}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payroll Management -->
+  <div class="col-xl-2 col-lg-3 col-md-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center">
+        <div class="rounded-circle bg-success bg-opacity-10 p-3 d-inline-block mb-2">
+          <i class="fas fa-money-bill-wave fa-2x text-success"></i>
+        </div>
+        <h6 class="card-title fw-bold mb-1">{% trans "Payroll" %}</h6>
+        <div class="d-grid gap-2 mt-2">
+          <a href="{% url 'hr:payroll_period_list' %}" class="btn btn-success btn-sm">{% trans "Periods" %}</a>
+          <a href="{% url 'hr:salary_component_list' %}" class="btn btn-outline-success btn-sm">{% trans "Components" %}</a>
+          <a href="{% url 'hr:payslip_list' %}" class="btn btn-outline-success btn-sm">{% trans "Payslips" %}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Performance Management -->
+  <div class="col-xl-2 col-lg-3 col-md-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center">
+        <div class="rounded-circle bg-info bg-opacity-10 p-3 d-inline-block mb-2">
+          <i class="fas fa-chart-line fa-2x text-info"></i>
+        </div>
+        <h6 class="card-title fw-bold mb-1">{% trans "Performance" %}</h6>
+        <div class="d-grid gap-2 mt-2">
+          <a href="{% url 'hr:performance_goal_list' %}" class="btn btn-info btn-sm">{% trans "Goals" %}</a>
+          <a href="{% url 'hr:performance_review_list' %}" class="btn btn-outline-info btn-sm">{% trans "Reviews" %}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Training & Development -->
+  <div class="col-xl-2 col-lg-3 col-md-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center">
+        <div class="rounded-circle bg-warning bg-opacity-10 p-3 d-inline-block mb-2">
+          <i class="fas fa-graduation-cap fa-2x text-warning"></i>
+        </div>
+        <h6 class="card-title fw-bold mb-1">{% trans "Training" %}</h6>
+        <div class="d-grid gap-2 mt-2">
+          <a href="{% url 'hr:training_course_list' %}" class="btn btn-warning btn-sm">{% trans "Courses" %}</a>
+          <a href="{% url 'hr:skill_list' %}" class="btn btn-outline-warning btn-sm">{% trans "Skills" %}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stat cards -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+          <i class="fas fa-clock fa-lg text-warning"></i>
+        </div>
+        <div>
+          <p class="text-muted small mb-0">{% trans "Pending Requests" %}</p>
+          <h3 class="mb-0 fw-bold">{{ pending_count }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="rounded-circle bg-success bg-opacity-10 p-3">
+          <i class="fas fa-check-circle fa-lg text-success"></i>
+        </div>
+        <div>
+          <p class="text-muted small mb-0">{% trans "Approved" %}</p>
+          <h3 class="mb-0 fw-bold">{{ approved_count }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="rounded-circle bg-info bg-opacity-10 p-3">
+          <i class="fas fa-user-clock fa-lg text-info"></i>
+        </div>
+        <div>
+          <p class="text-muted small mb-0">{% trans "Currently On Leave" %}</p>
+          <h3 class="mb-0 fw-bold">{{ on_leave_now|length }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+          <i class="fas fa-briefcase fa-lg text-primary"></i>
+        </div>
+        <div>
+          <p class="text-muted small mb-0">{% trans "Positions Defined" %}</p>
+          <h3 class="mb-0 fw-bold">{{ position_count }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+          <i class="fas fa-graduation-cap fa-lg text-warning"></i>
+        </div>
+        <div>
+          <p class="text-muted small mb-0">{% trans "Active Courses" %}</p>
+          <h3 class="mb-0 fw-bold">{{ active_courses_count }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="rounded-circle bg-info bg-opacity-10 p-3">
+          <i class="fas fa-users fa-lg text-info"></i>
+        </div>
+        <div>
+          <p class="text-muted small mb-0">{% trans "Enrolled This Month" %}</p>
+          <h3 class="mb-0 fw-bold">{{ enrolled_this_month_count }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="row g-4">
+  <!-- Pending requests -->
+  <div class="col-lg-7">
+    <div class="card shadow-sm h-100">
+      <div class="card-header d-flex justify-content-between align-items-center bg-light">
+        <span class="fw-semibold"><i class="fas fa-clock text-warning me-2"></i>{% trans "Pending Requests" %}</span>
+        <a href="{% url 'hr:leave_list' %}?status=pending" class="btn btn-sm btn-outline-secondary">{% trans "View all" %}</a>
+      </div>
+      <div class="card-body p-0">
+        {% if pending_requests %}
+        <ul class="list-group list-group-flush">
+          {% for leave in pending_requests %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <span class="fw-semibold">{{ leave.employee.full_name }}</span>
+              <span class="badge bg-secondary ms-2">{{ leave.get_leave_type_display }}</span>
+              <div class="text-muted small">
+                {{ leave.start_date|date:"d M" }} → {{ leave.end_date|date:"d M Y" }}
+                <span class="ms-1">({{ leave.duration_days }} day{{ leave.duration_days|pluralize }})</span>
+              </div>
+            </div>
+            <div class="d-flex gap-1">
+              <form method="post" action="{% url 'hr:leave_approve' leave.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-success" title="Approve">
+                  <i class="fas fa-check"></i>
+                </button>
+              </form>
+              <form method="post" action="{% url 'hr:leave_deny' leave.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger" title="Deny">
+                  <i class="fas fa-times"></i>
+                </button>
+              </form>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="text-center text-muted py-4">{% trans "No pending requests." %}</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right column -->
+  <div class="col-lg-5">
+    <!-- Currently on leave -->
+    <div class="card shadow-sm mb-3">
+      <div class="card-header bg-light fw-semibold">
+        <i class="fas fa-umbrella-beach text-info me-2"></i>{% trans "Currently On Leave" %}
+      </div>
+      <div class="card-body p-0">
+        {% if on_leave_now %}
+        <ul class="list-group list-group-flush">
+          {% for leave in on_leave_now %}
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="fw-semibold">{{ leave.employee.full_name }}</span>
+            <span class="text-muted small">returns {{ leave.end_date|date:"d M" }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="text-center text-muted py-3 small">{% trans "Nobody on leave today." %}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Performance Management -->
+    <div class="row mt-4">
+      <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-header d-flex justify-content-between align-items-center bg-light">
+            <span class="fw-semibold"><i class="fas fa-bullseye text-info me-2"></i>{% trans "Recent Performance Goals" %}</span>
+            <a href="{% url 'hr:performance_goal_list' %}" class="btn btn-sm btn-outline-secondary">{% trans "View all" %}</a>
+          </div>
+          <div class="card-body p-0">
+            {% if recent_goals %}
+            <ul class="list-group list-group-flush">
+              {% for goal in recent_goals %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="fw-semibold">{{ goal.title }}</span>
+                  <div class="text-muted small">{{ goal.employee.full_name }}</div>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-{{ goal.status|slice:':1'|lower }}info">{{ goal.get_status_display }}</span>
+                  <div class="text-muted small">{{ goal.progress }}%</div>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <div class="text-center text-muted py-4">
+              <i class="fas fa-bullseye fa-2x mb-2"></i>
+              <p>{% trans "No performance goals yet" %}</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-header d-flex justify-content-between align-items-center bg-light">
+            <span class="fw-semibold"><i class="fas fa-star text-warning me-2"></i>{% trans "Recent Performance Reviews" %}</span>
+            <a href="{% url 'hr:performance_review_list' %}" class="btn btn-sm btn-outline-secondary">{% trans "View all" %}</a>
+          </div>
+          <div class="card-body p-0">
+            {% if recent_reviews %}
+            <ul class="list-group list-group-flush">
+              {% for review in recent_reviews %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="fw-semibold">{{ review.employee.full_name }}</span>
+                  <div class="text-muted small">{{ review.period_start|date:"M Y" }} → {{ review.period_end|date:"M Y" }}</div>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-{{ review.status|slice:':1'|lower }}warning">{{ review.get_status_display }}</span>
+                  {% if review.rating %}
+                  <div class="text-muted small">{{ review.get_rating_display }}</div>
+                  {% endif %}
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <div class="text-center text-muted py-4">
+              <i class="fas fa-star fa-2x mb-2"></i>
+              <p>{% trans "No performance reviews yet" %}</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HR Functions Overview -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-light">
+        <h6 class="mb-0"><i class="fas fa-list-ul me-2"></i>{% trans "All HR Functions" %}</h6>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <!-- Leave Management -->
+          <div class="col-md-6 col-lg-3">
+            <h6 class="text-primary mb-2"><i class="fas fa-calendar-minus me-1"></i>{% trans "Leave Management" %}</h6>
+            <ul class="list-unstyled small">
+              <li><a href="{% url 'hr:leave_list' %}" class="text-decoration-none">{% trans "• All Leave Requests" %}</a></li>
+              <li><a href="{% url 'hr:leave_create' %}" class="text-decoration-none">{% trans "• New Leave Request" %}</a></li>
+              <li><a href="{% url 'hr:my_leave_list' %}" class="text-decoration-none">{% trans "• My Leave Requests" %}</a></li>
+            </ul>
+          </div>
+
+          <!-- Positions & Organization -->
+          <div class="col-md-6 col-lg-3">
+            <h6 class="text-secondary mb-2"><i class="fas fa-briefcase me-1"></i>{% trans "Organization" %}</h6>
+            <ul class="list-unstyled small">
+              <li><a href="{% url 'hr:position_list' %}" class="text-decoration-none">{% trans "• Job Positions" %}</a></li>
+              <li><a href="{% url 'hr:position_create' %}" class="text-decoration-none">{% trans "• Create Position" %}</a></li>
+            </ul>
+          </div>
+
+          <!-- Payroll Management -->
+          <div class="col-md-6 col-lg-3">
+            <h6 class="text-success mb-2"><i class="fas fa-money-bill-wave me-1"></i>{% trans "Payroll" %}</h6>
+            <ul class="list-unstyled small">
+              <li><a href="{% url 'hr:payroll_period_list' %}" class="text-decoration-none">{% trans "• Payroll Periods" %}</a></li>
+              <li><a href="{% url 'hr:salary_component_list' %}" class="text-decoration-none">{% trans "• Salary Components" %}</a></li>
+              <li><a href="{% url 'hr:payslip_list' %}" class="text-decoration-none">{% trans "• Payslips" %}</a></li>
+            </ul>
+          </div>
+
+          <!-- Training & Development -->
+          <div class="col-md-6 col-lg-3">
+            <h6 class="text-warning mb-2"><i class="fas fa-graduation-cap me-1"></i>{% trans "Training" %}</h6>
+            <ul class="list-unstyled small">
+              <li><a href="{% url 'hr:training_course_list' %}" class="text-decoration-none">{% trans "• Training Courses" %}</a></li>
+              <li><a href="{% url 'hr:training_session_list' %}" class="text-decoration-none">{% trans "• Training Sessions" %}</a></li>
+              <li><a href="{% url 'hr:employee_training_list' %}" class="text-decoration-none">{% trans "• Employee Training" %}</a></li>
+              <li><a href="{% url 'hr:skill_list' %}" class="text-decoration-none">{% trans "• Skills Management" %}</a></li>
+              <li><a href="{% url 'hr:employee_skill_list' %}" class="text-decoration-none">{% trans "• Skill Assessments" %}</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-light fw-semibold">
+        <i class="fas fa-calendar-alt text-primary me-2"></i>{% trans "Upcoming Leaves (30 days)" %}
+      </div>
+      <div class="card-body p-0">
+        {% if upcoming %}
+        <ul class="list-group list-group-flush">
+          {% for leave in upcoming %}
+          <li class="list-group-item">
+            <span class="fw-semibold">{{ leave.employee.full_name }}</span>
+            <span class="badge bg-light text-dark border ms-2">{{ leave.get_leave_type_display }}</span>
+            <div class="text-muted small">{{ leave.start_date|date:"d M" }} → {{ leave.end_date|date:"d M Y" }}</div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="text-center text-muted py-3 small">{% trans "No upcoming leaves." %}</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

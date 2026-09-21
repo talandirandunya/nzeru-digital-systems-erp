@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">{{ title }}</h3>
+                    <button onclick="window.print()" class="btn btn-outline-secondary">
+                        <i class="fas fa-print"></i> {% trans "Print" %}
+                    </button>
+                </div>
+                <div class="card-body">
+                    <!-- Header -->
+                    <div class="row mb-4 pb-4 border-bottom">
+                        <div class="col-md-6">
+                            <h5>{{ payslip.payroll_entry.employee.full_name }}</h5>
+                            <p class="text-muted">
+                                Employee ID: {{ payslip.payroll_entry.employee.employee_id }}<br>
+                                Department: {{ payslip.payroll_entry.employee.department.name|default:"—" }}<br>
+                                Position: {{ payslip.payroll_entry.employee.position.title|default:"—" }}
+                            </p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <h5>{{ payslip.payslip_number }}</h5>
+                            <p class="text-muted">
+                                Issued: {{ payslip.issued_date|date:"M d, Y" }}<br>
+                                Period: {{ entry.payroll_period.start_date|date:"M d" }} - {{ entry.payroll_period.end_date|date:"M d, Y" }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Salary Details -->
+                    <h6 class="mb-3">{% trans "Salary Details" %}</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <td><strong>{% trans "Base Salary" %}</strong></td>
+                                    <td class="text-end">₱{{ entry.base_salary|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{% trans "Working Days" %}</strong></td>
+                                    <td class="text-end">{{ entry.working_days }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Components -->
+                    <h6 class="mb-3">{% trans "Earnings & Deductions" %}</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Component" %}</th>
+                                    <th>{% trans "Type" %}</th>
+                                    <th class="text-end">{% trans "Amount" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for component in components %}
+                                <tr>
+                                    <td>{{ component.component.name }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if component.component.component_type == 'earning' %}success{% else %}danger{% endif %}">
+                                            {{ component.component.get_component_type_display }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">₱{{ component.amount|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="row">
+                        <div class="col-md-6 offset-md-6">
+                            <table class="table table-borderless border-top border-2 pt-3">
+                                <tbody>
+                                    <tr class="fw-bold">
+                                        <td>{% trans "Gross Earnings" %}</td>
+                                        <td class="text-end text-success">₱{{ entry.gross_earnings|floatformat:2 }}</td>
+                                    </tr>
+                                    <tr class="fw-bold">
+                                        <td>{% trans "Total Deductions" %}</td>
+                                        <td class="text-end text-danger">₱{{ entry.total_deductions|floatformat:2 }}</td>
+                                    </tr>
+                                    <tr class="fw-bold border-top border-2 pt-2">
+                                        <td>{% trans "NET PAY" %}</td>
+                                        <td class="text-end text-primary h5 mb-0">₱{{ entry.net_pay|floatformat:2 }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if entry.notes %}
+                    <div class="alert alert-info mt-4">
+                        <strong>{% trans "Notes:" %}</strong> {{ entry.notes }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Footer -->
+                    <div class="row mt-5 pt-4 text-center text-muted small border-top">
+                        <div class="col-12">
+                            <p>{% trans "This is an electronically generated payslip and does not require a signature." %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Payslip Actions" %}</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'hr:payslip_list' %}" class="btn btn-secondary w-100 mb-2">
+                        <i class="fas fa-arrow-left"></i> {% trans "Back to Payslips" %}
+                    </a>
+                    <button onclick="window.print()" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-print"></i> {% trans "Print Payslip" %}
+                    </button>
+
+                    {% if not payslip.email_sent %}
+                    <div class="alert alert-warning mt-3">
+                        <small>{% trans "This payslip has not been sent to the employee yet." %}</small>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-success mt-3">
+                        <small>Sent via email on {{ payslip.email_sent_at|date:"M d, Y H:i" }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn, .alert, .card-header, .d-flex { display: none !important; }
+    .container-fluid { margin: 0; padding: 0; }
+    .card { border: none; box-shadow: none; }
+}
+</style>
+{% endblock %}

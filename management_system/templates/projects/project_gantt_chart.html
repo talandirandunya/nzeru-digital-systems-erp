@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Gantt Chart - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css" rel="stylesheet">
+<style>
+    .gantt_container {
+        width: 100%;
+        min-height: 480px;
+        height: min(70vh, 900px);
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+    .gantt-controls {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    /* DHTMLX defaults can be low-contrast on gray backgrounds */
+    .gantt_task_line, .gantt_task_link {
+        border-radius: 2px;
+    }
+    .project-task .gantt_task_progress {
+        background-color: #3db9d3;
+    }
+    .completed-task .gantt_task_progress {
+        background-color: #65c16f;
+    }
+    .in-progress-task .gantt_task_progress {
+        background-color: #ffa940;
+    }
+    .todo-task .gantt_task_progress {
+        background-color: #999;
+    }
+    .gantt_task_line {
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0"><i class="fas fa-chart-gantt me-2"></i>{% trans "Gantt Chart" %}</h1>
+            <p class="text-muted mb-0">{% trans "Visual timeline of all projects and tasks" %}</p>
+        </div>
+        <div>
+            <a href="{% url 'projects:project_list' %}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-list me-2"></i>{% trans "List View" %}
+            </a>
+            <a href="{% url 'projects:project_kanban' %}" class="btn btn-outline-info me-2">
+                <i class="fas fa-columns me-2"></i>{% trans "Kanban" %}
+            </a>
+            <a href="{% url 'projects:project_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>{% trans "New Project" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Gantt Controls -->
+    <div class="gantt-controls">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.projectGanttZoom('day')">
+                        <i class="fas fa-calendar-day me-1"></i>{% trans "Day" %}
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary active" onclick="window.projectGanttZoom('week')">
+                        <i class="fas fa-calendar-week me-1"></i>{% trans "Week" %}
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.projectGanttZoom('month')">
+                        <i class="fas fa-calendar-alt me-1"></i>{% trans "Month" %}
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.projectGanttExport('pdf')">
+                    <i class="fas fa-file-pdf me-1"></i>{% trans "Export PDF" %}
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.projectGanttExport('png')">
+                    <i class="fas fa-image me-1"></i>{% trans "Export PNG" %}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gantt Chart Container -->
+    <div class="gantt_container" id="gantt_here"></div>
+
+    <!-- Legend -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">{% trans "Legend" %}</h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <div style="width: 30px; height: 20px; background: #3db9d3; margin-right: 10px;"></div>
+                        <span>{% trans "Projects" %}</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <div style="width: 30px; height: 20px; background: #65c16f; margin-right: 10px;"></div>
+                        <span>{% trans "Completed Tasks" %}</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <div style="width: 30px; height: 20px; background: #ffa940; margin-right: 10px;"></div>
+                        <span>{% trans "In Progress" %}</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <div style="width: 30px; height: 20px; background: #999; margin-right: 10px;"></div>
+                        <span>{% trans "To Do" %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    gantt.config.date_format = "%d-%m-%Y";
+    gantt.config.readonly = true;
+    gantt.config.show_progress = true;
+
+    gantt.config.columns = [
+        {name: "text", label: "Task/Project", tree: true, width: 250},
+        {name: "start_date", label: "Start", align: "center", width: 100},
+        {name: "end_date", label: "End", align: "center", width: 100},
+        {name: "assignee", label: "Assignee", align: "center", width: 120},
+        {name: "status", label: "Status", align: "center", width: 100}
+    ];
+
+    gantt.templates.task_class = function(start, end, task) {
+        if (task.parent == 0) {
+            return "project-task";
+        }
+        if (task.progress == 100) {
+            return "completed-task";
+        }
+        if (task.progress > 0) {
+            return "in-progress-task";
+        }
+        return "todo-task";
+    };
+
+    if (gantt.ext && gantt.ext.zoom) {
+        gantt.ext.zoom.init({
+            levels: [
+                {
+                    name: "day",
+                    scale_height: 60,
+                    min_column_width: 70,
+                    scales: [
+                        {unit: "day", step: 1, format: "%d %M"}
+                    ]
+                },
+                {
+                    name: "week",
+                    scale_height: 60,
+                    min_column_width: 70,
+                    scales: [
+                        {unit: "week", step: 1, format: "Week #%W"},
+                        {unit: "day", step: 1, format: "%d"}
+                    ]
+                },
+                {
+                    name: "month",
+                    scale_height: 60,
+                    min_column_width: 70,
+                    scales: [
+                        {unit: "month", step: 1, format: "%F %Y"},
+                        {unit: "week", step: 1, format: "W%W"}
+                    ]
+                }
+            ]
+        });
+        gantt.ext.zoom.setLevel("week");
+    }
+
+    gantt.init("gantt_here");
+
+    const ganttData = {{ gantt_data|safe }};
+    gantt.parse({data: ganttData});
+
+    function resizeGantt() {
+        if (typeof gantt.setSizes === 'function') {
+            gantt.setSizes();
+        }
+    }
+    resizeGantt();
+    window.addEventListener('resize', resizeGantt);
+
+    window.projectGanttZoom = function(level) {
+        if (typeof gantt !== 'undefined' && gantt.ext && gantt.ext.zoom) {
+            gantt.ext.zoom.setLevel(level);
+            resizeGantt();
+        }
+    };
+    window.projectGanttExport = function(kind) {
+        if (typeof gantt === 'undefined') return;
+        try {
+            if (kind === 'pdf' && typeof gantt.exportToPDF === 'function') {
+                gantt.exportToPDF();
+            } else if (kind === 'png' && typeof gantt.exportToPNG === 'function') {
+                gantt.exportToPNG();
+            }
+        } catch (e) {
+            console.warn('Gantt export is not available in this build.', e);
+        }
+    };
+});
+</script>
+{% endblock %}

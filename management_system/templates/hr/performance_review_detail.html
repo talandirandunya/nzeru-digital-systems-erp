@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Performance Review — HR{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="mb-0">{% trans "Performance Review" %}</h2>
+    <div class="text-muted">{{ review.employee.full_name }} — {{ review.period_start }} to {{ review.period_end }}</div>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'hr:performance_review_edit' review.pk %}" class="btn btn-outline-secondary btn-sm">{% trans "Edit" %}</a>
+    <a href="{% url 'hr:performance_review_submit' review.pk %}" class="btn btn-primary btn-sm">{% trans "Submit" %}</a>
+    <a href="{% url 'hr:performance_review_complete' review.pk %}" class="btn btn-success btn-sm">{% trans "Complete" %}</a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h5>{% trans "Summary" %}</h5>
+        <p>{{ review.summary|default:'No summary provided.' }}</p>
+        <h5>{% trans "Strengths" %}</h5>
+        <p>{{ review.strengths|default:'No strengths recorded.' }}</p>
+        <h5>{% trans "Improvements" %}</h5>
+        <p>{{ review.improvements|default:'No improvements recorded.' }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-5">{% trans "Reviewer" %}</dt><dd class="col-7">{{ review.reviewer.get_full_name|default:'—' }}</dd>
+          <dt class="col-5">{% trans "Review Date" %}</dt><dd class="col-7">{{ review.review_date }}</dd>
+          <dt class="col-5">{% trans "Status" %}</dt><dd class="col-7">{{ review.get_status_display }}</dd>
+          <dt class="col-5">{% trans "Rating" %}</dt><dd class="col-7">{{ review.get_rating_display|default:'—' }}</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-3">{% trans "Comments" %}</h5>
+        {% for comment in comments %}
+          <div class="mb-3">
+            <strong>{{ comment.author.get_full_name|default:comment.author.username }}</strong>
+            <span class="text-muted small">{{ comment.created_at }}</span>
+            <p class="mb-1">{{ comment.comment }}</p>
+          </div>
+          <hr class="my-3">
+        {% empty %}
+          <p class="text-muted">{% trans "No comments yet." %}</p>
+        {% endfor %}
+        <form method="post" action="{% url 'hr:performance_review_comment_create' review.pk %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            {{ comment_form.comment.label_tag }}
+            {{ comment_form.comment }}
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">{% trans "Add Comment" %}</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

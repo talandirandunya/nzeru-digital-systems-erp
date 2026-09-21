@@ -1,0 +1,408 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ title }} — Projects{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-1">
+        <li class="breadcrumb-item"><a href="{% url 'projects:project_list' %}">{% trans "Projects" %}</a></li>
+        {% if project %}
+        <li class="breadcrumb-item">
+          <a href="{% url 'projects:project_detail' project.pk %}">{{ project.name }}</a>
+        </li>
+        <li class="breadcrumb-item active">{% trans "Edit" %}</li>
+        {% else %}
+        <li class="breadcrumb-item active">{% trans "New Project" %}</li>
+        {% endif %}
+      </ol>
+    </nav>
+    <h2 class="mb-0">
+      <i class="fas fa-{% if project %}edit{% else %}plus-circle{% endif %} text-primary me-2"></i>{{ title }}
+    </h2>
+  </div>
+  <a href="{% url 'projects:project_list' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="fas fa-arrow-left me-1"></i>{% trans "Back to Projects" %}
+  </a>
+</div>
+
+<!-- Error summary -->
+{% if form.errors %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  <h6 class="alert-heading mb-2">
+    <i class="fas fa-exclamation-triangle me-1"></i>{% trans "Please correct the following errors:" %}
+  </h6>
+  <ul class="mb-0 small">
+    {% for field in form %}{% for error in field.errors %}
+    <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+    {% endfor %}{% endfor %}
+    {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+  </ul>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+<form method="post" id="projectForm">
+  {% csrf_token %}
+  <div class="row g-4">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-lg-8">
+
+      <!-- Basic Information -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light fw-semibold">
+          <i class="fas fa-info-circle text-primary me-2"></i>{% trans "Basic Information" %}
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">
+                {% trans "Project Name" %} <span class="text-danger">*</span>
+              </label>
+              {{ form.name }}
+              {% for error in form.name.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-4">
+              <label for="{{ form.status.id_for_label }}" class="form-label fw-semibold">{% trans "Status" %}</label>
+              {{ form.status }}
+              {% for error in form.status.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-12">
+              <label for="{{ form.description.id_for_label }}" class="form-label fw-semibold">{% trans "Description" %}</label>
+              {{ form.description }}
+              {% for error in form.description.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline & Budget -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light fw-semibold">
+          <i class="fas fa-calendar-alt text-primary me-2"></i>{% trans "Timeline &amp; Budget" %}
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="{{ form.start_date.id_for_label }}" class="form-label fw-semibold">
+                {% trans "Start Date" %} <span class="text-danger">*</span>
+              </label>
+              {{ form.start_date }}
+              {% for error in form.start_date.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-4">
+              <label for="{{ form.end_date.id_for_label }}" class="form-label fw-semibold">
+                {% trans "End Date" %} <span class="text-danger">*</span>
+              </label>
+              {{ form.end_date }}
+              {% for error in form.end_date.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-4">
+              <label for="{{ form.budget.id_for_label }}" class="form-label fw-semibold">{% trans "Budget" %}</label>
+              <div class="input-group">
+                <span class="input-group-text text-muted">$</span>
+                {{ form.budget }}
+              </div>
+              {% for error in form.budget.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Duration hint (populated by JS) -->
+          <div id="durationHint" class="form-text mt-2" style="display:none;">
+            <i class="fas fa-clock me-1 text-muted"></i>
+            <span id="durationText"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light fw-semibold">
+          <i class="fas fa-chart-line text-primary me-2"></i>{% trans "Progress" %}
+        </div>
+        <div class="card-body">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-4">
+              <label for="{{ form.completion_percentage.id_for_label }}" class="form-label fw-semibold">
+                {% trans "Completion %" %}
+              </label>
+              {{ form.completion_percentage }}
+              {% for error in form.completion_percentage.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-8">
+              <label class="form-label fw-semibold">{% trans "Preview" %}</label>
+              <div class="progress" style="height: 22px; border-radius: 6px;">
+                <div class="progress-bar" role="progressbar"
+                     id="progressPreview"
+                     style="width: {% if form.completion_percentage.value %}{{ form.completion_percentage.value }}{% else %}0{% endif %}%; transition: width .3s ease;">
+                  <span id="progressText" class="small fw-semibold">
+                    {% if form.completion_percentage.value %}{{ form.completion_percentage.value }}{% else %}0{% endif %}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtasks -->
+      <div class="card shadow-sm">
+        <div class="card-header bg-light fw-semibold">
+          <i class="fas fa-list text-primary me-2"></i>{% trans "Initial Subtasks" %}
+          <span class="text-muted fw-normal small ms-2">{% trans "(optional — you can add more later)" %}</span>
+        </div>
+        <div class="card-body">
+          <div id="subtaskContainer" class="mb-3"></div>
+          <button type="button" id="addSubtaskBtn" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-plus me-1"></i>{% trans "Add Subtask" %}
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /col-lg-8 -->
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-lg-4">
+
+      <!-- Team -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light fw-semibold">
+          <i class="fas fa-users text-primary me-2"></i>{% trans "Team" %}
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="{{ form.manager.id_for_label }}" class="form-label fw-semibold">{% trans "Project Manager" %}</label>
+            {{ form.manager }}
+            {% for error in form.manager.errors %}
+            <div class="text-danger small mt-1">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="mb-1">
+            <label for="{{ form.priority.id_for_label }}" class="form-label fw-semibold">{% trans "Priority" %}</label>
+            {{ form.priority }}
+            {% for error in form.priority.errors %}
+            <div class="text-danger small mt-1">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Team Members -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light fw-semibold">
+          <i class="fas fa-user-friends text-primary me-2"></i>{% trans "Team Members" %}
+        </div>
+        <div class="card-body">
+          <!-- Search box -->
+          <input type="text" id="memberSearch" class="form-control form-control-sm mb-2"
+                 placeholder="Filter members…">
+
+          <!-- Checklist rendered from the <select> {% trans "options by JS -->" %}
+          <div id="memberChecklist"
+               style="max-height: 220px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; padding: .5rem;">
+            <div class="text-muted small text-center py-2">{% trans "Loading…" %}</div>
+          </div>
+
+          <!-- Hidden native select kept for form submission -->
+          <div style="display:none;">{{ form.team_members }}</div>
+          {% for error in form.team_members.errors %}
+          <div class="text-danger small mt-1">{{ error }}</div>
+          {% endfor %}
+          <div class="form-text mt-2" id="memberCount"></div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="card shadow-sm">
+        <div class="card-body d-grid gap-2">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-2"></i>
+            {% if project %}Update Project{% else %}Create Project{% endif %}
+          </button>
+          <a href="{% url 'projects:project_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-times me-1"></i>{% trans "Cancel" %}
+          </a>
+        </div>
+      </div>
+
+    </div><!-- /col-lg-4 -->
+  </div><!-- /row -->
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  // ── Progress bar preview ───────────────────────────────────────────────
+  const pctInput    = document.getElementById('{{ form.completion_percentage.id_for_label }}');
+  const progressBar = document.getElementById('progressPreview');
+  const progressTxt = document.getElementById('progressText');
+
+  function updateProgress() {
+    let v = Math.max(0, Math.min(100, parseInt(pctInput.value) || 0));
+    progressBar.style.width = v + '%';
+    progressTxt.textContent  = v + '%';
+    progressBar.className = 'progress-bar';
+    if (v < 30)       progressBar.classList.add('bg-danger');
+    else if (v < 70)  progressBar.classList.add('bg-warning');
+    else              progressBar.classList.add('bg-success');
+  }
+  if (pctInput) pctInput.addEventListener('input', updateProgress);
+  updateProgress();
+
+  // ── Duration hint ──────────────────────────────────────────────────────
+  const startInput    = document.getElementById('{{ form.start_date.id_for_label }}');
+  const endInput      = document.getElementById('{{ form.end_date.id_for_label }}');
+  const durationHint  = document.getElementById('durationHint');
+  const durationText  = document.getElementById('durationText');
+
+  function updateDuration() {
+    const s = new Date(startInput.value);
+    const e = new Date(endInput.value);
+    if (startInput.value && endInput.value && e >= s) {
+      const days = Math.round((e - s) / 86400000) + 1;
+      const weeks = Math.floor(days / 7);
+      const rem   = days % 7;
+      let label = days === 1 ? '1 day' : `${days} days`;
+      if (weeks > 0) label += ` (${weeks}w ${rem}d)`;
+      durationText.textContent = label;
+      durationHint.style.display = '';
+    } else {
+      durationHint.style.display = 'none';
+    }
+  }
+  if (startInput) startInput.addEventListener('change', updateDuration);
+  if (endInput)   endInput.addEventListener('change', updateDuration);
+  updateDuration();
+
+  // ── Client-side date validation ────────────────────────────────────────
+  document.getElementById('projectForm').addEventListener('submit', function (e) {
+    if (startInput.value && endInput.value) {
+      const s = new Date(startInput.value);
+      const en = new Date(endInput.value);
+      if (en < s) {
+        e.preventDefault();
+        endInput.classList.add('is-invalid');
+        endInput.focus();
+        let fb = endInput.nextElementSibling;
+        if (!fb || !fb.classList.contains('invalid-feedback')) {
+          fb = document.createElement('div');
+          fb.className = 'invalid-feedback';
+          endInput.after(fb);
+        }
+        fb.textContent = 'End date must be after start date.';
+        endInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  });
+  if (endInput) endInput.addEventListener('change', function () {
+    this.classList.remove('is-invalid');
+  });
+
+  // ── Team members checklist ─────────────────────────────────────────────
+  const nativeSelect  = document.getElementById('id_team_members');
+  const checklist     = document.getElementById('memberChecklist');
+  const searchBox     = document.getElementById('memberSearch');
+  const memberCount   = document.getElementById('memberCount');
+
+  function buildChecklist(filter) {
+    checklist.innerHTML = '';
+    const opts = Array.from(nativeSelect.options);
+    const q    = (filter || '').toLowerCase();
+    let shown  = 0;
+    opts.forEach(function (opt) {
+      if (q && !opt.text.toLowerCase().includes(q)) return;
+      shown++;
+      const id  = 'tm_' + opt.value;
+      const div = document.createElement('div');
+      div.className = 'form-check';
+      div.innerHTML =
+        '<input class="form-check-input" type="checkbox" id="' + id + '" value="' + opt.value + '"' +
+        (opt.selected ? ' checked' : '') + '>' +
+        '<label class="form-check-label small" for="' + id + '">' + opt.text + '</label>';
+      div.querySelector('input').addEventListener('change', function () {
+        opt.selected = this.checked;
+        updateCount();
+      });
+      checklist.appendChild(div);
+    });
+    if (shown === 0) {
+      checklist.innerHTML = '<div class="text-muted small text-center py-2">No members found.</div>';
+    }
+    updateCount();
+  }
+
+  function updateCount() {
+    const n = Array.from(nativeSelect.options).filter(o => o.selected).length;
+    memberCount.textContent = n === 0 ? '' : n + ' member' + (n === 1 ? '' : 's') + ' selected';
+  }
+
+  if (searchBox) searchBox.addEventListener('input', function () {
+    buildChecklist(this.value);
+  });
+
+  buildChecklist('');
+
+  // ── Subtasks ───────────────────────────────────────────────────────────
+  function addSubtaskField(value) {
+    const container = document.getElementById('subtaskContainer');
+    const idx       = container.children.length;
+    const div       = document.createElement('div');
+    div.className   = 'input-group mb-2';
+    div.innerHTML   =
+      '<span class="input-group-text text-muted">' + (idx + 1) + '</span>' +
+      '<input type="text" name="subtask_titles" class="form-control" placeholder="Subtask title" value="' + (value || '') + '">' +
+      '<button type="button" class="btn btn-outline-danger subtask-remove" title="Remove">' +
+        '<i class="fas fa-times"></i>' +
+      '</button>';
+    div.querySelector('.subtask-remove').addEventListener('click', function () {
+      div.remove();
+      renumberSubtasks();
+    });
+    container.appendChild(div);
+  }
+
+  function renumberSubtasks() {
+    document.querySelectorAll('#subtaskContainer .input-group-text').forEach(function (el, i) {
+      el.textContent = i + 1;
+    });
+  }
+
+  document.getElementById('addSubtaskBtn').addEventListener('click', function () {
+    addSubtaskField('');
+  });
+
+  // Populate existing subtasks when editing
+  {% if project %}
+  {% for t in project.sous_taches.all %}
+  addSubtaskField("{{ t.titre|escapejs }}");
+  {% endfor %}
+  {% endif %}
+
+  // Add one blank row for a brand-new project
+  {% if not project %}
+  addSubtaskField('');
+  {% endif %}
+
+})();
+</script>
+{% endblock %}

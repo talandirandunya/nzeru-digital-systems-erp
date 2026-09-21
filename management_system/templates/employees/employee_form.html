@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }} — ERP System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-user-edit me-2 text-primary" aria-hidden="true"></i>{{ title }}
+                </h4>
+            </div>
+
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-circle me-2" aria-hidden="true"></i>
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    {# ---- Employee Information ---- #}
+                    <h5 class="border-bottom pb-2 mb-3">
+                        <i class="fas fa-id-card me-1 text-primary" aria-hidden="true"></i>
+                        {% trans "Employee Information" %}
+                    </h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">{{ form.employee_id|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.first_name|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.last_name|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.department|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.role|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.position|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.status|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.date_joined|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.date_of_birth|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.salary|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.photo|as_crispy_field }}</div>
+                    </div>
+
+                    <div class="alert alert-info d-flex align-items-start mt-2" role="note">
+                        <i class="fas fa-info-circle me-2 mt-1 flex-shrink-0" aria-hidden="true"></i>
+                        <div>
+                            {% trans "Employee ID must be unique within your company.
+                            The ID placeholder is pre-filled based on your company domain." %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4 flex-wrap gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1" aria-hidden="true"></i>{% trans "Save Employee" %}
+                        </button>
+                        <div class="d-flex gap-2">
+                            {% if employee %}
+                            <a href="{% url 'employees:employee_detail' employee.pk %}"
+                               class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-eye me-1" aria-hidden="true"></i>{% trans "View Details" %}
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'employees:employee_list' %}"
+                               class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-times me-1" aria-hidden="true"></i>{% trans "Cancel" %}
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Employee ID placeholder
+    const idField = document.getElementById('id_employee_id');
+    if (idField && !idField.value) {
+        const prefix = '{{ company.domain|slice:":3"|upper }}';
+        idField.placeholder = prefix + '-001';
+    }
+});
+</script>
+{% endblock %}

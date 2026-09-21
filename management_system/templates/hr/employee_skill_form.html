@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Employee Skill — HR{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-chart-line text-primary me-2"></i>
+          {% if form.instance.pk %}Edit{% else %}Add{% endif %} Employee Skill Assessment
+        </h5>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="{{ form.employee.id_for_label }}" class="form-label">{% trans "Employee *" %}</label>
+              {{ form.employee }}
+              {% if form.employee.errors %}
+              <div class="invalid-feedback d-block">{{ form.employee.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-12">
+              <label for="{{ form.skill.id_for_label }}" class="form-label">{% trans "Skill *" %}</label>
+              {{ form.skill }}
+              {% if form.skill.errors %}
+              <div class="invalid-feedback d-block">{{ form.skill.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-12">
+              <label for="{{ form.proficiency_level.id_for_label }}" class="form-label">{% trans "Proficiency Level *" %}</label>
+              {{ form.proficiency_level }}
+              {% if form.proficiency_level.errors %}
+              <div class="invalid-feedback d-block">{{ form.proficiency_level.errors.0 }}</div>
+              {% endif %}
+              <div class="form-text">
+                {% trans "1 = Beginner, 2 = Basic, 3 = Intermediate, 4 = Advanced, 5 = Expert" %}
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label for="{{ form.assessment_date.id_for_label }}" class="form-label">{% trans "Assessment Date *" %}</label>
+              {{ form.assessment_date }}
+              {% if form.assessment_date.errors %}
+              <div class="invalid-feedback d-block">{{ form.assessment_date.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-12">
+              <label for="{{ form.assessed_by.id_for_label }}" class="form-label">{% trans "Assessed By" %}</label>
+              {{ form.assessed_by }}
+              {% if form.assessed_by.errors %}
+              <div class="invalid-feedback d-block">{{ form.assessed_by.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-12">
+              <label for="{{ form.notes.id_for_label }}" class="form-label">{% trans "Notes" %}</label>
+              {{ form.notes }}
+              {% if form.notes.errors %}
+              <div class="invalid-feedback d-block">{{ form.notes.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'hr:employee_skill_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+            <button type="submit" class="btn btn-primary">
+              {% if form.instance.pk %}Update{% else %}Add{% endif %} Skill Assessment
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

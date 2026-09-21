@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">{{ title }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.name.id_for_label }}" class="form-label">{% trans "Name" %}</label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <div class="text-danger">{{ form.name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.account_number.id_for_label }}" class="form-label">{% trans "Account Number" %}</label>
+                                    {{ form.account_number }}
+                                    {% if form.account_number.errors %}
+                                        <div class="text-danger">{{ form.account_number.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.bank_name.id_for_label }}" class="form-label">{% trans "Bank Name" %}</label>
+                                    {{ form.bank_name }}
+                                    {% if form.bank_name.errors %}
+                                        <div class="text-danger">{{ form.bank_name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.opening_balance.id_for_label }}" class="form-label">{% trans "Opening Balance" %}</label>
+                                    {{ form.opening_balance }}
+                                    {% if form.opening_balance.errors %}
+                                        <div class="text-danger">{{ form.opening_balance.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.account.id_for_label }}" class="form-label">{% trans "Linked Accounting Account" %}</label>
+                            {{ form.account }}
+                            {% if form.account.errors %}
+                                <div class="text-danger">{{ form.account.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Select the asset account that represents this bank account in your chart of accounts." %}</div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% trans "Save Bank Account" %}
+                            </button>
+                            <a href="{% url 'finance:bank_account_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> {% trans "Cancel" %}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

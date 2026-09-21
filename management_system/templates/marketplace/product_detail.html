@@ -1,0 +1,163 @@
+{% extends 'marketplace/marketplace_base.html' %}
+{% load i18n %}
+{% block title %}{{ stock.name }} - {{ block.super }}{% endblock %}
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'marketplace:shop' %}">{% trans "Shop" %}</a></li>
+            <li class="breadcrumb-item active">{{ stock.name }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body text-center" style="height: 400px; display: flex; align-items: center; justify-content: center; background: #f3f4f6;">
+                    {% if stock.image %}
+                        <img src="{{ stock.image.url }}" alt="{{ stock.name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                    {% else %}
+                        <i class="fas fa-box fa-10x text-muted"></i>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h2>{{ stock.name }}</h2>
+            <p class="text-muted">{{ stock.item_code }}</p>
+            <h3 class="text-primary mb-3">FCFA {{ stock.selling_price|floatformat:0 }}</h3>
+            <p><strong>{% trans "Category:" %}</strong> {{ stock.category.name|default:"Uncategorized" }}</p>
+            <p><strong>{% trans "Available:" %}</strong> <span class="badge bg-success">{{ stock.quantity }} {{ stock.get_unit_display }}</span></p>
+            {% if stock.description %}
+            <div class="mt-3">
+                <h5>{% trans "Description" %}</h5>
+                <p>{{ stock.description }}</p>
+            </div>
+            {% endif %}
+            
+            {% if can_purchase %}
+            <form method="post" action="{% url 'marketplace:add_to_cart' stock.pk %}" class="mt-4">
+                {% csrf_token %}
+                <div class="row g-2">
+                    <div class="col-4">
+                        <input type="number" name="quantity" class="form-control" value="1" min="1" max="{{ stock.quantity }}">
+                    </div>
+                    <div class="col-8">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-cart-plus me-2"></i>{% trans "Add to Cart" %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+            {% else %}
+            <div class="alert alert-warning mt-4">
+                <i class="fas fa-sign-in-alt me-2"></i>
+                <a href="{% url 'marketplace:client_login' %}" class="alert-link">{% trans "Login" %}</a> {% trans "to add this product to cart." %}
+            </div>
+            {% endif %}
+            
+            {% if is_logged_in %}
+            <form method="post" action="{% url 'marketplace:add_to_wishlist' stock.pk %}" class="mt-2">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-heart me-2"></i>
+                    {% if in_wishlist %}Remove from{% else %}Add to{% endif %} Wishlist
+                </button>
+            </form>
+            {% endif %}
+
+            <!-- Merchant Contact & Payment Info -->
+            {% if stock.company.whatsapp_number or stock.company.orange_money_number or stock.company.mtn_momo_number %}
+            <div class="card border-0 shadow-sm mt-3 bg-light p-3" style="border-radius: 0.75rem;">
+                <h6 class="fw-bold mb-2 text-dark"><i class="fas fa-store me-2 text-primary"></i>{% trans "Merchant Contact & Payment Info" %}</h6>
+                {% if stock.company.whatsapp_number %}
+                <a href="https://wa.me/{{ stock.company.whatsapp_number|cut:'+'|cut:' ' }}" target="_blank" class="btn btn-success btn-sm w-100 mb-2 fw-bold">
+                    <i class="fab fa-whatsapp me-2"></i>{% trans "Chat on WhatsApp" %} ({{ stock.company.whatsapp_number }})
+                </a>
+                {% endif %}
+                <div class="small text-muted">
+                    {% if stock.company.orange_money_number %}
+                    <div><i class="fas fa-wallet text-warning me-1"></i><strong>Orange Money:</strong> {{ stock.company.orange_money_number }}</div>
+                    {% endif %}
+                    {% if stock.company.mtn_momo_number %}
+                    <div><i class="fas fa-mobile text-warning me-1"></i><strong>MTN MoMo:</strong> {{ stock.company.mtn_momo_number }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Product Reviews Section -->
+    <hr class="my-5">
+    <div class="row">
+        <!-- Review List -->
+        <div class="col-md-6 mb-4">
+            <h4 class="mb-4">{% trans "Customer Reviews" %}</h4>
+            {% with reviews=stock.reviews.all %}
+            {% if reviews %}
+                <div class="d-flex flex-column gap-3">
+                    {% for review in reviews %}
+                    <div class="card border-0 shadow-sm p-3 bg-light" style="border-radius: 0.75rem;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0 fw-bold">{{ review.client.get_full_name }}</h6>
+                            <span class="text-muted small">{{ review.created_at|date:"Y-m-d" }}</span>
+                        </div>
+                        <div class="text-warning mb-2" style="font-size: 13px;">
+                            {% for i in "12345" %}
+                                {% if review.rating >= forloop.counter %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <p class="mb-0 text-muted small">{{ review.comment }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-light text-center py-4 border">
+                    <i class="far fa-comments fa-2x text-muted mb-2 d-block"></i>
+                    {% trans "No reviews yet. Be the first to review this product!" %}
+                </div>
+            {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- Add Review Form -->
+        <div class="col-md-6">
+            <h4 class="mb-4">{% trans "Write a Review" %}</h4>
+            {% if request.client %}
+                <div class="card border-0 shadow-sm p-4" style="border-radius: 0.75rem;">
+                    <form method="post" action="{% url 'marketplace:add_product_review' stock.pk %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">{% trans "Rating" %}</label>
+                            <select class="form-select" name="rating" required>
+                                <option value="5" selected>5 ★★★★★</option>
+                                <option value="4">4 ★★★★</option>
+                                <option value="3">3 ★★★</option>
+                                <option value="2">2 ★★</option>
+                                <option value="1">1 ★</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">{% trans "Review Comment" %}</label>
+                            <textarea class="form-control" name="comment" rows="4" required placeholder="{% trans 'Share your experience with this product...' %}"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            {% trans "Submit Review" %}
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    <a href="{% url 'marketplace:client_login' %}" class="alert-link">{% trans "Login" %}</a> {% trans "to write a review." %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

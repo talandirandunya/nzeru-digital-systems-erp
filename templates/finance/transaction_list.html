@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Transactions</h2>
+<a href="{% url 'finance:transaction_create' %}" class="btn btn-primary">New Transaction</a>
+<table class="table mt-2">
+    <thead><tr><th>Account</th><th>Type</th><th>Amount</th><th>Date</th></tr></thead>
+    <tbody>
+    {% for txn in transactions %}
+        <tr>
+            <td>{{ txn.account.name }}</td>
+            <td>{{ txn.get_transaction_type_display }}</td>
+            <td>{{ txn.amount }}</td>
+            <td>{{ txn.date }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="4">No transactions yet.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% if transactions.has_other_pages %}
+<nav aria-label="Transactions pagination">
+  <ul class="pagination">
+    {% if transactions.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ transactions.previous_page_number }}">Previous</a></li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Previous</span></li>
+    {% endif %}
+    {% for num in transactions.paginator.page_range %}
+      <li class="page-item {% if transactions.number == num %}active{% endif %}"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+    {% endfor %}
+    {% if transactions.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ transactions.next_page_number }}">Next</a></li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Next</span></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

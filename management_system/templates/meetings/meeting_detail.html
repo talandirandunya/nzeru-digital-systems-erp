@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load meeting_filters %}
+
+{% block title %}{{ meeting.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Meeting Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3 mb-0">{{ meeting.title }}</h1>
+            <small class="text-muted">
+                <span class="badge bg-{{ meeting.status|lower }} me-2">{{ meeting.get_status_display }}</span>
+                <span class="badge bg-{{ meeting.priority|lower }}">{{ meeting.get_priority_display }}</span>
+            </small>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'meetings:meeting_edit' meeting.id %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> {% trans "Edit" %}
+            </a>
+            <a href="{% url 'meetings:meeting_delete' meeting.id %}" class="btn btn-danger">
+                <i class="fas fa-trash"></i> {% trans "Delete" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Meeting Details Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">{% trans "Meeting Information" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>{% trans "Type:" %}</strong>
+                            <p>{{ meeting.get_meeting_type_display }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>{% trans "Scheduled Date:" %}</strong>
+                            <p>{{ meeting.scheduled_date|date:"M d, Y H:i" }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>{% trans "Organizer:" %}</strong>
+                            <p>{{ meeting.organizer.user.get_full_name|default:"N/A" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>{% trans "Location:" %}</strong>
+                            <p>{{ meeting.location|default:"N/A" }}</p>
+                        </div>
+                    </div>
+                    {% if meeting.description %}
+                        <div class="mb-3">
+                            <strong>{% trans "Description:" %}</strong>
+                            <p>{{ meeting.description }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Attendees Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Attendees ({{ meeting.attendees.count }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if meeting.attendees.exists %}
+                        <div class="row">
+                            {% for attendee in meeting.attendees.all %}
+                                <div class="col-md-4 mb-2">
+                                    <span class="badge bg-secondary">
+                                        {{ attendee.user.get_full_name }}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">{% trans "No attendees added" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Meeting Notes Tab -->
+            {% if has_notes %}
+                <div class="card mb-4">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{% trans "Meeting Notes" %}</h5>
+                        <a href="{% url 'meetings:meeting_notes_edit' meeting.notes.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit"></i> {% trans "Edit Notes" %}
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% with note=meeting.notes %}
+                            {% if note.agenda %}
+                                <div class="mb-3">
+                                    <strong>{% trans "Agenda:" %}</strong>
+                                    <p>{{ note.agenda }}</p>
+                                </div>
+                            {% endif %}
+                            {% if note.discussion_summary %}
+                                <div class="mb-3">
+                                    <strong>{% trans "Discussion Summary:" %}</strong>
+                                    <p>{{ note.discussion_summary }}</p>
+                                </div>
+                            {% endif %}
+                            {% if note.decisions_made %}
+                                <div class="mb-3">
+                                    <strong>{% trans "Decisions Made:" %}</strong>
+                                    <p>{{ note.decisions_made }}</p>
+                                </div>
+                            {% endif %}
+                            {% if note.risks_identified %}
+                                <div class="mb-3">
+                                    <strong>{% trans "Risks Identified:" %}</strong>
+                                    <p>{{ note.risks_identified }}</p>
+                                </div>
+                            {% endif %}
+                            {% if note.next_steps %}
+                                <div class="mb-3">
+                                    <strong>{% trans "Next Steps:" %}</strong>
+                                    <p>{{ note.next_steps }}</p>
+                                </div>
+                            {% endif %}
+                            {% if note.report_document %}
+                                <div class="mb-3">
+                                    <strong>{% trans "Report Document:" %}</strong>
+                                    <p>
+                                        {% if note.report_document.name|lower|endswith:'.docx' or note.report_document.name|lower|endswith:'.doc' %}
+                                            <a href="{% url 'meetings:meeting_notes_view' note.id %}" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-eye"></i> {% trans "View Report" %}
+                                            </a>
+                                        {% endif %}
+                                        <a href="{{ note.report_document.url }}" download class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-download"></i> {% trans "Download" %}
+                                        </a>
+                                    </p>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="card mb-4">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{% trans "Meeting Notes" %}</h5>
+                        <a href="{% url 'meetings:meeting_notes_create' meeting.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus"></i> {% trans "Add Notes" %}
+                        </a>
+                    </div>
+                    <div class="card-body text-center p-4">
+                        <p class="text-muted">{% trans "No notes recorded yet" %}</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Action Items Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Action Items ({{ action_items.count }})</h5>
+                    <a href="{% url 'meetings:action_item_create' meeting.id %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for action in action_items %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input type="checkbox" class="form-check-input action-item-checkbox" 
+                                               data-action-id="{{ action.id }}"
+                                               {% if action.is_completed %}checked{% endif %}
+                                               style="cursor: pointer;">
+                                        <h6 class="mb-0" style="{% if action.is_completed %}text-decoration: line-through; color: #6c757d;{% endif %}">
+                                            {{ action.title }}
+                                        </h6>
+                                    </div>
+                                    <small class="text-muted d-block mt-1">
+                                        {% if action.assigned_to %}
+                                            Assigned to: {{ action.assigned_to.user.get_full_name }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="badge bg-{{ action.status|lower }}">{{ action.get_status_display }}</small>
+                                <small class="badge bg-{{ action.priority|lower }}">{{ action.get_priority_display }}</small>
+                            </div>
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-calendar"></i> Due: {{ action.due_date|date:"M d, Y" }}
+                            </small>
+                            <div class="btn-group btn-group-sm w-100 mt-2" role="group">
+                                <a href="{% url 'meetings:action_item_edit' action.id %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'meetings:action_item_delete' action.id %}" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item text-center p-4">
+                            <p class="text-muted mb-0">{% trans "No action items yet" %}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Attachments Card -->
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Attachments ({{ attachments.count }})</h5>
+                    <a href="{% url 'meetings:attachment_upload' meeting.id %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-upload"></i>
+                    </a>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for attachment in attachments %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">
+                                        {{ attachment.get_file_icon }}
+                                        {{ attachment.title }}
+                                    </h6>
+                                    <small class="text-muted d-block">
+                                        {{ attachment.file_type|title }} • {{ attachment.uploaded_at|date:"M d, Y" }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="btn-group btn-group-sm w-100 mt-2" role="group">
+                                {% if attachment.file.name|lower|endswith:'.docx' or attachment.file.name|lower|endswith:'.doc' %}
+                                    <a href="{% url 'meetings:attachment_view' attachment.id %}" class="btn btn-outline-info" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                {% endif %}
+                                <a href="{% url 'meetings:attachment_download' attachment.id %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                <a href="{% url 'meetings:attachment_delete' attachment.id %}" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item text-center p-4">
+                            <p class="text-muted mb-0">{% trans "No attachments yet" %}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.action-item-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const actionId = this.dataset.actionId;
+        const isCompleted = this.checked;
+        
+        fetch(`/meetings/action-item/${actionId}/toggle-completion/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ is_completed: isCompleted })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+});
+</script>
+{% endblock %}

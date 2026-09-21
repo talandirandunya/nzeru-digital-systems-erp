@@ -1,0 +1,355 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Project Calendar - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+{# FullCalendar v6 global bundle injects required styles via JS; no separate CSS file exists at fullcalendar/index.global.min.css #}
+<style>
+    /* Layout + readability (FC base styles come from the script bundle) */
+    #calendar {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        min-height: 640px;
+        background: #fff;
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .fc .fc-toolbar-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    .fc-theme-standard td, .fc-theme-standard th {
+        border-color: #dee2e6;
+    }
+    .fc-daygrid-day-number {
+        padding: 0.35rem 0.5rem;
+        font-weight: 500;
+    }
+    
+    .fc-event {
+        cursor: pointer;
+        border-radius: 4px;
+        padding: 2px 5px;
+    }
+    
+    .legend {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+    }
+    
+    .event-details p {
+        margin-bottom: 10px;
+    }
+    
+    .badge {
+        font-size: 0.85rem;
+        padding: 5px 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-calendar-alt me-2"></i>{% trans "Project Calendar" %}
+            </h1>
+            <p class="text-muted mb-0">{% trans "View all projects and tasks in calendar view" %}</p>
+        </div>
+        <div>
+            <a href="{% url 'projects:project_list' %}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-list me-2"></i>{% trans "List View" %}
+            </a>
+            <a href="{% url 'projects:project_kanban' %}" class="btn btn-outline-info me-2">
+                <i class="fas fa-columns me-2"></i>{% trans "Kanban" %}
+            </a>
+            <a href="{% url 'projects:project_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>{% trans "New Project" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Calendar Legend -->
+    <div class="legend">
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: #dc3545;"></span>
+            <span>{% trans "Critical Priority" %}</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: #fd7e14;"></span>
+            <span>{% trans "High Priority" %}</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: #ffc107;"></span>
+            <span>{% trans "Medium Priority" %}</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: #198754;"></span>
+            <span>{% trans "Low Priority" %}</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: #0dcaf0;"></span>
+            <span>{% trans "Tasks" %}</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: #6c757d;"></span>
+            <span>{% trans "Completed" %}</span>
+        </div>
+    </div>
+
+    <!-- Calendar Container -->
+    <div id="calendar"></div>
+</div>
+
+<!-- Event Detail Modal -->
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventModalLabel">{% trans "Event Details" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="eventDetails">
+                <!-- Event details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
+                <a href="#" id="viewDetailsBtn" class="btn btn-primary">{% trans "View Details" %}</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    const events = {{ calendar_events|safe }};
+    
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        // Initial View Settings
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+        },
+        
+        // Event Data
+        events: events,
+        
+        // Display Settings — fixed content area so month grid stays readable
+        height: 'auto',
+        contentHeight: 560,
+        firstDay: 1, // Monday
+        weekNumbers: true,
+        weekNumberCalculation: 'ISO',
+        
+        // Event Click Handler
+        eventClick: function(info) {
+            info.jsEvent.preventDefault();
+            
+            const event = info.event;
+            const extendedProps = event.extendedProps;
+            
+            // Set modal title
+            document.getElementById('eventModalLabel').textContent = event.title;
+            
+            // Build event details HTML
+            let detailsHTML = '<div class="event-details">';
+            
+            if (extendedProps.type === 'project') {
+                // Project details
+                detailsHTML += `
+                    <p>
+                        <strong>Type:</strong> 
+                        <span class="badge bg-primary">Project</span>
+                    </p>
+                    <p>
+                        <strong>Priority:</strong> 
+                        <span class="badge bg-${getPriorityColor(extendedProps.priority)}">
+                            ${extendedProps.priority}
+                        </span>
+                    </p>
+                    <p>
+                        <strong>Status:</strong> 
+                        <span class="badge bg-${getStatusColor(extendedProps.status)}">
+                            ${formatStatus(extendedProps.status)}
+                        </span>
+                    </p>
+                    <p><strong>Start Date:</strong> ${formatDate(event.start)}</p>
+                    <p><strong>End Date:</strong> ${event.end ? formatDate(event.end) : 'N/A'}</p>
+                `;
+                
+                // Show and set view details button
+                const viewBtn = document.getElementById('viewDetailsBtn');
+                viewBtn.href = event.url;
+                viewBtn.style.display = 'inline-block';
+                viewBtn.textContent = 'View Project';
+            } else {
+                // Task details
+                detailsHTML += `
+                    <p>
+                        <strong>Type:</strong> 
+                        <span class="badge bg-info">Task</span>
+                    </p>
+                    <p>
+                        <strong>Status:</strong> 
+                        <span class="badge bg-${getTaskStatusColor(extendedProps.status)}">
+                            ${formatTaskStatus(extendedProps.status)}
+                        </span>
+                    </p>
+                    <p>
+                        <strong>Assigned To:</strong> 
+                        ${extendedProps.assignee || 'Unassigned'}
+                    </p>
+                    <p><strong>Start Date:</strong> ${formatDate(event.start)}</p>
+                    <p><strong>Due Date:</strong> ${event.end ? formatDate(event.end) : 'N/A'}</p>
+                `;
+                
+                // Hide view details button for tasks
+                document.getElementById('viewDetailsBtn').style.display = 'none';
+            }
+            
+            detailsHTML += '</div>';
+            document.getElementById('eventDetails').innerHTML = detailsHTML;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+            modal.show();
+        },
+        
+        // Event Mounted Handler (for tooltips)
+        eventDidMount: function(info) {
+            // Add Bootstrap tooltip
+            const tooltip = new bootstrap.Tooltip(info.el, {
+                title: `${info.event.title}\n${info.event.extendedProps.type} • ${info.event.extendedProps.priority || info.event.extendedProps.status}`,
+                placement: 'top',
+                trigger: 'hover',
+                container: 'body'
+            });
+        },
+        
+        // Loading State
+        loading: function(isLoading) {
+            if (isLoading) {
+                // Show loading indicator
+                calendarEl.style.opacity = '0.5';
+            } else {
+                // Hide loading indicator
+                calendarEl.style.opacity = '1';
+            }
+        },
+        
+        // Date Click Handler
+        dateClick: function(info) {
+            // Optional: Handle date clicks (e.g., create new event)
+            console.log('Date clicked: ' + info.dateStr);
+        }
+    });
+    
+    calendar.render();
+    calendar.updateSize();
+
+    window.addEventListener('resize', function() {
+        calendar.updateSize();
+    });
+    
+    // ============ Helper Functions ============
+    
+    // Format date to locale string
+    function formatDate(date) {
+        if (!date) return 'N/A';
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+    
+    // Get priority color class
+    function getPriorityColor(priority) {
+        const colors = {
+            'critical': 'danger',
+            'high': 'warning',
+            'medium': 'info',
+            'low': 'success'
+        };
+        return colors[priority] || 'secondary';
+    }
+    
+    // Get project status color class
+    function getStatusColor(status) {
+        const colors = {
+            'planning': 'secondary',
+            'in_progress': 'primary',
+            'on_hold': 'warning',
+            'completed': 'success',
+            'cancelled': 'danger'
+        };
+        return colors[status] || 'secondary';
+    }
+    
+    // Format project status for display
+    function formatStatus(status) {
+        const formatted = {
+            'planning': 'Planning',
+            'in_progress': 'In Progress',
+            'on_hold': 'On Hold',
+            'completed': 'Completed',
+            'cancelled': 'Cancelled'
+        };
+        return formatted[status] || status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+    
+    // Get task status color class
+    function getTaskStatusColor(status) {
+        const colors = {
+            'a_faire': 'secondary',
+            'en_cours': 'primary',
+            'termine': 'success',
+            'en_attente': 'warning',
+            'annule': 'danger'
+        };
+        return colors[status] || 'secondary';
+    }
+    
+    // Format task status for display
+    function formatTaskStatus(status) {
+        const formatted = {
+            'a_faire': 'To Do',
+            'en_cours': 'In Progress',
+            'termine': 'Completed',
+            'en_attente': 'On Hold',
+            'annule': 'Cancelled'
+        };
+        return formatted[status] || status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+});
+</script>
+{% endblock %}

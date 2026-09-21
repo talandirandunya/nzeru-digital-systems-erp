@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="card-title mb-0">{{ title }}</h3>
+                        <small class="text-muted">{{ period.start_date|date:"M d, Y" }} to {{ period.end_date|date:"M d, Y" }}</small>
+                    </div>
+                    <div>
+                        {% if period.status == 'draft' %}
+                            <a href="{% url 'hr:payroll_period_add_entries' period.pk %}" class="btn btn-success me-2">
+                                <i class="fas fa-user-plus"></i> {% trans "Add Entries" %}
+                            </a>
+                            <a href="{% url 'hr:payroll_period_lock' period.pk %}" class="btn btn-warning">
+                                <i class="fas fa-lock"></i> {% trans "Lock Period" %}
+                            </a>
+                        {% elif period.status == 'locked' %}
+                            <a href="{% url 'hr:payroll_period_process' period.pk %}" class="btn btn-success">
+                                <i class="fas fa-play"></i> {% trans "Process Payroll" %}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>{% trans "Total Earnings" %}</h6>
+                                    <h4 class="text-success">₱{{ period.total_earnings|floatformat:2 }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>{% trans "Total Deductions" %}</h6>
+                                    <h4 class="text-danger">₱{{ period.total_deductions|floatformat:2 }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>{% trans "Total Net Pay" %}</h6>
+                                    <h4 class="text-primary">₱{{ period.total_net_pay|floatformat:2 }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>{% trans "Status" %}</h6>
+                                    <span class="badge bg-{% if period.status == 'draft' %}secondary{% elif period.status == 'locked' %}warning{% elif period.status == 'completed' %}success{% else %}info{% endif %} fs-6">
+                                        {{ period.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5>{% trans "Payroll Entries" %}</h5>
+                    {% if entries %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans "Employee" %}</th>
+                                        <th>{% trans "Base Salary" %}</th>
+                                        <th>{% trans "Earnings" %}</th>
+                                        <th>{% trans "Deductions" %}</th>
+                                        <th>{% trans "Net Pay" %}</th>
+                                        <th>{% trans "Actions" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in entries %}
+                                    <tr>
+                                        <td>{{ entry.employee.full_name }}</td>
+                                        <td class="text-end">₱{{ entry.base_salary|floatformat:2 }}</td>
+                                        <td class="text-end text-success">₱{{ entry.gross_earnings|floatformat:2 }}</td>
+                                        <td class="text-end text-danger">₱{{ entry.total_deductions|floatformat:2 }}</td>
+                                        <td class="text-end text-primary"><strong>₱{{ entry.net_pay|floatformat:2 }}</strong></td>
+                                        <td>
+                                            <a href="{% url 'hr:payroll_entry_edit' entry.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i> {% trans "Edit" %}
+                                            </a>
+                                            {% if period.status == 'draft' %}
+                                                <a href="{% url 'hr:payroll_entry_delete' entry.pk %}" class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash"></i> {% trans "Delete" %}
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-muted">{% trans "No payroll entries yet. Add entries to get started." %}</p>
+                            {% if period.status == 'draft' %}
+                                <a href="{% url 'hr:payroll_period_add_entries' period.pk %}" class="btn btn-success">
+                                    <i class="fas fa-user-plus"></i> {% trans "Add Entries" %}
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

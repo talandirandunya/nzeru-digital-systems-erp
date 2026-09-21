@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Register" %} — ERP System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-5">
+                <h3 class="text-center mb-4">
+                    <i class="fas fa-user-plus text-primary me-2" aria-hidden="true"></i>{% trans "Register" %}
+                </h3>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-circle me-2" aria-hidden="true"></i>
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    {{ form|crispy }}
+
+                    <button type="submit" class="btn btn-primary w-100 mt-3">
+                        <i class="fas fa-user-plus me-1" aria-hidden="true"></i>{% trans "Create Account" %}
+                    </button>
+                </form>
+
+                <hr>
+                <p class="text-center mb-0 small">
+                    {% trans "Already have an account?" %}
+                    <a href="{% url 'accounts:company_login' %}">{% trans "Log in" %}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

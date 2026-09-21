@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Order #{{ order.order_number }} - {{ block.super }}{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Order #{{ order.order_number }}</h2>
+            <p class="text-muted mb-0">Placed on {{ order.created_at|date:"F d, Y H:i" }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            {% if order.payment_status == 'paid' %}
+            <a href="{% url 'marketplace:admin_order_pdf' order.pk %}" class="btn btn-primary">
+                <i class="fas fa-file-pdf me-2"></i>{% trans "Télécharger la Facture (PDF)" %}
+            </a>
+            {% endif %}
+            <a href="{% url 'marketplace:admin_order_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>{% trans "Back to Orders" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>{% trans "Quick Actions" %}</h5>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <div class="mb-2">
+                        <h4>
+                            <span class="badge 
+                                {% if order.status == 'pending' %}bg-warning
+                                {% elif order.status == 'confirmed' %}bg-info
+                                {% elif order.status == 'shipped' %}bg-primary
+                                {% elif order.status == 'delivered' %}bg-success
+                                {% elif order.status == 'cancelled' %}bg-danger
+                                {% endif %} fs-5">
+                                {{ order.get_status_display }}
+                            </span>
+                        </h4>
+                        <small class="text-muted">{% trans "Current Status" %}</small>
+                    </div>
+                </div>
+                
+                {% if order.status == 'pending' %}
+                <div class="col-md-3">
+                    <form method="post" action="{% url 'marketplace:admin_order_confirm' order.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-check-circle me-2"></i>{% trans "Confirm Order" %}
+                        </button>
+                    </form>
+                </div>
+                {% elif order.status == 'confirmed' %}
+                <div class="col-md-3">
+                    <a href="{% url 'marketplace:admin_order_ship' order.pk %}" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-truck me-2"></i>{% trans "Mark as Shipped" %}
+                    </a>
+                </div>
+                {% elif order.status == 'shipped' %}
+                <div class="col-md-3">
+                    <form method="post" action="{% url 'marketplace:admin_order_deliver' order.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-box-open me-2"></i>{% trans "Mark as Delivered" %}
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+                
+                <div class="col-md-3">
+                    <button id="copy-shop-link" type="button" class="btn btn-outline-primary btn-lg w-100">
+                        <i class="fas fa-share-square me-2"></i>{% trans "Share Shop Link" %}
+                    </button>
+                    <input id="shop-link" type="text" value="{{ shop_link }}" readonly class="d-none" aria-hidden="true">
+                    <p class="small text-muted mt-2 mb-0">{% trans "Copies the company marketplace link for the client." %}</p>
+                </div>
+                
+                <div class="col-md-3">
+                    <h4>
+                        <span class="badge 
+                            {% if order.payment_status == 'pending' %}bg-warning
+                            {% elif order.payment_status == 'paid' %}bg-success
+                            {% elif order.payment_status == 'refunded' %}bg-info
+                            {% elif order.payment_status == 'failed' %}bg-danger
+                            {% endif %} fs-5">
+                            {{ order.get_payment_status_display }}
+                        </span>
+                    </h4>
+                    <small class="text-muted">{% trans "Payment Status" %}</small>
+                </div>
+
+                <div class="col-md-3">
+                    <h4>
+                        <span class="badge
+                            {% if order.finance_sync_status == 'posted' %}bg-success
+                            {% elif order.finance_sync_status == 'reversed' %}bg-info
+                            {% elif order.finance_sync_status == 'failed' %}bg-danger
+                            {% else %}bg-secondary
+                            {% endif %} fs-5">
+                            {{ order.get_finance_sync_status_display }}
+                        </span>
+                    </h4>
+                    <small class="text-muted">{% trans "Finance Sync" %}</small>
+                </div>
+                
+                {% if order.status not in 'delivered,cancelled' %}
+                <div class="col-md-3">
+                    <a href="{% url 'marketplace:admin_order_cancel' order.pk %}" class="btn btn-danger btn-lg w-100">
+                        <i class="fas fa-times-circle me-2"></i>{% trans "Cancel Order" %}
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Order Items -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header"><h5><i class="fas fa-shopping-bag me-2"></i>{% trans "Order Items" %}</h5></div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Item" %}</th>
+                                <th>{% trans "Price" %}</th>
+                                <th>{% trans "Qty" %}</th>
+                                <th class="text-end">{% trans "Total" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item.item_name }}</strong><br>
+                                    <small class="text-muted">{{ item.item_code }}</small>
+                                </td>
+                                <td>FCFA {{ item.unit_price }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td class="text-end"><strong>FCFA {{ item.subtotal|floatformat:2 }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-secondary">
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>{% trans "Subtotal:" %}</strong></td>
+                                <td class="text-end">FCFA {{ order.subtotal|floatformat:2 }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>{% trans "Tax:" %}</strong></td>
+                                <td class="text-end">FCFA {{ order.tax|floatformat:2 }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>{% trans "Shipping:" %}</strong></td>
+                                <td class="text-end">FCFA {{ order.shipping|floatformat:2 }}</td>
+                            </tr>
+                            <tr class="table-primary">
+                                <td colspan="3" class="text-end"><h5 class="mb-0">{% trans "TOTAL:" %}</h5></td>
+                                <td class="text-end"><h5 class="mb-0">FCFA {{ order.total|floatformat:2 }}</h5></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Client Info -->
+            <div class="card mb-4">
+                <div class="card-header"><h5><i class="fas fa-user me-2"></i>{% trans "Client Information" %}</h5></div>
+                <div class="card-body">
+                    <h6>{{ order.client.get_full_name }}</h6>
+                    <p class="mb-1"><i class="fas fa-envelope me-2"></i>{{ order.client.email }}</p>
+                    <p class="mb-0"><i class="fas fa-phone me-2"></i>{{ order.client.phone|default:"—" }}</p>
+                </div>
+            </div>
+
+            <!-- Shipping Address -->
+            <div class="card mb-4">
+                <div class="card-header"><h5><i class="fas fa-map-marker-alt me-2"></i>{% trans "Shipping Address" %}</h5></div>
+                <div class="card-body">
+                    <p class="mb-0">
+                        {{ order.shipping_address }}<br>
+                        {{ order.shipping_city }}, {{ order.shipping_country }}<br>
+                        <strong>Phone: {{ order.shipping_phone }}</strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Timestamps -->
+            <div class="card">
+                <div class="card-header"><h5><i class="fas fa-clock me-2"></i>{% trans "Timeline" %}</h5></div>
+                <div class="card-body">
+                    <p><strong>{% trans "Created:" %}</strong><br>{{ order.created_at|date:"M d, Y H:i" }}</p>
+                    {% if order.confirmed_at %}
+                    <p><strong>{% trans "Confirmed:" %}</strong><br>{{ order.confirmed_at|date:"M d, Y H:i" }}</p>
+                    {% endif %}
+                    {% if order.shipped_at %}
+                    <p><strong>{% trans "Shipped:" %}</strong><br>{{ order.shipped_at|date:"M d, Y H:i" }}</p>
+                    {% endif %}
+                    {% if order.delivered_at %}
+                    <p class="mb-0"><strong>{% trans "Delivered:" %}</strong><br>{{ order.delivered_at|date:"M d, Y H:i" }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Payment Update -->
+            <div class="card mt-3">
+                <div class="card-header"><h6><i class="fas fa-credit-card me-2"></i>{% trans "Update Payment" %}</h6></div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'marketplace:admin_order_update_payment' order.pk %}">
+                        {% csrf_token %}
+                        <select name="payment_status" class="form-select mb-2">
+                            {% for value, label in order.PAYMENT_STATUS_CHOICES %}
+                            <option value="{{ value }}" {% if order.payment_status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-sm w-100">{% trans "Update" %}</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header"><h6><i class="fas fa-book me-2"></i>{% trans "Finance Posting" %}</h6></div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>{% trans "Status:" %}</strong> {{ order.get_finance_sync_status_display }}</p>
+                    {% if order.finance_journal_entry %}
+                    <p class="mb-2">
+                        <strong>{% trans "Journal Entry:" %}</strong>
+                        <a href="{% url 'finance:journal_entry_detail' order.finance_journal_entry.pk %}">
+                            {{ order.finance_journal_entry.reference|default:order.finance_journal_entry.pk }}
+                        </a>
+                    </p>
+                    {% endif %}
+                    {% if order.finance_reversal_journal_entry %}
+                    <p class="mb-2">
+                        <strong>{% trans "Reversal Entry:" %}</strong>
+                        <a href="{% url 'finance:journal_entry_detail' order.finance_reversal_journal_entry.pk %}">
+                            {{ order.finance_reversal_journal_entry.reference|default:order.finance_reversal_journal_entry.pk }}
+                        </a>
+                    </p>
+                    {% endif %}
+                    {% if order.finance_synced_at %}
+                    <p class="mb-2"><strong>{% trans "Synced:" %}</strong> {{ order.finance_synced_at|date:"M d, Y H:i" }}</p>
+                    {% endif %}
+                    {% if order.finance_reversed_at %}
+                    <p class="mb-2"><strong>{% trans "Reversed:" %}</strong> {{ order.finance_reversed_at|date:"M d, Y H:i" }}</p>
+                    {% endif %}
+                    {% if order.finance_sync_error %}
+                    <p class="mb-0 text-danger"><strong>{% trans "Error:" %}</strong> {{ order.finance_sync_error }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var button = document.getElementById('copy-shop-link');
+    var linkInput = document.getElementById('shop-link');
+    if (!button || !linkInput) return;
+
+    button.addEventListener('click', function() {
+        var link = linkInput.value;
+        if (!link) return;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(link).then(function() {
+                alert('Marketplace link copied to clipboard.');
+            }).catch(function() {
+                window.prompt('Copy this link:', link);
+            });
+        } else {
+            window.prompt('Copy this link:', link);
+        }
+    });
+});
+</script>
+{% endblock %}

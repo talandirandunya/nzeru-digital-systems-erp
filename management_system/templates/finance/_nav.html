@@ -1,0 +1,53 @@
+{% load i18n %}
+<ul class="nav nav-pills mb-4 flex-wrap gap-1">
+  <li class="nav-item">
+    <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" href="{% url 'finance:index' %}">
+      <i class="fas fa-gauge me-1"></i>{% trans "Dashboard" %}
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if 'transaction' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'finance:transaction_list' %}">
+      <i class="fas fa-right-left me-1"></i>{% trans "Transactions" %}
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if 'account' in request.resolver_match.url_name and 'bank' not in request.resolver_match.url_name %}active{% endif %}" href="{% url 'finance:account_list' %}">
+      <i class="fas fa-list me-1"></i>{% trans "Accounts" %}
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if 'journal_entry' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'finance:journal_entry_list' %}">
+      <i class="fas fa-file-invoice-dollar me-1"></i>{% trans "Journal Entries" %}
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if request.resolver_match.url_name|slice:':7' == 'journal' and 'entry' not in request.resolver_match.url_name %}active{% endif %}" href="{% url 'finance:journal_list' %}">
+      <i class="fas fa-book-open me-1"></i>{% trans "Journals" %}
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if 'client_invoice' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'finance:client_invoice_list' %}">
+      <i class="fas fa-file-invoice me-1"></i>{% trans "Client Invoices" %}
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if 'supplier_invoice' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'finance:supplier_invoice_list' %}">
+      <i class="fas fa-file-invoice me-1"></i>{% trans "Supplier Invoices" %}
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if 'bank_account' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'finance:bank_account_list' %}">
+      <i class="fas fa-building-columns me-1"></i>{% trans "Bank Accounts" %}
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if 'reconciliation' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'finance:bank_reconciliation_list' %}">
+      <i class="fas fa-scale-balanced me-1"></i>{% trans "Reconciliations" %}
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if 'report' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'finance:financial_report_list' %}">
+      <i class="fas fa-chart-pie me-1"></i>{% trans "Reports" %}
+    </a>
+  </li>
+</ul>

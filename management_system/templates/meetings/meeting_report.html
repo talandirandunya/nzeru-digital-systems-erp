@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% block title %}Meeting Reports & Analytics{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 class="h3">
+                <i class="fas fa-chart-pie"></i> {% trans "Meeting Reports & Analytics" %}
+            </h1>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h6 class="card-title">{% trans "Total Meetings" %}</h6>
+                    <h3>{{ total_meetings }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6 class="card-title">{% trans "Total Action Items" %}</h6>
+                    <h3>{{ total_actions }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6 class="card-title">{% trans "Completed Actions" %}</h6>
+                    <h3>{{ completed_actions }}</h3>
+                    <small>{{ completion_rate|floatformat:1 }}% completion rate</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h6 class="card-title">{% trans "Overdue Items" %}</h6>
+                    <h3>{{ overdue_actions }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">{% trans "Meetings by Type" %}</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="meetingTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">{% trans "Meetings by Status" %}</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="meetingStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Tables -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">{% trans "Meeting Statistics Breakdown" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{% trans "Metric" %}</th>
+                                    <th>{% trans "Count" %}</th>
+                                    <th>{% trans "Percentage" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>{% trans "Total Meetings" %}</strong></td>
+                                    <td>{{ total_meetings }}</td>
+                                    <td>100%</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{% trans "Total Action Items" %}</strong></td>
+                                    <td>{{ total_actions }}</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{% trans "Completed Actions" %}</strong></td>
+                                    <td>{{ completed_actions }}</td>
+                                    <td>{{ completion_rate|floatformat:1 }}%</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{% trans "Overdue Actions" %}</strong></td>
+                                    <td>{{ overdue_actions }}</td>
+                                    <td>{{ overdue_rate|floatformat:1 }}%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Meeting Type Chart
+    const meetingTypeCtx = document.getElementById('meetingTypeChart');
+    if (meetingTypeCtx) {
+        const meetingTypeData = {% autoescape off %}{{ meetings_by_type }}{% endautoescape %};
+        new Chart(meetingTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(meetingTypeData),
+                datasets: [{
+                    data: Object.values(meetingTypeData),
+                    backgroundColor: [
+                        '#007bff', '#28a745', '#ffc107', '#dc3545',
+                        '#17a2b8', '#6f42c1', '#e83e8c', '#fd7e14'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    // Meeting Status Chart
+    const meetingStatusCtx = document.getElementById('meetingStatusChart');
+    if (meetingStatusCtx) {
+        const meetingStatusData = {% autoescape off %}{{ meetings_by_status }}{% endautoescape %};
+        new Chart(meetingStatusCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(meetingStatusData),
+                datasets: [{
+                    label: 'Number of Meetings',
+                    data: Object.values(meetingStatusData),
+                    backgroundColor: [
+                        '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

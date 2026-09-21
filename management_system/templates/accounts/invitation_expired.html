@@ -1,0 +1,25 @@
+{% extends 'accounts/base_auth.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Invitation Expired" %} — Zentral{% endblock %}
+
+{% block content %}
+<div class="auth-card-header">
+  <h1>{% trans "Invitation Expired" %}</h1>
+  <p>{% trans "This invitation link is no longer valid." %}</p>
+</div>
+<div class="auth-card-body text-center">
+  <div class="mb-4" style="font-size:3rem;color:var(--amber);">
+    <i class="fas fa-clock"></i>
+  </div>
+  <p class="text-muted mb-4">
+    {% blocktrans with name=company.name %}
+      Your invitation to join <strong>{{ name }}</strong> has expired or has already been used.
+      Please ask your company administrator to send you a new invitation.
+    {% endblocktrans %}
+  </p>
+  <a href="{% url 'accounts:company_login' %}" class="btn btn-outline-secondary">
+    <i class="fas fa-sign-in-alt me-2"></i>{% trans "Back to Login" %}
+  </a>
+</div>
+{% endblock %}

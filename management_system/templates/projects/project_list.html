@@ -1,0 +1,449 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Projects - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .project-card {
+        transition: transform 0.2s;
+        border-left: 4px solid #dee2e6;
+    }
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .project-card.priority-critical {
+        border-left-color: #dc3545;
+    }
+    .project-card.priority-high {
+        border-left-color: #fd7e14;
+    }
+    .project-card.priority-medium {
+        border-left-color: #ffc107;
+    }
+    .project-card.priority-low {
+        border-left-color: #198754;
+    }
+    .stats-card {
+        border-radius: 10px;
+        padding: 20px;
+    }
+    .progress-thin {
+        height: 8px;
+    }
+    .project-subtasks-list {
+        max-height: 220px;
+        overflow-y: auto;
+        margin-bottom: 0.75rem;
+        padding-right: 2px;
+    }
+    .project-subtasks-list .form-check {
+        padding-left: 1.5rem;
+        margin-bottom: 0.35rem;
+    }
+    .project-subtasks-list .form-check-label {
+        cursor: pointer;
+        line-height: 1.3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-project-diagram me-2"></i>{% trans "Projects" %}
+        </h1>
+        <a href="{% url 'projects:project_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>{% trans "New Project" %}
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">{% trans "Total Projects" %}</h6>
+                            <h2 class="mb-0 mt-2">{{ total_projects }}</h2>
+                        </div>
+                        <i class="fas fa-folder fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">{% trans "Active" %}</h6>
+                            <h2 class="mb-0 mt-2">{{ active_projects }}</h2>
+                        </div>
+                        <i class="fas fa-spinner fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">{% trans "Completed" %}</h6>
+                            <h2 class="mb-0 mt-2">{{ completed_projects }}</h2>
+                        </div>
+                        <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">{% trans "Overdue" %}</h6>
+                            <h2 class="mb-0 mt-2">{{ overdue_projects }}</h2>
+                        </div>
+                        <i class="fas fa-exclamation-triangle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">{% trans "Search" %}</label>
+                    <input type="text" name="q" class="form-control" placeholder="Search projects..." value="{{ query }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">{% trans "Status" %}</label>
+                    <select name="status" class="form-select">
+                        <option value="">{% trans "All Status" %}</option>
+                        {% for value, label in STATUS_CHOICES %}
+                        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">{% trans "Priority" %}</label>
+                    <select name="priority" class="form-select">
+                        <option value="">{% trans "All Priorities" %}</option>
+                        {% for value, label in PRIORITY_CHOICES %}
+                        <option value="{{ value }}" {% if selected_priority == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">{% trans "Manager" %}</label>
+                    <select name="manager" class="form-select">
+                        <option value="">{% trans "All Managers" %}</option>
+                        {% for manager in managers %}
+                        <option value="{{ manager.id }}" {% if selected_manager == manager.id|stringformat:"s" %}selected{% endif %}>
+                            {{ manager.user.get_full_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>{% trans "Filter" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="mb-4">
+        <a href="{% url 'projects:project_kanban' %}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-columns me-1"></i>{% trans "Kanban View" %}
+        </a>
+        <a href="{% url 'projects:project_calendar' %}" class="btn btn-outline-info me-2">
+            <i class="fas fa-calendar me-1"></i>{% trans "Calendar View" %}
+        </a>
+        <a href="{% url 'projects:project_gantt_chart' %}" class="btn btn-outline-success me-2">
+            <i class="fas fa-chart-gantt me-1"></i>{% trans "Gantt Chart" %}
+        </a>
+        <a href="{% url 'projects:project_summary_report' %}" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-chart-bar me-1"></i>{% trans "Reports" %}
+        </a>
+        <a href="{% url 'projects:project_export' %}" class="btn btn-outline-dark">
+            <i class="fas fa-file-excel me-1"></i>{% trans "Export" %}
+        </a>
+    </div>
+
+    <!-- Projects List -->
+    {% if projects %}
+    <div class="row">
+        {% for project in projects %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card project-card h-100 priority-{{ project.priority }}">
+                <div class="card-body">
+                    <!-- Project Header -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title mb-0">
+                            <a href="{% url 'projects:project_detail' project.pk %}" class="text-decoration-none text-dark">
+                                {{ project.name }}
+                            </a>
+                        </h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'projects:project_detail' project.pk %}">
+                                        <i class="fas fa-eye me-2"></i>{% trans "View Details" %}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'projects:project_edit' project.pk %}">
+                                        <i class="fas fa-edit me-2"></i>{% trans "Edit" %}
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{% url 'projects:project_delete' project.pk %}">
+                                        <i class="fas fa-trash me-2"></i>{% trans "Delete" %}
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Project Description -->
+                    {% if project.description %}
+                    <p class="card-text text-muted small mb-3">
+                        {{ project.description|truncatewords:20 }}
+                    </p>
+                    {% endif %}
+
+                    <!-- Status and Priority Badges -->
+                    <div class="mb-2">
+                        <span class="badge project-status-badge
+                            {% if project.status == 'planning' %}bg-secondary
+                            {% elif project.status == 'in_progress' %}bg-primary
+                            {% elif project.status == 'on_hold' %}bg-warning text-dark
+                            {% elif project.status == 'completed' %}bg-success
+                            {% elif project.status == 'cancelled' %}bg-danger
+                            {% endif %}" data-project-id="{{ project.pk }}">
+                            {{ project.get_status_display }}
+                        </span>
+                        <span class="badge 
+                            {% if project.priority == 'critical' %}bg-danger
+                            {% elif project.priority == 'high' %}bg-warning
+                            {% elif project.priority == 'medium' %}bg-info
+                            {% elif project.priority == 'low' %}bg-secondary
+                            {% endif %}">
+                            {{ project.get_priority_display }}
+                        </span>
+                    </div>
+
+                    <!-- Subtasks (inline checklist) -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted fw-semibold"><i class="fas fa-list-ul me-1"></i>{% trans "Subtasks" %}</small>
+                        </div>
+                        {% if project.sous_taches.all %}
+                        <div class="project-subtasks-list">
+                            {% for tache in project.sous_taches.all %}
+                            <div class="form-check">
+                                <input class="form-check-input subtask-toggle" type="checkbox"
+                                    id="st-{{ project.pk }}-{{ tache.pk }}"
+                                    data-toggle-url="{% url 'projects:toggle_subtask_completion' tache.pk %}"
+                                    {% if tache.status == 'termine' %}checked{% endif %}
+                                    {% if not can_toggle_subtasks %}disabled{% endif %}>
+                                <label class="form-check-label small" for="st-{{ project.pk }}-{{ tache.pk }}">
+                                    {{ tache.titre }}
+                                    {% if tache.assigne_a %}
+                                    <span class="text-muted">· {{ tache.assigne_a.user.get_full_name }}</span>
+                                    {% endif %}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted small mb-2 mb-md-0">{% trans "No subtasks yet." %}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted">{% trans "Progress" %}</small>
+                            <small class="fw-bold project-completion-pct" data-project-id="{{ project.pk }}">{{ project.completion_percentage }}%</small>
+                        </div>
+                        <div class="progress progress-thin">
+                            <div class="progress-bar project-progress-bar
+                                {% if project.completion_percentage < 30 %}bg-danger
+                                {% elif project.completion_percentage < 70 %}bg-warning
+                                {% else %}bg-success
+                                {% endif %}"
+                                data-project-id="{{ project.pk }}"
+                                role="progressbar"
+                                style="width: {{ project.completion_percentage }}%"
+                                aria-valuenow="{{ project.completion_percentage }}"
+                                aria-valuemin="0"
+                                aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Info -->
+                    <div class="small text-muted">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-user-tie me-2"></i>
+                            <span>
+                                {% if project.manager %}
+                                    {{ project.manager.user.get_full_name }}
+                                {% else %}
+                                    <em>{% trans "No manager assigned" %}</em>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-users me-2"></i>
+                            <span>{{ project.team_members.count }} team member{{ project.team_members.count|pluralize }}</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-calendar me-2"></i>
+                            <span>{{ project.start_date|date:"M d, Y" }} - {{ project.end_date|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-dollar-sign me-2"></i>
+                            <span>${{ project.budget|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Footer -->
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center text-muted small">
+                        <span>
+                            <i class="fas fa-tasks me-1"></i>
+                            {{ project.sous_taches.count }} task{{ project.sous_taches.count|pluralize }}
+                        </span>
+                        <span>
+                            {% if project.end_date < today and project.status != 'completed' %}
+                                <span class="text-danger">
+                                    <i class="fas fa-exclamation-circle me-1"></i>{% trans "Overdue" %}
+                                </span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination (if you implement it later) -->
+    <!-- Add pagination controls here -->
+
+    {% else %}
+    <!-- No Projects Found -->
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-folder-open fa-5x text-muted mb-3"></i>
+            <h4 class="text-muted">{% trans "No projects found" %}</h4>
+            {% if query or selected_status or selected_priority or selected_manager %}
+            <p class="text-muted">{% trans "Try adjusting your filters or search terms." %}</p>
+            <a href="{% url 'projects:project_list' %}" class="btn btn-outline-primary">
+                <i class="fas fa-redo me-2"></i>{% trans "Clear Filters" %}
+            </a>
+            {% else %}
+            <p class="text-muted">{% trans "Get started by creating your first project." %}</p>
+            <a href="{% url 'projects:project_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>{% trans "Create Project" %}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const csrfToken = '{{ csrf_token }}';
+    const statusBadgeClass = {
+        planning: 'bg-secondary',
+        in_progress: 'bg-primary',
+        on_hold: 'bg-warning text-dark',
+        completed: 'bg-success',
+        cancelled: 'bg-danger'
+    };
+
+    function progressBarClass(pct) {
+        if (pct < 30) return 'bg-danger';
+        if (pct < 70) return 'bg-warning';
+        return 'bg-success';
+    }
+
+    function updateProgressBar(bar, pct) {
+        bar.style.width = pct + '%';
+        bar.setAttribute('aria-valuenow', pct);
+        bar.className = 'progress-bar project-progress-bar ' + progressBarClass(Number(pct));
+    }
+
+    document.querySelectorAll('.subtask-toggle').forEach(function(cb) {
+        cb.addEventListener('change', function() {
+            const card = this.closest('.card');
+            const url = this.dataset.toggleUrl;
+            const prev = !this.checked;
+            const fd = new FormData();
+            fd.append('checked', this.checked ? 'true' : 'false');
+            fd.append('csrfmiddlewaretoken', csrfToken);
+
+            fetch(url, {
+                method: 'POST',
+                body: fd,
+                credentials: 'same-origin',
+                headers: { 'X-CSRFToken': csrfToken }
+            })
+            .then(function(res) {
+                if (!res.ok) {
+                    throw new Error('Request failed');
+                }
+                return res.json();
+            })
+            .then(function(data) {
+                if (typeof data.project_completion !== 'number') {
+                    throw new Error('Invalid response');
+                }
+                const pctEl = card.querySelector('.project-completion-pct');
+                const bar = card.querySelector('.project-progress-bar');
+                const badge = card.querySelector('.project-status-badge');
+                if (pctEl) {
+                    pctEl.textContent = data.project_completion + '%';
+                }
+                if (bar) {
+                    updateProgressBar(bar, data.project_completion);
+                }
+                if (badge && data.project_status && data.project_status_display) {
+                    const cls = statusBadgeClass[data.project_status] || 'bg-secondary';
+                    badge.className = 'badge project-status-badge ' + cls;
+                    badge.textContent = data.project_status_display;
+                }
+            })
+            .catch(function() {
+                cb.checked = prev;
+                alert('Could not update the subtask. Please try again.');
+            });
+        });
+    });
+})();
+</script>
+{% endblock %}
