@@ -42,23 +42,24 @@ SECRET_KEY = _secret_key
 
 DEBUG = env_bool('DEBUG', True)
 
+RAILWAY_PRODUCTION_HOST = 'nzeru-digital-systems-erp-production.up.railway.app'
+
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.getenv(
-        'ALLOWED_HOSTS',
-        '127.0.0.1,localhost,192.168.1.178,nzeru-digital-systems-erp-production.up.railway.app',
-    ).split(',')
+    for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost,192.168.1.178').split(',')
     if host.strip()
 ]
+if RAILWAY_PRODUCTION_HOST not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(RAILWAY_PRODUCTION_HOST)
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
-    for origin in os.getenv(
-        'CSRF_TRUSTED_ORIGINS',
-        'https://nzeru-digital-systems-erp-production.up.railway.app',
-    ).split(',')
+    for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
     if origin.strip()
 ]
+railway_origin = f'https://{RAILWAY_PRODUCTION_HOST}'
+if railway_origin not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append(railway_origin)
 
 INSTALLED_APPS = [
      'accounts',
