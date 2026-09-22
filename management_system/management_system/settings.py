@@ -44,13 +44,19 @@ DEBUG = env_bool('DEBUG', True)
 
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost,192.168.1.178').split(',')
+    for host in os.getenv(
+        'ALLOWED_HOSTS',
+        '127.0.0.1,localhost,192.168.1.178,nzeru-digital-systems-erp-production.up.railway.app',
+    ).split(',')
     if host.strip()
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
-    for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+    for origin in os.getenv(
+        'CSRF_TRUSTED_ORIGINS',
+        'https://nzeru-digital-systems-erp-production.up.railway.app',
+    ).split(',')
     if origin.strip()
 ]
 
