@@ -6,6 +6,14 @@ from django.shortcuts import redirect
 from django.urls import reverse
 
 
+class HealthCheckMiddleware(MiddlewareMixin):
+    """Allow Railway's internal HTTP healthcheck through HTTPS redirects."""
+
+    def process_request(self, request) -> None:
+        if request.path == '/health/':
+            request.META['HTTP_X_FORWARDED_PROTO'] = 'https'
+
+
 class CompanyContextMiddleware(MiddlewareMixin):
     """
     Attach the authenticated user's company to every request object.
