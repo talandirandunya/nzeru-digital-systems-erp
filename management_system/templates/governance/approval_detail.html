@@ -19,4 +19,10 @@
   <button name="decision" value="rejected" class="btn btn-danger">Reject</button>
 </form>
 {% endif %}
+{% if approval.status == 'pending' and approval.requester_id == user.pk %}
+<form method="post" action="{% url 'governance:approval_cancel' approval.pk %}" class="mt-3">
+  {% csrf_token %}
+  <button class="btn btn-outline-secondary" type="submit">Cancel request</button>
+</form>
+{% endif %}
 {% endblock %}

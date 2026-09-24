@@ -14,6 +14,7 @@
     <h2 class="mb-0"><i class="fas fa-file-invoice text-primary me-2"></i>{{ invoice.invoice_number }}</h2>
   </div>
   <div class="d-flex gap-2">
+    {% if invoice.status == 'draft' %}<form method="post" action="{% url 'finance:supplier_invoice_action' invoice.pk 'validate-level1' %}">{% csrf_token %}<button class="btn btn-outline-success btn-sm">Validate L1</button></form>{% elif invoice.status == 'validated_level1' %}<form method="post" action="{% url 'finance:supplier_invoice_action' invoice.pk 'validate-level2' %}">{% csrf_token %}<button class="btn btn-outline-primary btn-sm">Approve L2</button></form>{% elif invoice.status == 'validated_level2' %}<form method="post" action="{% url 'finance:supplier_invoice_action' invoice.pk 'pay' %}">{% csrf_token %}<button class="btn btn-success btn-sm">Mark paid</button></form>{% endif %}
     <a href="{% url 'finance:supplier_invoice_edit' invoice.pk %}" class="btn btn-outline-secondary btn-sm">
       <i class="fas fa-edit me-1"></i>{% trans "Edit" %}
     </a>
@@ -60,6 +61,7 @@
       <div class="col-md-6">
         <p class="text-muted small mb-1">{% trans "Supplier" %}</p>
         <p class="mb-3">{{ invoice.supplier_name }}</p>
+        {% if invoice.purchase_order %}<p class="text-muted small mb-1">{% trans "Purchase Order" %}</p><p class="mb-3"><a href="{% url 'procurement:order_list' %}">{{ invoice.purchase_order.number }}</a></p>{% endif %}
         {% if invoice.supplier_address %}
         <p class="text-muted small mb-1">{% trans "Address" %}</p>
         <p class="mb-0">{{ invoice.supplier_address }}</p>

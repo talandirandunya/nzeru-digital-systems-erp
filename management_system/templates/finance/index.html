@@ -76,6 +76,10 @@
       </div>
     </div>
   </div>
+  <div class="col-sm-6 col-xl-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><p class="text-muted small mb-0">Open periods</p><h4 class="mb-0 fw-bold">{{ open_periods }}</h4><a href="{% url 'finance:accounting_period_list' %}" class="small">Manage periods</a></div></div></div>
+  <div class="col-sm-6 col-xl-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><p class="text-muted small mb-0">Active budgets</p><h4 class="mb-0 fw-bold">{{ active_budgets }}</h4><a href="{% url 'finance:budget_list' %}" class="small">View budgets</a></div></div></div>
+  <div class="col-sm-6 col-xl-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><p class="text-muted small mb-0">Expense claims pending</p><h4 class="mb-0 fw-bold">{{ open_expense_claims }}</h4><a href="{% url 'finance:expense_claim_list' %}" class="small">Review claims</a></div></div></div>
+  <div class="col-sm-6 col-xl-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><p class="text-muted small mb-0">Unpaid invoices</p><h4 class="mb-0 fw-bold">{{ unpaid_client_invoices|add:unpaid_supplier_invoices }}</h4><span class="small text-muted">Client {{ unpaid_client_invoices }} / Supplier {{ unpaid_supplier_invoices }}</span></div></div></div>
   <div class="col-sm-6 col-xl-3">
     <div class="card border-0 shadow-sm h-100">
       <div class="card-body d-flex align-items-center gap-3">

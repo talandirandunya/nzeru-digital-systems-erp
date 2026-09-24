@@ -4,8 +4,14 @@ from django.urls import reverse
 from decimal import Decimal
 from django.core.exceptions import ValidationError
 from accounts.models import Company
-from .models import Account, Transaction, Journal, MarketplaceFinanceSettings, ClientInvoice, InvoiceLine
+from .models import (
+    Account, Transaction, Journal, MarketplaceFinanceSettings, ClientInvoice,
+    SupplierInvoice, InvoiceLine, FinancialReport, ReportLine, AccountingPeriod,
+    Budget, ExpenseClaim, JournalEntry, JournalEntryLine,
+)
+from .views import generate_balance_sheet, generate_income_statement
 from .forms import MarketplaceFinanceSettingsForm
+from procurement.models import PurchaseOrder, PurchaseRequisition, Supplier
 
 User = get_user_model()
 
@@ -222,3 +228,78 @@ class ClientInvoicePrintViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'INVOICE')
+
+
+class FinanceLifecycleTests(TestCase):
+    def setUp(self):
+        self.company = Company.objects.create(name='Lifecycle Co', domain='lifecycle')
+        self.user = User.objects.create_user(email='finance@example.com', password='pass', company=self.company, role='accountant')
+        self.revenue = Account.objects.create(company=self.company, name='Revenue', account_type='revenue')
+
+    def test_client_invoice_transitions_require_order(self):
+        invoice = ClientInvoice.objects.create(
+            company=self.company, invoice_number='CI-1', client_name='Client', date='2026-09-01', due_date='2026-09-30',
+        )
+        with self.assertRaises(ValidationError):
+            invoice.validate_invoice()
+        InvoiceLine.objects.create(client_invoice=invoice, description='Service', quantity=1, unit_price=100, account=self.revenue)
+        invoice.refresh_from_db()
+        invoice.validate_invoice()
+        invoice.send_invoice()
+        invoice.mark_paid()
+        self.assertEqual(invoice.status, 'paid')
+
+    def test_supplier_invoice_requires_two_different_validators(self):
+        second_user = User.objects.create_user(email='approver@example.com', password='pass', company=self.company, role='accountant')
+        invoice = SupplierInvoice.objects.create(
+            company=self.company, invoice_number='SI-1', supplier_name='Supplier', date='2026-09-01', due_date='2026-09-30',
+        )
+        InvoiceLine.objects.create(supplier_invoice=invoice, description='Goods', quantity=1, unit_price=100, account=self.revenue)
+        invoice.refresh_from_db()
+        invoice.validate_level1(self.user)
+        with self.assertRaises(ValidationError):
+            invoice.validate_level2(self.user)
+        invoice.validate_level2(second_user)
+        invoice.mark_paid()
+        self.assertEqual(invoice.status, 'paid')
+
+    def test_financial_report_generation_uses_report_line_schema(self):
+        Transaction.objects.create(company=self.company, account=self.revenue, transaction_type='credit', amount=250, date='2026-09-10', entered_by=self.user)
+        report = FinancialReport.objects.create(company=self.company, report_type='income_statement', report_date='2026-09-30', start_date='2026-09-01', end_date='2026-09-30', generated_by=self.user)
+        generate_income_statement(report)
+        self.assertTrue(ReportLine.objects.filter(report=report, description='Total Revenue').exists())
+
+    def test_period_closure_and_journal_posting_reversal(self):
+        period = AccountingPeriod.objects.create(company=self.company, name='September 2026', start_date='2026-09-01', end_date='2026-09-30')
+        journal = Journal.objects.create(company=self.company, name='General', journal_type='general')
+        expense = Account.objects.create(company=self.company, name='Expense', account_type='expense')
+        entry = JournalEntry.objects.create(company=self.company, journal=journal, date='2026-09-10', entered_by=self.user)
+        JournalEntryLine.objects.create(entry=entry, account=expense, debit=100)
+        JournalEntryLine.objects.create(entry=entry, account=self.revenue, credit=100)
+        entry.refresh_from_db()
+        entry.post()
+        self.assertEqual(entry.status, 'posted')
+        reversal = entry.reverse(self.user)
+        self.assertEqual(reversal.status, 'posted')
+        entry.refresh_from_db()
+        self.assertEqual(entry.status, 'reversed')
+        period.close(self.user)
+        self.assertEqual(period.status, 'closed')
+
+    def test_budget_actual_spend_and_expense_claim_submission(self):
+        expense = Account.objects.create(company=self.company, name='Travel', account_type='expense')
+        Transaction.objects.create(company=self.company, account=expense, transaction_type='debit', amount=75, date='2026-09-10', entered_by=self.user)
+        budget = Budget.objects.create(company=self.company, name='Travel budget', account=expense, start_date='2026-09-01', end_date='2026-09-30', amount=100, status='active')
+        self.assertEqual(budget.actual_spend, 75)
+        self.assertEqual(budget.remaining, 25)
+        claim = ExpenseClaim.objects.create(company=self.company, claimant=self.user, account=expense, expense_date='2026-09-11', description='Taxi', amount=20)
+        claim.submit()
+        self.assertEqual(claim.status, 'submitted')
+
+    def test_supplier_invoice_must_match_purchase_order_company_and_supplier(self):
+        supplier = Supplier.objects.create(company=self.company, name='Approved Supplier')
+        requisition = PurchaseRequisition.objects.create(company=self.company, requested_by=self.user, number='REQ-FIN-1')
+        order = PurchaseOrder.objects.create(company=self.company, requisition=requisition, supplier=supplier, number='PO-FIN-1', status='approved')
+        invoice = SupplierInvoice(company=self.company, purchase_order=order, invoice_number='SI-FIN-1', supplier_name='Wrong Supplier', date='2026-09-01', due_date='2026-09-30')
+        with self.assertRaises(ValidationError):
+            invoice.full_clean()

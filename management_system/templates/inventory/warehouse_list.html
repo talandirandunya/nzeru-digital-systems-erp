@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Warehouses{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Warehouses</h2>
+  <a href="{% url 'inventory:warehouse_create' %}" class="btn btn-primary">New warehouse</a>
+</div>
+<table class="table table-striped">
+  <thead><tr><th>Name</th><th>Code</th><th>Location</th><th>Manager</th></tr></thead>
+  <tbody>
+    {% for warehouse in warehouses %}
+    <tr>
+      <td>{{ warehouse.name }}</td>
+      <td>{{ warehouse.code|default:'—' }}</td>
+      <td>{{ warehouse.location|default:'—' }}</td>
+      <td>{{ warehouse.manager.get_full_name|default:warehouse.manager.email|default:'—' }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">No warehouses configured.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

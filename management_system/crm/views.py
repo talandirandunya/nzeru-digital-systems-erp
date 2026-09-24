@@ -154,7 +154,7 @@ def contact_detail(request, pk):
 def contact_create(request):
     company = request.user.company
     if request.method == 'POST':
-        form = ContactForm(request.POST)
+        form = ContactForm(request.POST, company=company)
         if form.is_valid():
             contact = form.save(commit=False)
             contact.company = company
@@ -162,7 +162,7 @@ def contact_create(request):
             messages.success(request, f'Contact "{contact.name}" created.')
             return redirect('crm:contact_detail', pk=contact.pk)
     else:
-        form = ContactForm()
+        form = ContactForm(company=company)
     return render(request, 'crm/contact_form.html', {'form': form, 'title': 'New Contact'})
 
 
@@ -171,13 +171,13 @@ def contact_edit(request, pk):
     company = request.user.company
     contact = get_object_or_404(Contact, pk=pk, company=company)
     if request.method == 'POST':
-        form = ContactForm(request.POST, instance=contact)
+        form = ContactForm(request.POST, instance=contact, company=company)
         if form.is_valid():
             form.save()
             messages.success(request, 'Contact updated.')
             return redirect('crm:contact_detail', pk=contact.pk)
     else:
-        form = ContactForm(instance=contact)
+        form = ContactForm(instance=contact, company=company)
     return render(request, 'crm/contact_form.html', {'form': form, 'title': 'Edit Contact'})
 
 

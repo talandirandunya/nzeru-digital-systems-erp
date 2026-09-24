@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db import transaction as db_transaction
+from django.utils import timezone
 
 # Create your models here.
 
@@ -40,6 +41,18 @@ class Account(models.Model):
             labels.insert(0, parent.name)
             parent = parent.parent
         return ' > '.join(labels)
+
+    def get_balance_at_date(self, report_date):
+        """Return the account balance from transactions through a date."""
+        credits = self.transactions.filter(date__lte=report_date, transaction_type='credit').aggregate(total=models.Sum('amount'))['total'] or 0
+        debits = self.transactions.filter(date__lte=report_date, transaction_type='debit').aggregate(total=models.Sum('amount'))['total'] or 0
+        return credits - debits
+
+    def get_balance_between_dates(self, start_date, end_date):
+        """Return the net transaction movement in an inclusive date range."""
+        credits = self.transactions.filter(date__range=(start_date, end_date), transaction_type='credit').aggregate(total=models.Sum('amount'))['total'] or 0
+        debits = self.transactions.filter(date__range=(start_date, end_date), transaction_type='debit').aggregate(total=models.Sum('amount'))['total'] or 0
+        return credits - debits
 
 
 class Transaction(models.Model):
@@ -122,6 +135,36 @@ class Journal(models.Model):
         return f"{self.name} ({self.get_journal_type_display()})"
 
 
+class AccountingPeriod(models.Model):
+    STATUS_CHOICES = [('open', 'Open'), ('closed', 'Closed')]
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, related_name='accounting_periods')
+    name = models.CharField(max_length=80)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='open', db_index=True)
+    closed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='closed_accounting_periods')
+    closed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('company', 'name'), name='unique_accounting_period_company_name')]
+        ordering = ('-start_date',)
+
+    def clean(self):
+        if self.end_date < self.start_date:
+            raise ValidationError('Accounting period end date must follow its start date.')
+
+    def contains(self, value):
+        return self.start_date <= value <= self.end_date
+
+    def close(self, user):
+        if self.status == 'closed':
+            raise ValidationError('Accounting period is already closed.')
+        self.status = 'closed'
+        self.closed_by = user
+        self.closed_at = timezone.now()
+        self.save(update_fields=['status', 'closed_by', 'closed_at'])
+
+
 class JournalEntry(models.Model):
     """A journal entry grouping balanced debit and credit lines."""
 
@@ -130,6 +173,9 @@ class JournalEntry(models.Model):
     reference = models.CharField(max_length=50, blank=True)
     description = models.TextField(blank=True)
     date = models.DateField()
+    STATUS_CHOICES = [('draft', 'Draft'), ('posted', 'Posted'), ('reversed', 'Reversed')]
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='draft', db_index=True)
+    reversed_entry = models.OneToOneField('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='reversal_of')
     entered_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -151,6 +197,43 @@ class JournalEntry(models.Model):
     def clean(self):
         if not self.is_balanced():
             raise ValidationError('Journal entry must be balanced before saving.')
+        if self.journal_id and self.journal.company_id != self.company_id:
+            raise ValidationError('Journal must belong to the same company.')
+        period = AccountingPeriod.objects.filter(company=self.company, start_date__lte=self.date, end_date__gte=self.date).first()
+        if period and period.status == 'closed' and self.status != 'reversed':
+            raise ValidationError('Journal entries cannot be changed in a closed accounting period.')
+
+    def post(self):
+        if self.status != 'draft' or not self.is_balanced() or not self.lines.exists():
+            raise ValidationError('Only balanced draft entries with lines can be posted.')
+        for line in self.lines.select_related('account'):
+            if line.posted_transaction_id:
+                continue
+            transaction = Transaction.objects.create(
+                company=self.company,
+                account=line.account,
+                transaction_type='debit' if line.debit > 0 else 'credit',
+                amount=line.debit or line.credit,
+                description=f'{self.reference or self.journal.name}: {line.description}'.strip(),
+                date=self.date,
+                entered_by=self.entered_by,
+            )
+            line.posted_transaction = transaction
+            line.save(update_fields=['posted_transaction'])
+        self.status = 'posted'
+        self.save(update_fields=['status'])
+
+    def reverse(self, user):
+        if self.status != 'posted':
+            raise ValidationError('Only posted entries can be reversed.')
+        reversal = JournalEntry.objects.create(company=self.company, journal=self.journal, reference=f'REV-{self.reference or self.pk}', description=f'Reversal of {self}', date=self.date, entered_by=user)
+        for line in self.lines.all():
+            JournalEntryLine.objects.create(entry=reversal, account=line.account, description=f'Reversal: {line.description}', debit=line.credit, credit=line.debit)
+        reversal.post()
+        self.status = 'reversed'
+        self.reversed_entry = reversal
+        self.save(update_fields=['status', 'reversed_entry'])
+        return reversal
 
 
 class JournalEntryLine(models.Model):
@@ -161,6 +244,7 @@ class JournalEntryLine(models.Model):
     description = models.CharField(max_length=200, blank=True)
     debit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     credit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    posted_transaction = models.OneToOneField(Transaction, on_delete=models.SET_NULL, null=True, blank=True, related_name='journal_line')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -172,6 +256,8 @@ class JournalEntryLine(models.Model):
         return f"{self.account} {side} {amount}"
 
     def clean(self):
+        if self.entry_id and self.entry.status in {'posted', 'reversed'} and self.pk is not None:
+            raise ValidationError('Posted or reversed journal entries cannot be edited.')
         if self.debit <= 0 and self.credit <= 0:
             raise ValidationError('Each line must have either a debit or a credit amount.')
         if self.debit > 0 and self.credit > 0:
@@ -180,6 +266,61 @@ class JournalEntryLine(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
+
+
+class Budget(models.Model):
+    STATUS_CHOICES = [('draft', 'Draft'), ('active', 'Active'), ('closed', 'Closed')]
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, related_name='budgets')
+    name = models.CharField(max_length=120)
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='budgets')
+    start_date = models.DateField()
+    end_date = models.DateField()
+    amount = models.DecimalField(max_digits=14, decimal_places=2, validators=[MinValueValidator(0)])
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='draft', db_index=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('company', 'name'), name='unique_budget_company_name')]
+
+    def clean(self):
+        if self.account_id and self.account.company_id != self.company_id:
+            raise ValidationError('Budget account must belong to the same company.')
+        if self.end_date < self.start_date:
+            raise ValidationError('Budget end date must follow its start date.')
+
+    @property
+    def actual_spend(self):
+        return self.account.transactions.filter(transaction_type='debit', date__range=(self.start_date, self.end_date)).aggregate(total=models.Sum('amount'))['total'] or 0
+
+    @property
+    def remaining(self):
+        return self.amount - self.actual_spend
+
+
+class ExpenseClaim(models.Model):
+    STATUS_CHOICES = [('draft', 'Draft'), ('submitted', 'Submitted'), ('approved', 'Approved'), ('rejected', 'Rejected'), ('paid', 'Paid')]
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, related_name='expense_claims')
+    claimant = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='expense_claims')
+    account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='expense_claims')
+    expense_date = models.DateField()
+    description = models.CharField(max_length=200)
+    amount = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0.01)])
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='draft', db_index=True)
+    receipt = models.FileField(upload_to='finance/expense-receipts/', blank=True)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_expense_claims')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        if self.account_id and self.account.company_id != self.company_id:
+            raise ValidationError('Expense account must belong to the same company.')
+        if self.claimant_id and self.claimant.company_id != self.company_id:
+            raise ValidationError('Claimant must belong to the same company.')
+
+    def submit(self):
+        if self.status != 'draft':
+            raise ValidationError('Only draft expense claims can be submitted.')
+        self.status = 'submitted'
+        self.save(update_fields=['status'])
 
 
 # ---------------------------------------------------------------------------
@@ -238,6 +379,24 @@ class ClientInvoice(models.Model):
         """Check if invoice can be marked as paid."""
         return self.status in ['validated', 'sent']
 
+    def validate_invoice(self):
+        if not self.can_validate():
+            raise ValidationError('Only draft invoices with lines can be validated.')
+        self.status = 'validated'
+        self.save(update_fields=['status', 'updated_at'])
+
+    def send_invoice(self):
+        if not self.can_send():
+            raise ValidationError('Only validated invoices can be sent.')
+        self.status = 'sent'
+        self.save(update_fields=['status', 'updated_at'])
+
+    def mark_paid(self):
+        if not self.can_pay():
+            raise ValidationError('Only validated or sent invoices can be paid.')
+        self.status = 'paid'
+        self.save(update_fields=['status', 'updated_at'])
+
 
 class SupplierInvoice(models.Model):
     """Supplier invoice with 2-step validation workflow."""
@@ -251,6 +410,7 @@ class SupplierInvoice(models.Model):
     ]
 
     company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, related_name='supplier_invoices')
+    purchase_order = models.ForeignKey('procurement.PurchaseOrder', on_delete=models.PROTECT, null=True, blank=True, related_name='finance_invoices')
     invoice_number = models.CharField(max_length=50)
     supplier_name = models.CharField(max_length=100)
     supplier_address = models.TextField(blank=True)
@@ -287,6 +447,12 @@ class SupplierInvoice(models.Model):
     def __str__(self):
         return f"SUP-{self.invoice_number} - {self.supplier_name}"
 
+    def clean(self):
+        if self.purchase_order_id and self.purchase_order.company_id != self.company_id:
+            raise ValidationError('Purchase order must belong to the same company.')
+        if self.purchase_order_id and self.supplier_name and self.purchase_order.supplier.name.lower() != self.supplier_name.lower():
+            raise ValidationError('Supplier invoice supplier must match the purchase order supplier.')
+
     def calculate_totals(self):
         """Calculate subtotal, tax, and total from lines."""
         self.subtotal = self.lines.aggregate(total=models.Sum('line_total'))['total'] or 0
@@ -304,6 +470,26 @@ class SupplierInvoice(models.Model):
     def can_pay(self):
         """Check if invoice can be marked as paid."""
         return self.status == 'validated_level2'
+
+    def validate_level1(self, user):
+        if not self.can_validate_level1():
+            raise ValidationError('Only draft supplier invoices with lines can be validated.')
+        self.status = 'validated_level1'
+        self.validated_by_level1 = user
+        self.save(update_fields=['status', 'validated_by_level1', 'updated_at'])
+
+    def validate_level2(self, user):
+        if not self.can_validate_level2() or self.validated_by_level1_id == user.pk:
+            raise ValidationError('A level 1 validated invoice requires a different level 2 approver.')
+        self.status = 'validated_level2'
+        self.validated_by_level2 = user
+        self.save(update_fields=['status', 'validated_by_level2', 'updated_at'])
+
+    def mark_paid(self):
+        if not self.can_pay():
+            raise ValidationError('Only level 2 validated invoices can be paid.')
+        self.status = 'paid'
+        self.save(update_fields=['status', 'updated_at'])
 
 
 class InvoiceLine(models.Model):
@@ -378,8 +564,8 @@ class BankStatement(models.Model):
 
     bank_account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='statements')
     statement_date = models.DateField()
-    opening_balance = models.DecimalField(max_digits=12, decimal_places=2)
-    closing_balance = models.DecimalField(max_digits=12, decimal_places=2)
+    opening_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    closing_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     imported_at = models.DateTimeField(auto_now_add=True)
     imported_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
@@ -479,7 +665,7 @@ class ReportLine(models.Model):
     """Individual line in a financial report."""
 
     report = models.ForeignKey(FinancialReport, on_delete=models.CASCADE, related_name='lines')
-    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='report_lines')
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='report_lines', null=True, blank=True)
     description = models.CharField(max_length=200)
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     line_type = models.CharField(max_length=20, choices=[
@@ -490,8 +676,20 @@ class ReportLine(models.Model):
         ('expense', 'Expense'),
         ('header', 'Header'),
         ('subtotal', 'Subtotal'),
+        ('total', 'Total'),
+        ('net_income', 'Net Income'),
+        ('operating', 'Operating'),
+        ('net_change', 'Net Change'),
     ])
     order = models.PositiveIntegerField(default=0)
+
+    @property
+    def label(self):
+        return self.description
+
+    @property
+    def is_total(self):
+        return self.line_type in {'total', 'net_income', 'net_change'}
 
     class Meta:
         ordering = ['order', 'account__code']

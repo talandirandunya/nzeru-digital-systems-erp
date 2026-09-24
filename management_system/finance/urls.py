@@ -32,6 +32,18 @@ urlpatterns = [
     path('journal-entries/<int:pk>/', views.journal_entry_detail, name='journal_entry_detail'),
     path('journal-entries/<int:pk>/edit/', views.journal_entry_edit, name='journal_entry_edit'),
     path('journal-entries/<int:pk>/delete/', views.journal_entry_delete, name='journal_entry_delete'),
+    path('journal-entries/<int:pk>/post/', views.journal_entry_post, name='journal_entry_post'),
+    path('journal-entries/<int:pk>/reverse/', views.journal_entry_reverse, name='journal_entry_reverse'),
+
+    # Accounting controls and spending
+    path('periods/', views.accounting_period_list, name='accounting_period_list'),
+    path('periods/new/', views.accounting_period_create, name='accounting_period_create'),
+    path('periods/<int:pk>/close/', views.accounting_period_close, name='accounting_period_close'),
+    path('budgets/', views.budget_list, name='budget_list'),
+    path('budgets/new/', views.budget_create, name='budget_create'),
+    path('expenses/', views.expense_claim_list, name='expense_claim_list'),
+    path('expenses/new/', views.expense_claim_create, name='expense_claim_create'),
+    path('expenses/<int:pk>/<str:action>/', views.expense_claim_action, name='expense_claim_action'),
 
     # Client invoices
     path('client-invoices/', views.client_invoice_list, name='client_invoice_list'),
@@ -40,11 +52,13 @@ urlpatterns = [
     path('client-invoices/<int:pk>/edit/', views.client_invoice_edit, name='client_invoice_edit'),
     path('client-invoices/<int:pk>/delete/', views.client_invoice_delete, name='client_invoice_delete'),
     path('client-invoices/<int:pk>/print/', views.client_invoice_print, name='client_invoice_print'),
+    path('client-invoices/<int:pk>/<str:action>/', views.client_invoice_action, name='client_invoice_action'),
 
     # Supplier invoices
     path('supplier-invoices/', views.supplier_invoice_list, name='supplier_invoice_list'),
     path('supplier-invoices/new/', views.supplier_invoice_create, name='supplier_invoice_create'),
     path('supplier-invoices/<int:pk>/', views.supplier_invoice_detail, name='supplier_invoice_detail'),
+    path('supplier-invoices/<int:pk>/<str:action>/', views.supplier_invoice_action, name='supplier_invoice_action'),
     path('supplier-invoices/<int:pk>/edit/', views.supplier_invoice_edit, name='supplier_invoice_edit'),
     path('supplier-invoices/<int:pk>/delete/', views.supplier_invoice_delete, name='supplier_invoice_delete'),
 

@@ -37,6 +37,8 @@ from .forms import (
     PerformanceGoalForm, PerformanceReviewForm, PerformanceReviewCommentForm,
     TrainingCourseForm, TrainingSessionForm, EmployeeTrainingForm,
     TrainingCompletionForm, SkillForm, EmployeeSkillForm, AttendanceRecordForm,
+    JobOpeningForm, ApplicantForm, JobApplicationForm, EmployeeDocumentForm,
+    BenefitPlanForm, EmployeeBenefitForm, DisciplinaryCaseForm,
 )
 from .models import (
     LeaveRequest, Position, SalaryComponent, PayrollPeriod, PayrollEntry,
@@ -44,6 +46,8 @@ from .models import (
     PerformanceGoal, PerformanceReview, PerformanceReviewComment,
     TrainingCourse, TrainingSession, EmployeeTraining, Skill, EmployeeSkill,
     AttendanceRecord,
+    JobOpening, Applicant, JobApplication, EmployeeDocument, BenefitPlan,
+    EmployeeBenefit, DisciplinaryCase,
 )
 
 HR_ROLES = ['admin', 'hr_manager']
@@ -210,8 +214,140 @@ def index(request):
         'recent_reviews': recent_reviews,
         'leave_by_type': leave_by_type,
         'today': today,
+        'open_job_count': JobOpening.objects.filter(company=company, status='open').count(),
+        'active_employee_count': Employee.objects.filter(company=company, status='active').count(),
+        'application_count': JobApplication.objects.filter(opening__company=company).exclude(status__in=['rejected', 'withdrawn']).count(),
+        'document_expiry_count': EmployeeDocument.objects.filter(company=company, expiry_date__isnull=False, expiry_date__lte=today + timedelta(days=30)).count(),
+        'active_benefit_count': EmployeeBenefit.objects.filter(plan__company=company, status='active').count(),
+        'open_disciplinary_count': DisciplinaryCase.objects.filter(company=company, status__in=['open', 'investigating']).count(),
     }
     return render(request, 'hr/index.html', context)
+
+
+# ---------------------------------------------------------------------------
+# Recruitment, employee documents, benefits, and employee relations
+# ---------------------------------------------------------------------------
+
+@role_required(*HR_ROLES)
+def job_opening_list(request):
+    openings = JobOpening.objects.filter(company=request.user.company).select_related('position').annotate(application_count=Count('applications'))
+    return render(request, 'hr/job_opening_list.html', {'openings': openings})
+
+
+@role_required(*HR_ROLES)
+def job_opening_create(request):
+    form = JobOpeningForm(request.POST or None, company=request.user.company)
+    if request.method == 'POST' and form.is_valid():
+        opening = form.save(commit=False)
+        opening.company = request.user.company
+        opening.created_by = request.user
+        opening.save()
+        return redirect('hr:job_opening_list')
+    return render(request, 'hr/simple_form.html', {'form': form, 'title': 'New job opening'})
+
+
+@role_required(*HR_ROLES)
+def applicant_list(request):
+    applicants = Applicant.objects.filter(company=request.user.company).prefetch_related('applications')
+    return render(request, 'hr/applicant_list.html', {'applicants': applicants})
+
+
+@role_required(*HR_ROLES)
+def applicant_create(request):
+    form = ApplicantForm(request.POST or None, request.FILES or None)
+    if request.method == 'POST' and form.is_valid():
+        applicant = form.save(commit=False)
+        applicant.company = request.user.company
+        applicant.save()
+        return redirect('hr:applicant_list')
+    return render(request, 'hr/simple_form.html', {'form': form, 'title': 'New applicant'})
+
+
+@role_required(*HR_ROLES)
+def application_list(request):
+    applications = JobApplication.objects.filter(opening__company=request.user.company).select_related('opening', 'applicant')
+    return render(request, 'hr/application_list.html', {'applications': applications})
+
+
+@role_required(*HR_ROLES)
+def application_create(request):
+    form = JobApplicationForm(request.POST or None, company=request.user.company)
+    if request.method == 'POST' and form.is_valid():
+        application = form.save()
+        if application.opening.company_id != request.user.company_id:
+            raise ValidationError('Application belongs to another company.')
+        return redirect('hr:application_list')
+    return render(request, 'hr/simple_form.html', {'form': form, 'title': 'New job application'})
+
+
+@role_required(*HR_ROLES)
+def employee_document_list(request):
+    documents = EmployeeDocument.objects.filter(company=request.user.company).select_related('employee', 'uploaded_by')
+    return render(request, 'hr/employee_document_list.html', {'documents': documents})
+
+
+@role_required(*HR_ROLES)
+def employee_document_create(request):
+    form = EmployeeDocumentForm(request.POST or None, request.FILES or None, company=request.user.company)
+    if request.method == 'POST' and form.is_valid():
+        document = form.save(commit=False)
+        document.company = request.user.company
+        document.uploaded_by = request.user
+        document.save()
+        return redirect('hr:employee_document_list')
+    return render(request, 'hr/simple_form.html', {'form': form, 'title': 'Upload employee document', 'multipart': True})
+
+
+@role_required(*HR_ROLES)
+def benefit_plan_list(request):
+    plans = BenefitPlan.objects.filter(company=request.user.company).annotate(enrollment_count=Count('enrollments', filter=Q(enrollments__status='active')))
+    return render(request, 'hr/benefit_plan_list.html', {'plans': plans})
+
+
+@role_required(*HR_ROLES)
+def benefit_plan_create(request):
+    form = BenefitPlanForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        plan = form.save(commit=False)
+        plan.company = request.user.company
+        plan.save()
+        return redirect('hr:benefit_plan_list')
+    return render(request, 'hr/simple_form.html', {'form': form, 'title': 'New benefit plan'})
+
+
+@role_required(*HR_ROLES)
+def employee_benefit_list(request):
+    benefits = EmployeeBenefit.objects.filter(plan__company=request.user.company).select_related('employee', 'plan')
+    return render(request, 'hr/employee_benefit_list.html', {'benefits': benefits})
+
+
+@role_required(*HR_ROLES)
+def employee_benefit_create(request):
+    form = EmployeeBenefitForm(request.POST or None, company=request.user.company)
+    if request.method == 'POST' and form.is_valid():
+        benefit = form.save()
+        if benefit.plan.company_id != request.user.company_id:
+            raise ValidationError('Benefit belongs to another company.')
+        return redirect('hr:employee_benefit_list')
+    return render(request, 'hr/simple_form.html', {'form': form, 'title': 'Enroll employee in benefit'})
+
+
+@role_required(*HR_ROLES)
+def disciplinary_case_list(request):
+    cases = DisciplinaryCase.objects.filter(company=request.user.company).select_related('employee', 'opened_by')
+    return render(request, 'hr/disciplinary_case_list.html', {'cases': cases})
+
+
+@role_required(*HR_ROLES)
+def disciplinary_case_create(request):
+    form = DisciplinaryCaseForm(request.POST or None, company=request.user.company)
+    if request.method == 'POST' and form.is_valid():
+        case = form.save(commit=False)
+        case.company = request.user.company
+        case.opened_by = request.user
+        case.save()
+        return redirect('hr:disciplinary_case_list')
+    return render(request, 'hr/simple_form.html', {'form': form, 'title': 'New disciplinary case'})
 
 
 # ---------------------------------------------------------------------------
@@ -711,6 +847,18 @@ def payroll_period_process(request, pk):
     except Exception as e:
         messages.error(request, f'Error processing payroll: {str(e)}')
 
+    return redirect('hr:payroll_period_detail', pk=period.pk)
+
+
+@role_required(*HR_ROLES)
+@require_POST
+def payroll_period_post_to_finance(request, pk):
+    period = get_object_or_404(PayrollPeriod, pk=pk, company=request.user.company)
+    try:
+        entry = period.post_to_finance(request.user)
+        messages.success(request, f'Payroll posted to finance as {entry.reference}.')
+    except ValidationError as exc:
+        messages.error(request, str(exc))
     return redirect('hr:payroll_period_detail', pk=period.pk)
 
 

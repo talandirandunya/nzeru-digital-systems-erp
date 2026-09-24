@@ -95,6 +95,36 @@ class UserApprovalAuthority(models.Model):
         return True
 
 
+class ApprovalDelegation(models.Model):
+    """Temporary transfer of a specific approval authority to another user."""
+
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, related_name='approval_delegations')
+    delegator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='approval_delegations_given')
+    delegate = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='approval_delegations_received')
+    transaction_type = models.CharField(max_length=100)
+    capability = models.CharField(max_length=100, default='approvals.decide', choices=[(value, value) for value in CAPABILITIES])
+    department = models.CharField(max_length=100, blank=True)
+    branch = models.CharField(max_length=100, blank=True)
+    starts_at = models.DateTimeField()
+    ends_at = models.DateTimeField()
+    enabled = models.BooleanField(default=True)
+    reason = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('delegator', 'delegate', 'transaction_type', 'starts_at'), name='unique_approval_delegation')]
+        indexes = [models.Index(fields=('company', 'delegate', 'transaction_type', 'enabled'))]
+
+    def clean(self):
+        if self.delegator_id == self.delegate_id:
+            raise ValidationError('An approver cannot delegate to themselves.')
+        if self.delegator_id and self.delegate_id:
+            if self.delegator.company_id != self.company_id or self.delegate.company_id != self.company_id:
+                raise ValidationError('Delegator and delegate must belong to the same company.')
+        if self.ends_at <= self.starts_at:
+            raise ValidationError('Delegation end must be after its start.')
+
+
 class ApprovalWorkflow(models.Model):
     """Company configuration for a transaction approval route."""
 
@@ -105,6 +135,8 @@ class ApprovalWorkflow(models.Model):
     applies_from = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     applies_to = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     allow_self_approval = models.BooleanField(default=False)
+    reminder_after_hours = models.PositiveIntegerField(default=24)
+    escalation_after_hours = models.PositiveIntegerField(default=72)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -123,6 +155,7 @@ class ApprovalStep(models.Model):
     role = models.CharField(max_length=30, blank=True)
     capability = models.CharField(max_length=100, blank=True)
     department = models.CharField(max_length=100, blank=True)
+    branch = models.CharField(max_length=100, blank=True)
     min_amount = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     max_amount = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     approval_limit = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
@@ -132,10 +165,14 @@ class ApprovalStep(models.Model):
         ordering = ('sequence',)
         constraints = [models.UniqueConstraint(fields=('workflow', 'sequence'), name='unique_approval_step_sequence')]
 
-    def matches(self, user, amount):
+    def matches(self, user, amount, department='', branch=''):
         if self.role and user.role != self.role:
             return False
         if self.department and user.department != self.department:
+            return False
+        if self.department and self.department != department:
+            return False
+        if self.branch and self.branch != branch:
             return False
         if self.capability and not has_capability(user, self.capability):
             return False
@@ -166,6 +203,7 @@ class ApprovalRequest(models.Model):
     target = GenericForeignKey('content_type', 'object_id')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
     current_step = models.PositiveIntegerField(default=1)
+    workflow_snapshot = models.JSONField(default=dict)
     submitted_at = models.DateTimeField(default=timezone.now)
     completed_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)

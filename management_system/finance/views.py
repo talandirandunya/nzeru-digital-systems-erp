@@ -11,11 +11,15 @@ Views:
 """
 
 from datetime import date, timedelta
+from decimal import Decimal
 
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from accounts.decorators import role_required
 from governance.models import AuditEvent
@@ -36,8 +40,9 @@ from .forms import (
     TransactionMatchingForm,
     FinancialReportForm,
     MarketplaceFinanceSettingsForm,
+    AccountingPeriodForm, BudgetForm, ExpenseClaimForm,
 )
-from .models import Account, Journal, JournalEntry, Transaction, ClientInvoice, SupplierInvoice, BankAccount, BankStatement, BankTransaction, Reconciliation, FinancialReport, ReportLine, MarketplaceFinanceSettings
+from .models import Account, AccountingPeriod, Budget, ExpenseClaim, Journal, JournalEntry, Transaction, ClientInvoice, SupplierInvoice, BankAccount, BankStatement, BankTransaction, Reconciliation, FinancialReport, ReportLine, MarketplaceFinanceSettings
 
 FINANCE_ROLES = ('admin', 'accountant', 'manager')
 
@@ -85,6 +90,11 @@ def index(request):
         'top_accounts': top_accounts,
         'today': today,
         'marketplace_finance_settings': marketplace_finance_settings,
+        'open_expense_claims': ExpenseClaim.objects.filter(company=company, status='submitted').count(),
+        'active_budgets': Budget.objects.filter(company=company, status='active').count(),
+        'open_periods': AccountingPeriod.objects.filter(company=company, status='open').count(),
+        'unpaid_client_invoices': ClientInvoice.objects.filter(company=company, status__in=['validated', 'sent']).count(),
+        'unpaid_supplier_invoices': SupplierInvoice.objects.filter(company=company, status='validated_level2').count(),
     }
     return render(request, 'finance/index.html', context)
 
@@ -433,6 +443,9 @@ def journal_entry_detail(request, pk):
 def journal_entry_edit(request, pk):
     company = request.user.company
     entry = get_object_or_404(JournalEntry, pk=pk, company=company)
+    if entry.status != 'draft':
+        messages.error(request, 'Only draft journal entries can be edited.')
+        return redirect('finance:journal_entry_detail', pk=entry.pk)
     if request.method == 'POST':
         form = JournalEntryForm(request.POST, instance=entry, company=company)
         formset = JournalEntryLineFormSet(request.POST, instance=entry, company=company)
@@ -455,12 +468,124 @@ def journal_entry_edit(request, pk):
 def journal_entry_delete(request, pk):
     company = request.user.company
     entry = get_object_or_404(JournalEntry, pk=pk, company=company)
+    if entry.status != 'draft':
+        messages.error(request, 'Only draft journal entries can be deleted.')
+        return redirect('finance:journal_entry_detail', pk=entry.pk)
     if request.method == 'POST':
         date_str = entry.date.strftime('%Y-%m-%d')
         entry.delete()
         messages.success(request, f'Journal entry from {date_str} deleted.')
         return redirect('finance:journal_entry_list')
     return render(request, 'finance/journal_entry_confirm_delete.html', {'entry': entry})
+
+
+@role_required(*FINANCE_ROLES)
+@require_POST
+def journal_entry_post(request, pk):
+    entry = get_object_or_404(JournalEntry, pk=pk, company=request.user.company)
+    try:
+        entry.post()
+        messages.success(request, 'Journal entry posted and locked.')
+    except ValidationError as exc:
+        messages.error(request, str(exc))
+    return redirect('finance:journal_entry_detail', pk=entry.pk)
+
+
+@role_required(*FINANCE_ROLES)
+@require_POST
+def journal_entry_reverse(request, pk):
+    entry = get_object_or_404(JournalEntry, pk=pk, company=request.user.company)
+    try:
+        reversal = entry.reverse(request.user)
+        messages.success(request, f'Journal entry reversed with {reversal.reference}.')
+    except ValidationError as exc:
+        messages.error(request, str(exc))
+    return redirect('finance:journal_entry_detail', pk=entry.pk)
+
+
+@role_required(*FINANCE_ROLES)
+def accounting_period_list(request):
+    periods = AccountingPeriod.objects.filter(company=request.user.company)
+    return render(request, 'finance/accounting_period_list.html', {'periods': periods})
+
+
+@role_required(*FINANCE_ROLES)
+def accounting_period_create(request):
+    form = AccountingPeriodForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        period = form.save(commit=False)
+        period.company = request.user.company
+        period.save()
+        return redirect('finance:accounting_period_list')
+    return render(request, 'finance/accounting_period_form.html', {'form': form, 'title': 'New accounting period'})
+
+
+@role_required(*FINANCE_ROLES)
+@require_POST
+def accounting_period_close(request, pk):
+    period = get_object_or_404(AccountingPeriod, pk=pk, company=request.user.company)
+    try:
+        period.close(request.user)
+        messages.success(request, 'Accounting period closed.')
+    except ValidationError as exc:
+        messages.error(request, str(exc))
+    return redirect('finance:accounting_period_list')
+
+
+@role_required(*FINANCE_ROLES)
+def budget_list(request):
+    budgets = Budget.objects.filter(company=request.user.company).select_related('account')
+    return render(request, 'finance/budget_list.html', {'budgets': budgets})
+
+
+@role_required(*FINANCE_ROLES)
+def budget_create(request):
+    form = BudgetForm(request.POST or None, company=request.user.company)
+    if request.method == 'POST' and form.is_valid():
+        budget = form.save(commit=False)
+        budget.company = request.user.company
+        budget.save()
+        return redirect('finance:budget_list')
+    return render(request, 'finance/budget_form.html', {'form': form, 'title': 'New budget'})
+
+
+@role_required(*FINANCE_ROLES)
+def expense_claim_list(request):
+    claims = ExpenseClaim.objects.filter(company=request.user.company).select_related('claimant', 'account', 'reviewed_by')
+    return render(request, 'finance/expense_claim_list.html', {'claims': claims})
+
+
+@role_required(*FINANCE_ROLES)
+def expense_claim_create(request):
+    form = ExpenseClaimForm(request.POST or None, request.FILES or None, company=request.user.company)
+    if request.method == 'POST' and form.is_valid():
+        claim = form.save(commit=False)
+        claim.company = request.user.company
+        claim.claimant = request.user
+        claim.save()
+        return redirect('finance:expense_claim_list')
+    return render(request, 'finance/expense_claim_form.html', {'form': form, 'title': 'New expense claim'})
+
+
+@role_required(*FINANCE_ROLES)
+@require_POST
+def expense_claim_action(request, pk, action):
+    claim = get_object_or_404(ExpenseClaim, pk=pk, company=request.user.company)
+    try:
+        if action == 'submit':
+            claim.submit()
+        elif action == 'approve' and claim.status == 'submitted':
+            claim.status = 'approved'; claim.reviewed_by = request.user; claim.reviewed_at = timezone.now(); claim.save(update_fields=['status', 'reviewed_by', 'reviewed_at'])
+        elif action == 'pay' and claim.status == 'approved':
+            claim.status = 'paid'; claim.save(update_fields=['status'])
+        elif action == 'reject' and claim.status == 'submitted':
+            claim.status = 'rejected'; claim.reviewed_by = request.user; claim.reviewed_at = timezone.now(); claim.save(update_fields=['status', 'reviewed_by', 'reviewed_at'])
+        else:
+            raise ValidationError('This expense claim action is not allowed.')
+        messages.success(request, 'Expense claim updated.')
+    except ValidationError as exc:
+        messages.error(request, str(exc))
+    return redirect('finance:expense_claim_list')
 
 
 # ---------------------------------------------------------------------------
@@ -508,7 +633,7 @@ def client_invoice_create(request):
                     user=user,
                     notification_type='client_invoice_created',
                     title=f'New Client Invoice: {invoice.invoice_number}',
-                    message=f'Client invoice "{invoice.invoice_number}" for {invoice.client.name} has been created. Amount: MWK {invoice.total_amount}.',
+                    message=f'Client invoice "{invoice.invoice_number}" for {invoice.client_name} has been created. Amount: MWK {invoice.total}.',
                     related_object=invoice
                 )
 
@@ -532,6 +657,28 @@ def client_invoice_detail(request, pk):
         'invoice': invoice,
         'lines': lines,
     })
+
+
+@role_required(*FINANCE_ROLES)
+@require_POST
+def client_invoice_action(request, pk, action):
+    invoice = get_object_or_404(ClientInvoice, pk=pk, company=request.user.company)
+    try:
+        if action == 'validate':
+            invoice.validate_invoice()
+        elif action == 'send':
+            invoice.send_invoice()
+        elif action == 'pay':
+            invoice.mark_paid()
+        elif action == 'cancel' and invoice.status != 'paid':
+            invoice.status = 'cancelled'
+            invoice.save(update_fields=['status', 'updated_at'])
+        else:
+            raise ValidationError('This invoice action is not allowed.')
+        messages.success(request, f'Client invoice {invoice.invoice_number} updated.')
+    except ValidationError as exc:
+        messages.error(request, str(exc))
+    return redirect('finance:client_invoice_detail', pk=invoice.pk)
 
 
 @role_required(*FINANCE_ROLES)
@@ -632,7 +779,7 @@ def supplier_invoice_create(request):
                     user=accountant,
                     notification_type='supplier_invoice_created',
                     title=f'New Supplier Invoice: {invoice.invoice_number}',
-                    message=f'Supplier invoice "{invoice.invoice_number}" from {invoice.supplier.name} requires payment. Amount: MWK {invoice.total_amount}.',
+                    message=f'Supplier invoice "{invoice.invoice_number}" from {invoice.supplier_name} requires payment. Amount: MWK {invoice.total}.',
                     related_object=invoice
                 )
 
@@ -656,6 +803,28 @@ def supplier_invoice_detail(request, pk):
         'invoice': invoice,
         'lines': lines,
     })
+
+
+@role_required(*FINANCE_ROLES)
+@require_POST
+def supplier_invoice_action(request, pk, action):
+    invoice = get_object_or_404(SupplierInvoice, pk=pk, company=request.user.company)
+    try:
+        if action == 'validate-level1':
+            invoice.validate_level1(request.user)
+        elif action == 'validate-level2':
+            invoice.validate_level2(request.user)
+        elif action == 'pay':
+            invoice.mark_paid()
+        elif action == 'cancel' and invoice.status != 'paid':
+            invoice.status = 'cancelled'
+            invoice.save(update_fields=['status', 'updated_at'])
+        else:
+            raise ValidationError('This supplier invoice action is not allowed.')
+        messages.success(request, f'Supplier invoice {invoice.invoice_number} updated.')
+    except ValidationError as exc:
+        messages.error(request, str(exc))
+    return redirect('finance:supplier_invoice_detail', pk=invoice.pk)
 
 
 @role_required(*FINANCE_ROLES)
@@ -791,7 +960,9 @@ def bank_statement_upload(request):
             statement = BankStatement.objects.create(
                 bank_account=bank_account,
                 statement_date=statement_date,
-                file_name=statement_file.name,
+                opening_balance=bank_account.current_balance or bank_account.opening_balance,
+                closing_balance=bank_account.current_balance or bank_account.opening_balance,
+                imported_by=request.user,
             )
 
             # Process the file (CSV or MT940)
@@ -893,7 +1064,7 @@ def bank_reconciliation_detail(request, pk):
 
             # Mark as reconciled
             bank_transaction.reconciled = True
-            bank_transaction.matched_transaction = accounting_transaction
+            bank_transaction.reconciled_transaction = accounting_transaction
             bank_transaction.save()
 
             messages.success(request, 'Transaction matched successfully.')
@@ -972,7 +1143,7 @@ def financial_report_detail(request, pk):
     company = request.user.company
     report = get_object_or_404(FinancialReport, pk=pk, company=company)
 
-    report_lines = ReportLine.objects.filter(report=report).order_by('line_number')
+    report_lines = ReportLine.objects.filter(report=report).order_by('order', 'account__code')
 
     context = {
         'report': report,
@@ -1023,16 +1194,20 @@ def process_csv_statement(statement, file):
 
     file_wrapper = TextIOWrapper(file.file, encoding='utf-8')
     reader = csv.DictReader(file_wrapper)
-
+    running_balance = statement.opening_balance
     for row in reader:
-        # Assuming CSV format: date,description,amount
-        # Adjust field names based on actual CSV structure
+        amount = Decimal(row.get('amount') or '0')
+        running_balance += amount
         BankTransaction.objects.create(
             statement=statement,
-            date=row.get('date'),
-            description=row.get('description'),
-            amount=row.get('amount'),
+            date=row.get('date') or statement.statement_date,
+            description=row.get('description') or row.get('memo') or 'Imported transaction',
+            amount=amount,
+            balance=Decimal(row.get('balance') or running_balance),
+            reference=row.get('reference') or row.get('ref') or '',
         )
+    statement.closing_balance = running_balance
+    statement.save(update_fields=['closing_balance'])
 
 
 def process_mt940_statement(statement, file):
@@ -1044,6 +1219,7 @@ def process_mt940_statement(statement, file):
         date=statement.statement_date,
         description="MT940 import - placeholder",
         amount=0,
+        balance=statement.opening_balance,
     )
 
 
@@ -1065,8 +1241,8 @@ def generate_balance_sheet(report):
         if balance != 0:
             ReportLine.objects.create(
                 report=report,
-                line_number=line_number,
-                label=f"{account.code} - {account.name}",
+                order=line_number,
+                description=f"{account.code} - {account.name}",
                 amount=balance,
                 line_type='asset',
             )
@@ -1076,11 +1252,10 @@ def generate_balance_sheet(report):
     # Total Assets
     ReportLine.objects.create(
         report=report,
-        line_number=line_number,
-        label="Total Assets",
+        order=line_number,
+        description="Total Assets",
         amount=total_assets,
         line_type='total',
-        is_total=True,
     )
     line_number += 1
 
@@ -1097,8 +1272,8 @@ def generate_balance_sheet(report):
         if balance != 0:
             ReportLine.objects.create(
                 report=report,
-                line_number=line_number,
-                label=f"{account.code} - {account.name}",
+                order=line_number,
+                description=f"{account.code} - {account.name}",
                 amount=balance,
                 line_type='liability',
             )
@@ -1118,8 +1293,8 @@ def generate_balance_sheet(report):
         if balance != 0:
             ReportLine.objects.create(
                 report=report,
-                line_number=line_number,
-                label=f"{account.code} - {account.name}",
+                order=line_number,
+                description=f"{account.code} - {account.name}",
                 amount=balance,
                 line_type='equity',
             )
@@ -1129,11 +1304,10 @@ def generate_balance_sheet(report):
     # Total Liabilities & Equity
     ReportLine.objects.create(
         report=report,
-        line_number=line_number,
-        label="Total Liabilities & Equity",
+        order=line_number,
+        description="Total Liabilities & Equity",
         amount=total_liabilities + total_equity,
         line_type='total',
-        is_total=True,
     )
 
 
@@ -1157,8 +1331,8 @@ def generate_income_statement(report):
         if balance != 0:
             ReportLine.objects.create(
                 report=report,
-                line_number=line_number,
-                label=f"{account.code} - {account.name}",
+                order=line_number,
+                description=f"{account.code} - {account.name}",
                 amount=balance,
                 line_type='revenue',
             )
@@ -1168,11 +1342,10 @@ def generate_income_statement(report):
     # Total Revenue
     ReportLine.objects.create(
         report=report,
-        line_number=line_number,
-        label="Total Revenue",
+        order=line_number,
+        description="Total Revenue",
         amount=total_revenue,
         line_type='total',
-        is_total=True,
     )
     line_number += 1
 
@@ -1189,8 +1362,8 @@ def generate_income_statement(report):
         if balance != 0:
             ReportLine.objects.create(
                 report=report,
-                line_number=line_number,
-                label=f"{account.code} - {account.name}",
+                order=line_number,
+                description=f"{account.code} - {account.name}",
                 amount=balance,
                 line_type='expense',
             )
@@ -1200,11 +1373,10 @@ def generate_income_statement(report):
     # Total Expenses
     ReportLine.objects.create(
         report=report,
-        line_number=line_number,
-        label="Total Expenses",
+        order=line_number,
+        description="Total Expenses",
         amount=total_expenses,
         line_type='total',
-        is_total=True,
     )
     line_number += 1
 
@@ -1212,11 +1384,10 @@ def generate_income_statement(report):
     net_income = total_revenue - total_expenses
     ReportLine.objects.create(
         report=report,
-        line_number=line_number,
-        label="Net Income",
+        order=line_number,
+        description="Net Income",
         amount=net_income,
         line_type='net_income',
-        is_total=True,
     )
 
 
@@ -1240,8 +1411,8 @@ def generate_cash_flow_statement(report):
         if balance != 0:
             ReportLine.objects.create(
                 report=report,
-                line_number=line_number,
-                label=f"{account.code} - {account.name}",
+                order=line_number,
+                description=f"{account.code} - {account.name}",
                 amount=balance,
                 line_type='operating',
             )
@@ -1251,42 +1422,38 @@ def generate_cash_flow_statement(report):
     # Net Cash from Operating Activities
     ReportLine.objects.create(
         report=report,
-        line_number=line_number,
-        label="Net Cash from Operating Activities",
+        order=line_number,
+        description="Net Cash from Operating Activities",
         amount=cash_from_operations,
         line_type='total',
-        is_total=True,
     )
     line_number += 1
 
     # Investing Activities (placeholder)
     ReportLine.objects.create(
         report=report,
-        line_number=line_number,
-        label="Net Cash from Investing Activities",
+        order=line_number,
+        description="Net Cash from Investing Activities",
         amount=0,
         line_type='total',
-        is_total=True,
     )
     line_number += 1
 
     # Financing Activities (placeholder)
     ReportLine.objects.create(
         report=report,
-        line_number=line_number,
-        label="Net Cash from Financing Activities",
+        order=line_number,
+        description="Net Cash from Financing Activities",
         amount=0,
         line_type='total',
-        is_total=True,
     )
     line_number += 1
 
     # Net Change in Cash
     ReportLine.objects.create(
         report=report,
-        line_number=line_number,
-        label="Net Change in Cash",
+        order=line_number,
+        description="Net Change in Cash",
         amount=cash_from_operations,
         line_type='net_change',
-        is_total=True,
     )

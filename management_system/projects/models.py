@@ -100,8 +100,19 @@ class Project(models.Model):
         return f'{self.name} ({self.company.name})'
 
     def clean(self):
+        errors = {}
         if self.start_date and self.end_date and self.start_date > self.end_date:
-            raise ValidationError({'end_date': 'End date must be after start date.'})
+            errors['end_date'] = 'End date must be after start date.'
+        if self.manager_id and self.company_id and self.manager.company_id != self.company_id:
+            errors['manager'] = 'Project manager must belong to the same company as the project.'
+        if self.created_by_id and self.company_id and self.created_by.company_id != self.company_id:
+            errors['created_by'] = 'Project creator must belong to the same company as the project.'
+        if self.pk and self.company_id:
+            foreign_team_members = self.team_members.exclude(company_id=self.company_id).exists()
+            if foreign_team_members:
+                errors['team_members'] = 'All team members must belong to the same company as the project.'
+        if errors:
+            raise ValidationError(errors)
 
     # ------------------------------------------------------------------
     # Computed properties
@@ -242,8 +253,22 @@ class SousTache(models.Model):
         return f'{self.titre} — {self.get_status_display()}'
 
     def clean(self):
+        errors = {}
         if self.date_debut and self.date_echeance and self.date_debut > self.date_echeance:
-            raise ValidationError({'date_echeance': 'Due date must be after start date.'})
+            errors['date_echeance'] = 'Due date must be after start date.'
+        if self.projet_id and self.company_id and self.projet.company_id != self.company_id:
+            errors['projet'] = 'Task project must belong to the same company as the task.'
+        if self.assigne_a_id and self.company_id and self.assigne_a.company_id != self.company_id:
+            errors['assigne_a'] = 'Task assignee must belong to the same company as the task.'
+        if self.depend_de_id:
+            if self.depend_de_id == self.pk:
+                errors['depend_de'] = 'A task cannot depend on itself.'
+            elif self.projet_id and self.depend_de.projet_id != self.projet_id:
+                errors['depend_de'] = 'Task dependency must belong to the same project.'
+            elif self.company_id and self.depend_de.company_id != self.company_id:
+                errors['depend_de'] = 'Task dependency must belong to the same company.'
+        if errors:
+            raise ValidationError(errors)
 
     # ------------------------------------------------------------------
     # Status transition
@@ -301,6 +326,15 @@ class CommentaireTache(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+    def clean(self):
+        errors = {}
+        if self.tache_id and self.company_id and self.tache.company_id != self.company_id:
+            errors['tache'] = 'Comment task must belong to the same company as the comment.'
+        if self.auteur_id and self.company_id and self.auteur.company_id != self.company_id:
+            errors['auteur'] = 'Comment author must belong to the same company as the comment.'
+        if errors:
+            raise ValidationError(errors)
 
     def __str__(self) -> str:
         # Avoid IndexError on very short content; truncate safely

@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Count, Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -10,9 +11,41 @@ from governance.models import AuditEvent
 from governance.services import decide_approval, latest_approval_for, submit_for_approval
 from inventory.models import Stock
 
-from .forms import GoodsReceiptForm, PurchaseOrderForm, PurchaseRequisitionForm, SupplierForm
-from .models import PurchaseOrder, PurchaseOrderLine, PurchaseRequisition, PurchaseRequisitionLine, Supplier
+from .forms import (
+    GoodsReceiptForm, PurchaseOrderForm, PurchaseRequisitionForm, QualityInspectionForm,
+    RequestForQuotationForm, SupplierContractForm, SupplierForm, SupplierInvoiceMatchForm,
+    SupplierQuotationForm, SupplierRiskForm,
+)
+from .models import (
+    GoodsReceipt, PurchaseOrder, PurchaseOrderLine, PurchaseRequisition,
+    PurchaseRequisitionLine, QualityInspection, RequestForQuotation, Supplier,
+    SupplierContract, SupplierInvoiceMatch, SupplierQuotation, SupplierRisk,
+)
 from .services import receive_goods
+
+
+@capability_required('procurement.view')
+def dashboard(request):
+    company = request.user.company
+    orders = PurchaseOrder.objects.filter(company=company)
+    suppliers = Supplier.objects.filter(company=company).annotate(
+        order_count=Count('purchase_orders', distinct=True),
+        received_count=Count('purchase_orders', filter=Q(purchase_orders__status='received'), distinct=True),
+        risk_count=Count('risks', filter=Q(risks__status='open'), distinct=True),
+    )
+    context = {
+        'requisition_counts': PurchaseRequisition.objects.filter(company=company).values('status').annotate(total=Count('id')),
+        'order_counts': orders.values('status').annotate(total=Count('id')),
+        'open_requisitions': PurchaseRequisition.objects.filter(company=company, status__in=('submitted', 'approved')).count(),
+        'orders_pending_approval': orders.filter(status='submitted').count(),
+        'open_rfqs': RequestForQuotation.objects.filter(company=company, status='open').count(),
+        'active_contracts': SupplierContract.objects.filter(company=company, status='active').count(),
+        'open_risks': SupplierRisk.objects.filter(company=company, status='open').count(),
+        'invoice_exceptions': SupplierInvoiceMatch.objects.filter(company=company, status='exception').count(),
+        'committed_spend': sum((order.total_amount for order in orders.exclude(status='cancelled').prefetch_related('lines')), 0),
+        'suppliers': suppliers.order_by('-risk_count', 'name')[:10],
+    }
+    return render(request, 'procurement/dashboard.html', context)
 
 
 @capability_required('procurement.view')
@@ -30,6 +63,77 @@ def supplier_create(request):
         AuditEvent.record(actor=request.user, module='procurement', action='supplier_created', obj=supplier, request=request)
         return redirect('procurement:supplier_list')
     return render(request, 'procurement/form.html', {'form': form, 'title': 'New supplier'})
+
+
+@capability_required('procurement.manage')
+def rfq_create(request):
+    form = RequestForQuotationForm(request.POST or None, company=request.user.company)
+    if request.method == 'POST' and form.is_valid():
+        rfq = form.save(commit=False)
+        rfq.company = request.user.company
+        rfq.created_by = request.user
+        rfq.save()
+        AuditEvent.record(actor=request.user, company=rfq.company, module='procurement', action='rfq_created', obj=rfq, request=request)
+        return redirect('procurement:rfq_list')
+    return render(request, 'procurement/form.html', {'form': form, 'title': 'New request for quotation'})
+
+
+@capability_required('procurement.view')
+def rfq_list(request):
+    rfqs = RequestForQuotation.objects.filter(company=request.user.company).select_related('requisition').prefetch_related('quotations__supplier')
+    return render(request, 'procurement/rfq_list.html', {'rfqs': rfqs})
+
+
+@capability_required('procurement.manage')
+def quotation_create(request):
+    form = SupplierQuotationForm(request.POST or None, company=request.user.company)
+    if request.method == 'POST' and form.is_valid():
+        quote = form.save()
+        AuditEvent.record(actor=request.user, company=request.user.company, module='procurement', action='quotation_created', obj=quote, request=request)
+        return redirect('procurement:quotation_list')
+    return render(request, 'procurement/form.html', {'form': form, 'title': 'Record supplier quotation'})
+
+
+@capability_required('procurement.view')
+def quotation_list(request):
+    quotations = SupplierQuotation.objects.filter(rfq__company=request.user.company).select_related('rfq', 'supplier')
+    return render(request, 'procurement/quotation_list.html', {'quotations': quotations})
+
+
+@capability_required('procurement.manage')
+def contract_create(request):
+    form = SupplierContractForm(request.POST or None, company=request.user.company)
+    if request.method == 'POST' and form.is_valid():
+        contract = form.save(commit=False)
+        contract.company = request.user.company
+        contract.owner = request.user
+        contract.save()
+        return redirect('procurement:contract_list')
+    return render(request, 'procurement/form.html', {'form': form, 'title': 'New supplier contract'})
+
+
+@capability_required('procurement.view')
+def contract_list(request):
+    contracts = SupplierContract.objects.filter(company=request.user.company).select_related('supplier', 'owner')
+    return render(request, 'procurement/contract_list.html', {'contracts': contracts})
+
+
+@capability_required('procurement.manage')
+def risk_create(request):
+    form = SupplierRiskForm(request.POST or None, company=request.user.company)
+    if request.method == 'POST' and form.is_valid():
+        risk = form.save(commit=False)
+        risk.company = request.user.company
+        risk.owner = request.user
+        risk.save()
+        return redirect('procurement:risk_list')
+    return render(request, 'procurement/form.html', {'form': form, 'title': 'Record supplier risk'})
+
+
+@capability_required('procurement.view')
+def risk_list(request):
+    risks = SupplierRisk.objects.filter(company=request.user.company).select_related('supplier', 'owner')
+    return render(request, 'procurement/risk_list.html', {'risks': risks})
 
 
 @capability_required('procurement.manage')
@@ -108,7 +212,7 @@ def purchase_order_create(request, requisition_pk):
             order.requisition = requisition
             order.save()
             for line in requisition.lines.all():
-                PurchaseOrderLine.objects.create(order=order, stock=line.stock, ordered_quantity=line.quantity)
+                PurchaseOrderLine.objects.create(order=order, stock=line.stock, ordered_quantity=line.quantity, unit_cost=line.stock.cost_price)
             requisition.status = 'converted'
             requisition.save(update_fields=['status'])
         AuditEvent.record(actor=request.user, company=request.user.company, module='procurement', action='purchase_order_created', obj=order, request=request)
@@ -169,3 +273,65 @@ def goods_receipt_create(request, order_pk):
         except Exception as exc:
             form.add_error(None, str(exc))
     return render(request, 'procurement/goods_receipt_form.html', {'form': form, 'order': order})
+
+
+@capability_required('procurement.manage')
+def inspection_create(request, receipt_pk):
+    receipt = get_object_or_404(GoodsReceipt, pk=receipt_pk, order__company=request.user.company)
+    inspection = getattr(receipt, 'inspection', None)
+    form = QualityInspectionForm(request.POST or None, instance=inspection)
+    if request.method == 'POST' and form.is_valid():
+        inspection = form.save(commit=False)
+        inspection.receipt = receipt
+        inspection.inspected_by = request.user
+        inspection.save()
+        return redirect('procurement:order_list')
+    return render(request, 'procurement/form.html', {'form': form, 'title': f'Quality inspection for {receipt.receipt_number}'})
+
+
+@capability_required('procurement.manage')
+def invoice_match_create(request):
+    form = SupplierInvoiceMatchForm(request.POST or None, company=request.user.company)
+    if request.method == 'POST' and form.is_valid():
+        invoice = form.save(commit=False)
+        invoice.company = request.user.company
+        invoice.supplier = invoice.order.supplier
+        invoice.created_by = request.user
+        invoice.evaluate()
+        invoice.save()
+        return redirect('procurement:invoice_match_list')
+    return render(request, 'procurement/form.html', {'form': form, 'title': 'Verify supplier invoice'})
+
+
+@capability_required('procurement.view')
+def invoice_match_list(request):
+    invoices = SupplierInvoiceMatch.objects.filter(company=request.user.company).select_related('order', 'supplier', 'approved_by')
+    return render(request, 'procurement/invoice_match_list.html', {'invoices': invoices})
+
+
+@capability_required('procurement.approve')
+@require_POST
+def invoice_match_approve(request, pk):
+    invoice = get_object_or_404(SupplierInvoiceMatch, pk=pk, company=request.user.company)
+    if invoice.status == 'matched':
+        invoice.status = 'approved'
+        invoice.approved_by = request.user
+        invoice.save(update_fields=['status', 'approved_by'])
+        messages.success(request, 'Invoice matched and approved.')
+    else:
+        messages.error(request, 'Only an exactly matched invoice can be approved.')
+    return redirect('procurement:invoice_match_list')
+
+
+@capability_required('procurement.manage')
+@require_POST
+def invoice_match_paid(request, pk):
+    invoice = get_object_or_404(SupplierInvoiceMatch, pk=pk, company=request.user.company)
+    if invoice.status != 'approved':
+        messages.error(request, 'Only approved invoices can be marked paid.')
+    else:
+        invoice.status = 'paid'
+        invoice.paid_at = timezone.now()
+        invoice.save(update_fields=['status', 'paid_at'])
+        messages.success(request, 'Invoice marked as paid.')
+    return redirect('procurement:invoice_match_list')

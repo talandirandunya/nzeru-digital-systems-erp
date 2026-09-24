@@ -10,8 +10,8 @@ import json
 import math
 from datetime import datetime, timedelta
 
-from .models import Stock, StockTransaction, StockCategory
-from .forms import StockForm, StockTransactionForm, StockCategoryForm
+from .models import Stock, StockTransaction, StockCategory, Warehouse, StockMovement
+from .forms import StockForm, StockTransactionForm, StockCategoryForm, WarehouseForm
 from governance.models import AuditEvent
 from accounts.permissions import (
     INVENTORY_VIEW_ROLES,
@@ -87,22 +87,40 @@ def stock_detail(request, pk):
         pk=pk, 
         company=company
     )
-    
-    # Get recent transactions
+
     recent_transactions = stock.transactions.all().order_by('-transaction_date')[:10]
-    
-    # Calculate transaction statistics
     total_in = stock.transactions.filter(transaction_type='in').aggregate(Sum('quantity'))['quantity__sum'] or 0
     total_out = stock.transactions.filter(transaction_type='out').aggregate(Sum('quantity'))['quantity__sum'] or 0
-    
+
     context = {
         'stock': stock,
         'recent_transactions': recent_transactions,
         'total_in': total_in,
         'total_out': total_out,
+        'warehouses': Warehouse.objects.filter(company=company).order_by('name'),
     }
-    
+
     return render(request, 'inventory/stock_detail.html', context)
+
+
+@role_required(*INVENTORY_VIEW_ROLES)
+def warehouse_list(request):
+    company = request.user.company
+    warehouses = Warehouse.objects.filter(company=company).select_related('manager').order_by('name')
+    return render(request, 'inventory/warehouse_list.html', {'warehouses': warehouses})
+
+
+@role_required(*INVENTORY_WRITE_ROLES)
+def warehouse_create(request):
+    if request.method == 'POST':
+        form = WarehouseForm(request.POST, company=request.user.company)
+        if form.is_valid():
+            warehouse = form.save()
+            messages.success(request, f'Warehouse "{warehouse.name}" created.')
+            return redirect('inventory:warehouse_list')
+    else:
+        form = WarehouseForm(company=request.user.company)
+    return render(request, 'inventory/warehouse_form.html', {'form': form, 'title': 'New Warehouse'})
 
 @role_required(*INVENTORY_WRITE_ROLES)
 def stock_create(request):
@@ -185,16 +203,15 @@ def stock_transaction(request, pk):
     stock = get_object_or_404(Stock, pk=pk, company=company)
     
     if request.method == 'POST':
-        form = StockTransactionForm(request.POST)
+        form = StockTransactionForm(request.POST, company=company)
         if form.is_valid():
             transaction_obj = form.save(commit=False)
             transaction_obj.company = company
             transaction_obj.stock = stock
             transaction_obj.user = request.user
-            
+
             try:
                 with transaction.atomic():
-                    # Update stock quantity
                     if transaction_obj.transaction_type == 'in':
                         stock.quantity = F('quantity') + transaction_obj.quantity
                         message = f'Added {transaction_obj.quantity} units to stock.'
@@ -208,59 +225,42 @@ def stock_transaction(request, pk):
                                 'form': form,
                                 'stock': stock
                             })
-                    else:  # adjustment
+                    else:
                         stock.quantity = transaction_obj.quantity
                         message = f'Stock quantity adjusted to {transaction_obj.quantity} units.'
-                    
-                    # Save stock and transaction
+
                     stock.save()
                     stock.refresh_from_db()
                     transaction_obj.save()
+
+                    StockMovement.objects.create(
+                        company=company,
+                        stock=stock,
+                        warehouse=transaction_obj.warehouse,
+                        movement_type=transaction_obj.transaction_type,
+                        quantity=transaction_obj.quantity,
+                        reference=f"INV-{stock.pk}-{transaction_obj.pk}",
+                        remarks=transaction_obj.remarks or message,
+                        moved_by=request.user,
+                    )
+
                     AuditEvent.record(actor=request.user, company=company, module='inventory', action='stock_movement_created', obj=transaction_obj, after={'type': transaction_obj.transaction_type, 'quantity': transaction_obj.quantity}, request=request)
-                    
-                    # Update last_restocked date for stock in transactions
+
                     if transaction_obj.transaction_type == 'in':
                         stock.last_restocked = timezone.now().date()
                         stock.save()
-                    
-                    # Check for low stock and create notification
+
                     if stock.quantity <= stock.reorder_level:
-                        from notifications.utils import create_notification
-                        from django.contrib.auth import get_user_model
-                        User = get_user_model()
+                        from inventory.models import create_inventory_alerts
+                        create_inventory_alerts(company, stock=stock)
 
-                        # Notify stock managers about low stock
-                        stock_managers = User.objects.filter(
-                            company=company,
-                            role='stock_manager'
-                        )
-
-                        for manager in stock_managers:
-                            # Check if notification already exists for this stock item today
-                            from notifications.models import Notification
-                            existing_notification = Notification.objects.filter(
-                                user=manager,
-                                notification_type='low_stock',
-                                related_object=stock,
-                                created_at__date=timezone.now().date()
-                            ).exists()
-
-                            if not existing_notification:
-                                create_notification(
-                                    user=manager,
-                                    notification_type='low_stock',
-                                    title=f'Low Stock Alert: {stock.name}',
-                                    message=f'Stock item "{stock.name}" (Code: {stock.item_code}) is running low. Current quantity: {stock.quantity}, Reorder level: {stock.reorder_level}.',
-                                    related_object=stock
-                                )
-                    
                     messages.success(request, f'Transaction recorded successfully! {message}')
                     return redirect('inventory:stock_detail', pk=stock.pk)
-                    
+
             except Exception as e:
                 messages.error(request, f'Error processing transaction: {str(e)}')
     else:
-        form = StockTransactionForm()
+        form = StockTransactionForm(company=company)
     
     return render(request, 'inventory/stock_transaction.html', {
         'form': form,

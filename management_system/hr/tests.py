@@ -2,11 +2,14 @@ from datetime import date
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.urls import reverse
-from accounts.models import Company
+from accounts.models import Company, User
 from employees.models import Employee
 from governance.models import ApprovalRequest, ApprovalStep, ApprovalWorkflow
 from governance.services import decide_approval, submit_for_approval
-from .models import Position, LeaveRequest
+from .models import (
+    Applicant, BenefitPlan, DisciplinaryCase, EmployeeBenefit, JobApplication,
+    JobOpening, PayrollPeriod, Position, LeaveRequest,
+)
 
 
 class HRModelTests(TestCase):
@@ -112,3 +115,47 @@ class HRModelTests(TestCase):
 
         with self.assertRaises(ValidationError):
             decide_approval(approval=approval, actor=self.employee.user, decision='approved')
+
+    def test_recruitment_application_and_benefit_are_company_scoped(self):
+        opening = JobOpening.objects.create(
+            company=self.company, position=self.position, title='Developer',
+            created_by=self.employee.user, status='open',
+        )
+        applicant = Applicant.objects.create(company=self.company, name='Candidate', email='candidate@example.com')
+        application = JobApplication.objects.create(opening=opening, applicant=applicant)
+        self.assertEqual(application.status, 'applied')
+
+        plan = BenefitPlan.objects.create(company=self.company, name='Medical', plan_type='medical')
+        benefit = EmployeeBenefit.objects.create(employee=self.employee, plan=plan)
+        self.assertEqual(benefit.status, 'active')
+
+        other = Company.objects.create(name='Other HR Co', domain='other-hr')
+        other_applicant = Applicant.objects.create(company=other, name='Other', email='other@example.com')
+        invalid = JobApplication(opening=opening, applicant=other_applicant)
+        with self.assertRaises(ValidationError):
+            invalid.full_clean()
+
+    def test_employee_relations_case_rejects_foreign_employee(self):
+        other = Company.objects.create(name='Other HR Co 2', domain='other-hr-2')
+        other_user = User.objects.create_user(email='other-employee@example.com', company=other)
+        other_employee = Employee.objects.create(
+            company=other, user=other_user, employee_id='EMP-OTHER',
+            role='developer', date_joined='2026-01-01',
+        )
+        case = DisciplinaryCase(
+            company=self.company, employee=other_employee, title='Case', description='Details', opened_by=self.employee.user,
+        )
+        with self.assertRaises(ValidationError):
+            case.full_clean()
+
+    def test_completed_payroll_posts_to_finance_once(self):
+        period = PayrollPeriod.objects.create(
+            company=self.company, period_type='monthly', start_date='2026-09-01', end_date='2026-09-30',
+            status='completed', total_earnings=1000, total_deductions=100, total_net_pay=900,
+        )
+        entry = period.post_to_finance(self.employee.user)
+        self.assertEqual(entry.status, 'posted')
+        period.refresh_from_db()
+        self.assertTrue(period.posted_to_finance)
+        with self.assertRaises(ValidationError):
+            period.post_to_finance(self.employee.user)

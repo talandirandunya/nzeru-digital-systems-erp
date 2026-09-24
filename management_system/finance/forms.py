@@ -4,7 +4,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import BaseInlineFormSet, inlineformset_factory
 
-from .models import Account, JournalEntry, JournalEntryLine, Journal, Transaction, ClientInvoice, SupplierInvoice, InvoiceLine, BankAccount, BankStatement, BankTransaction, Reconciliation, FinancialReport, ReportLine, MarketplaceFinanceSettings
+from .models import Account, AccountingPeriod, Budget, ExpenseClaim, JournalEntry, JournalEntryLine, Journal, Transaction, ClientInvoice, SupplierInvoice, InvoiceLine, BankAccount, BankStatement, BankTransaction, Reconciliation, FinancialReport, ReportLine, MarketplaceFinanceSettings
+from procurement.models import PurchaseOrder
 
 
 class AccountForm(forms.ModelForm):
@@ -117,6 +118,37 @@ class JournalEntryForm(forms.ModelForm):
 
         self.fields['reference'].required = False
         self.fields['description'].required = False
+
+
+class AccountingPeriodForm(forms.ModelForm):
+    class Meta:
+        model = AccountingPeriod
+        fields = ['name', 'start_date', 'end_date']
+        widgets = {'start_date': forms.DateInput(attrs={'type': 'date'}), 'end_date': forms.DateInput(attrs={'type': 'date'})}
+
+
+class BudgetForm(forms.ModelForm):
+    class Meta:
+        model = Budget
+        fields = ['name', 'account', 'start_date', 'end_date', 'amount', 'status']
+        widgets = {'start_date': forms.DateInput(attrs={'type': 'date'}), 'end_date': forms.DateInput(attrs={'type': 'date'})}
+
+    def __init__(self, *args, company=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if company:
+            self.fields['account'].queryset = Account.objects.filter(company=company, account_type='expense').order_by('code', 'name')
+
+
+class ExpenseClaimForm(forms.ModelForm):
+    class Meta:
+        model = ExpenseClaim
+        fields = ['account', 'expense_date', 'description', 'amount', 'receipt']
+        widgets = {'expense_date': forms.DateInput(attrs={'type': 'date'})}
+
+    def __init__(self, *args, company=None, claimant=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if company:
+            self.fields['account'].queryset = Account.objects.filter(company=company, account_type='expense').order_by('code', 'name')
 
 
 class JournalEntryLineForm(forms.ModelForm):
@@ -252,7 +284,7 @@ class SupplierInvoiceForm(forms.ModelForm):
     class Meta:
         model = SupplierInvoice
         fields = [
-            'invoice_number', 'supplier_name', 'supplier_address',
+            'invoice_number', 'purchase_order', 'supplier_name', 'supplier_address',
             'date', 'due_date', 'tax_rate', 'notes'
         ]
         widgets = {
@@ -268,6 +300,12 @@ class SupplierInvoiceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.company = kwargs.pop('company', None)
         super().__init__(*args, **kwargs)
+        if self.company:
+            self.fields['purchase_order'].queryset = PurchaseOrder.objects.filter(
+                company=self.company,
+                status__in=['approved', 'partially_received', 'received'],
+            ).select_related('supplier').order_by('-created_at')
+        self.fields['purchase_order'].required = False
         self.fields['supplier_address'].required = False
         self.fields['notes'].required = False
 

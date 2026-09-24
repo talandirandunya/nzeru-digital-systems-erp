@@ -13,6 +13,24 @@ urlpatterns = [
     path('positions/<int:pk>/edit/', views.position_edit, name='position_edit'),
     path('positions/<int:pk>/delete/', views.position_delete, name='position_delete'),
 
+    # Recruitment
+    path('recruitment/openings/', views.job_opening_list, name='job_opening_list'),
+    path('recruitment/openings/new/', views.job_opening_create, name='job_opening_create'),
+    path('recruitment/applicants/', views.applicant_list, name='applicant_list'),
+    path('recruitment/applicants/new/', views.applicant_create, name='applicant_create'),
+    path('recruitment/applications/', views.application_list, name='application_list'),
+    path('recruitment/applications/new/', views.application_create, name='application_create'),
+
+    # Employee records
+    path('documents/', views.employee_document_list, name='employee_document_list'),
+    path('documents/new/', views.employee_document_create, name='employee_document_create'),
+    path('benefits/plans/', views.benefit_plan_list, name='benefit_plan_list'),
+    path('benefits/plans/new/', views.benefit_plan_create, name='benefit_plan_create'),
+    path('benefits/enrollments/', views.employee_benefit_list, name='employee_benefit_list'),
+    path('benefits/enrollments/new/', views.employee_benefit_create, name='employee_benefit_create'),
+    path('disciplinary/', views.disciplinary_case_list, name='disciplinary_case_list'),
+    path('disciplinary/new/', views.disciplinary_case_create, name='disciplinary_case_create'),
+
     # Leave requests — HR management
     path('leaves/', views.leave_list, name='leave_list'),
     path('leaves/new/', views.leave_create, name='leave_create'),
@@ -45,6 +63,7 @@ urlpatterns = [
     path('payroll/<int:pk>/add-entries/', views.payroll_period_add_entries, name='payroll_period_add_entries'),
     path('payroll/<int:pk>/lock/', views.payroll_period_lock, name='payroll_period_lock'),
     path('payroll/<int:pk>/process/', views.payroll_period_process, name='payroll_period_process'),
+    path('payroll/<int:pk>/post-to-finance/', views.payroll_period_post_to_finance, name='payroll_period_post_to_finance'),
 
     # Payroll entries
     path('entries/<int:pk>/edit/', views.payroll_entry_edit, name='payroll_entry_edit'),

@@ -40,9 +40,9 @@
                                 <tr class="{% if line.is_total %}border-top border-2{% endif %}">
                                     <td>
                                         {% if line.is_total %}
-                                            <strong>{{ line.label }}</strong>
+                                                            <strong>{{ line.description }}</strong>
                                         {% else %}
-                                            {{ line.label }}
+                                            {{ line.description }}
                                         {% endif %}
                                     </td>
                                     <td class="text-end">
@@ -59,7 +59,7 @@
                     </div>
 
                     <div class="mt-4 text-muted small">
-                        <p>Report generated on {{ report.created_date|date:"M d, Y H:i" }}</p>
+                        <p>Report generated on {{ report.generated_at|date:"M d, Y H:i" }}</p>
                     </div>
                 </div>
             </div>

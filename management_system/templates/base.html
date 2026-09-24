@@ -554,7 +554,7 @@
       {% endif %}
 
       {% if user|has_capability:'procurement.view' %}
-      <a href="{% url 'procurement:supplier_list' %}" class="nav-item-inner {% if request.resolver_match.app_name == 'procurement' %}active{% endif %}">
+      <a href="{% url 'procurement:dashboard' %}" class="nav-item-inner {% if request.resolver_match.app_name == 'procurement' %}active{% endif %}">
         <i class="fas fa-shopping-bag"></i>
         <span class="link-text">{% trans "Procurement" %}</span>
         {% if request.resolver_match.app_name == 'procurement' %}<span class="nav-active-dot"></span>{% endif %}
@@ -586,7 +586,7 @@
       {% endif %}
 
       {% if user.is_superuser or user|has_capability:'admin.manage_organisation' %}
-      <a href="{% url 'governance:user_list' %}" class="nav-item-inner">
+      <a href="{% url 'governance:admin_dashboard' %}" class="nav-item-inner {% if request.resolver_match.app_name == 'governance' and request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
         <i class="fas fa-user-shield"></i><span class="link-text">Administration</span>
       </a>
       {% endif %}
@@ -600,8 +600,8 @@
       {% endif %}
 
       {% if user|has_capability:'reporting.view' %}
-      <a href="{% url 'governance:audit_list' %}" class="nav-item-inner">
-        <i class="fas fa-history"></i><span class="link-text">Reports</span>
+      <a href="{% url 'governance:reporting_dashboard' %}" class="nav-item-inner {% if request.resolver_match.app_name == 'governance' and request.resolver_match.url_name == 'reporting_dashboard' %}active{% endif %}">
+        <i class="fas fa-chart-line"></i><span class="link-text">Reports</span>
       </a>
       {% endif %}
 

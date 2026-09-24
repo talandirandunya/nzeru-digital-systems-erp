@@ -2,13 +2,16 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
+from datetime import timedelta
 
 from accounts.models import Company, User
 from employees.models import Employee
+from notifications.models import Notification
 from .forms import CreateManagedUserForm
 from .models import AuditEvent, UserApprovalAuthority, UserCapability, has_capability
-from .models import ApprovalRequest, ApprovalStep, ApprovalWorkflow
-from .services import decide_approval, latest_approval_for, submit_for_approval
+from .models import ApprovalDelegation, ApprovalRequest, ApprovalStep, ApprovalWorkflow
+from .services import decide_approval, latest_approval_for, process_overdue_approvals, submit_for_approval
 
 
 class GovernanceTests(TestCase):
@@ -17,6 +20,16 @@ class GovernanceTests(TestCase):
         self.admin = self.company.users.create(email='admin@example.com', role='admin', is_company_admin=True, is_active=True)
         self.admin.set_password('pass12345')
         self.admin.save()
+
+    def grant_approval_authority(self, user, transaction_type, **kwargs):
+        return UserApprovalAuthority.objects.create(
+            company=self.company,
+            user=user,
+            transaction_type=transaction_type,
+            capability='approvals.decide',
+            granted_by=self.admin,
+            **kwargs,
+        )
 
     def test_audit_event_is_immutable(self):
         event = AuditEvent.record(actor=self.admin, company=self.company, module='test', action='created')
@@ -97,6 +110,7 @@ class GovernanceTests(TestCase):
         )
         ApprovalStep.objects.create(workflow=workflow, sequence=1, role='manager', required=False)
         ApprovalStep.objects.create(workflow=workflow, sequence=2, role='admin', required=True)
+        self.grant_approval_authority(self.admin, 'optional_transaction')
 
         approval = submit_for_approval(
             target=self.company,
@@ -142,6 +156,7 @@ class GovernanceTests(TestCase):
             transaction_type='dashboard_transaction',
         )
         ApprovalStep.objects.create(workflow=workflow, sequence=1, role='manager')
+        self.grant_approval_authority(manager, 'dashboard_transaction')
         submit_for_approval(
             target=self.company,
             requester=self.admin,
@@ -179,6 +194,27 @@ class GovernanceTests(TestCase):
         approval.refresh_from_db()
         self.assertEqual(response.status_code, 302)
         self.assertEqual(approval.status, 'pending')
+
+    def test_requester_can_cancel_own_pending_approval(self):
+        workflow = ApprovalWorkflow.objects.create(
+            company=self.company,
+            name='Cancellable approval',
+            transaction_type='cancellable_transaction',
+        )
+        ApprovalStep.objects.create(workflow=workflow, sequence=1, role='manager')
+        approval = submit_for_approval(
+            target=self.company,
+            requester=self.admin,
+            transaction_type='cancellable_transaction',
+        )
+
+        self.client.force_login(self.admin)
+        response = self.client.post(reverse('governance:approval_cancel', kwargs={'pk': approval.pk}))
+
+        approval.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(approval.status, 'cancelled')
+        self.assertTrue(AuditEvent.objects.filter(action='cancelled', object_id=str(self.company.pk)).exists())
 
     def test_managed_user_can_link_existing_employee_without_duplicate(self):
         employee = Employee.objects.create(
@@ -262,6 +298,242 @@ class GovernanceTests(TestCase):
         self.client.force_login(user)
         self.assertEqual(self.client.get(reverse('core:dashboard')).status_code, 403)
 
+    def test_administration_dashboard_is_available_with_company_summary(self):
+        self.company.users.create(email='manager@example.com', role='manager', is_active=True)
+        workflow = ApprovalWorkflow.objects.create(
+            company=self.company,
+            name='Purchase approval',
+            transaction_type='purchase_order',
+        )
+        ApprovalStep.objects.create(workflow=workflow, sequence=1, role='manager')
+
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('governance:admin_dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Administration dashboard')
+        self.assertContains(response, 'User management')
+        self.assertContains(response, 'Approval workflows')
+        self.assertContains(response, 'Company profile')
+        self.assertContains(response, 'Audit trail')
+
+    def test_reporting_dashboard_is_company_scoped(self):
+        other_company = Company.objects.create(
+            name='Other Co', domain='other-reporting', contact_email='other@example.com'
+        )
+        other_company.users.create(email='other@example.com', role='employee', is_active=True)
+
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('governance:reporting_dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Reporting centre')
+        self.assertContains(response, 'Governance Co')
+        self.assertNotContains(response, 'Other Co')
+
+    def test_reporting_export_is_company_scoped_and_filterable(self):
+        other_company = Company.objects.create(
+            name='Other Co', domain='other-export', contact_email='other-export@example.com'
+        )
+        other_company.users.create(email='export-other@example.com', role='employee', is_active=True)
+
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('governance:reporting_export'), {'days': '90', 'module': 'accounts'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/csv')
+        self.assertIn('Governance Co', response.content.decode('utf-8'))
+        self.assertNotIn('Other Co', response.content.decode('utf-8'))
+        self.assertIn('accounts', response.content.decode('utf-8'))
+
+    def test_admin_can_edit_workflow_without_pending_requests(self):
+        workflow = ApprovalWorkflow.objects.create(
+            company=self.company,
+            name='Editable workflow',
+            transaction_type='editable_transaction',
+        )
+        self.client.force_login(self.admin)
+        response = self.client.post(
+            reverse('governance:workflow_edit', kwargs={'pk': workflow.pk}),
+            {
+                'name': 'Updated workflow',
+                'transaction_type': 'editable_transaction',
+                'enabled': 'on',
+                'allow_self_approval': '',
+                'reminder_after_hours': '24',
+                'escalation_after_hours': '72',
+            },
+        )
+        workflow.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(workflow.name, 'Updated workflow')
+
+    def test_workflow_steps_cannot_change_with_pending_requests(self):
+        workflow = ApprovalWorkflow.objects.create(
+            company=self.company,
+            name='Locked workflow',
+            transaction_type='locked_transaction',
+        )
+        step = ApprovalStep.objects.create(workflow=workflow, sequence=1, role='admin')
+        self.grant_approval_authority(self.admin, 'locked_transaction')
+        approval = submit_for_approval(
+            target=self.company,
+            requester=self.admin,
+            transaction_type='locked_transaction',
+        )
+        self.assertEqual(approval.status, 'pending')
+
+        self.client.force_login(self.admin)
+        response = self.client.post(reverse('governance:workflow_step_delete', kwargs={'pk': step.pk}))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(ApprovalStep.objects.filter(pk=step.pk).exists())
+
+    def test_overdue_approval_followups_are_idempotent(self):
+        workflow = ApprovalWorkflow.objects.create(
+            company=self.company,
+            name='Timed workflow',
+            transaction_type='timed_transaction',
+            reminder_after_hours=1,
+            escalation_after_hours=2,
+        )
+        step = ApprovalStep.objects.create(workflow=workflow, sequence=1, role='admin')
+        self.grant_approval_authority(self.admin, 'timed_transaction')
+        approval = submit_for_approval(
+            target=self.company,
+            requester=self.admin,
+            transaction_type='timed_transaction',
+        )
+        submitted_at = timezone.now() - timedelta(hours=3)
+        ApprovalRequest.objects.filter(pk=approval.pk).update(submitted_at=submitted_at)
+
+        now = timezone.now()
+        first = process_overdue_approvals(company=self.company, now=now)
+        second = process_overdue_approvals(company=self.company, now=now)
+
+        self.assertEqual(first['escalated'], 1)
+        self.assertEqual(second['escalated'], 0)
+        self.assertEqual(
+            Notification.objects.filter(
+                user=self.admin,
+                data__approval_id=approval.pk,
+            ).count(),
+            1,
+        )
+        self.assertTrue(AuditEvent.objects.filter(action='escalated', object_id=str(self.company.pk)).exists())
+
+    def test_active_delegation_allows_authorized_delegate_to_approve(self):
+        delegate = self.company.users.create(
+            email='delegate@example.com', role='manager', is_active=True,
+        )
+        workflow = ApprovalWorkflow.objects.create(
+            company=self.company,
+            name='Delegated workflow',
+            transaction_type='delegated_transaction',
+        )
+        ApprovalStep.objects.create(workflow=workflow, sequence=1, role='manager')
+        self.grant_approval_authority(self.admin, 'delegated_transaction')
+        UserCapability.objects.create(company=self.company, user=delegate, capability='approvals.decide')
+        now = timezone.now()
+        ApprovalDelegation.objects.create(
+            company=self.company,
+            delegator=self.admin,
+            delegate=delegate,
+            transaction_type='delegated_transaction',
+            starts_at=now - timedelta(hours=1),
+            ends_at=now + timedelta(hours=1),
+            reason='Annual leave',
+        )
+
+        approval = submit_for_approval(
+            target=self.company,
+            requester=self.admin,
+            transaction_type='delegated_transaction',
+        )
+        decide_approval(approval=approval, actor=delegate, decision='approved')
+        approval.refresh_from_db()
+        self.assertEqual(approval.status, 'approved')
+
+    def test_expired_delegation_does_not_authorize_delegate(self):
+        delegate = self.company.users.create(
+            email='expired-delegate@example.com', role='manager', is_active=True,
+        )
+        workflow = ApprovalWorkflow.objects.create(
+            company=self.company,
+            name='Expired delegation workflow',
+            transaction_type='expired_delegation_transaction',
+        )
+        ApprovalStep.objects.create(workflow=workflow, sequence=1, role='manager')
+        self.grant_approval_authority(self.admin, 'expired_delegation_transaction')
+        UserCapability.objects.create(company=self.company, user=delegate, capability='approvals.decide')
+        now = timezone.now()
+        ApprovalDelegation.objects.create(
+            company=self.company,
+            delegator=self.admin,
+            delegate=delegate,
+            transaction_type='expired_delegation_transaction',
+            starts_at=now - timedelta(hours=2),
+            ends_at=now - timedelta(hours=1),
+        )
+
+        approval = submit_for_approval(
+            target=self.company,
+            requester=self.admin,
+            transaction_type='expired_delegation_transaction',
+        )
+        with self.assertRaises(ValidationError):
+            decide_approval(approval=approval, actor=delegate, decision='approved')
+
+    def test_pending_approval_keeps_original_workflow_snapshot(self):
+        workflow = ApprovalWorkflow.objects.create(
+            company=self.company,
+            name='Original workflow',
+            transaction_type='snapshot_transaction',
+        )
+        step = ApprovalStep.objects.create(workflow=workflow, sequence=1, role='manager')
+        manager = self.company.users.create(
+            email='snapshot-manager@example.com', role='manager', is_active=True,
+        )
+        self.grant_approval_authority(manager, 'snapshot_transaction')
+
+        approval = submit_for_approval(
+            target=self.company,
+            requester=self.admin,
+            transaction_type='snapshot_transaction',
+        )
+
+        step.role = 'admin'
+        step.save(update_fields=['role'])
+
+        decide_approval(approval=approval, actor=manager, decision='approved')
+        approval.refresh_from_db()
+        self.assertEqual(approval.status, 'approved')
+
+    def test_approval_uses_workflow_snapshot_after_live_workflow_changes(self):
+        manager = self.company.users.create(
+            email='snapshot-manager@example.com', role='manager', is_active=True,
+        )
+        workflow = ApprovalWorkflow.objects.create(
+            company=self.company,
+            name='Snapshot workflow',
+            transaction_type='snapshot_transaction',
+        )
+        step = ApprovalStep.objects.create(workflow=workflow, sequence=1, role='manager')
+        self.grant_approval_authority(manager, 'snapshot_transaction')
+
+        approval = submit_for_approval(
+            target=self.company,
+            requester=self.admin,
+            transaction_type='snapshot_transaction',
+        )
+        step.role = 'accountant'
+        step.save(update_fields=['role'])
+
+        self.assertEqual(approval.workflow_snapshot['steps'][0]['role'], 'manager')
+        decide_approval(approval=approval, actor=manager, decision='approved')
+        approval.refresh_from_db()
+        self.assertEqual(approval.status, 'approved')
+
     def test_admin_bulk_assignment_records_audit_event(self):
         user = self.company.users.create(
             email='assigned@example.com', role='finance', access_controlled=False, is_active=True,
@@ -336,6 +608,7 @@ class GovernanceTests(TestCase):
             enabled=True,
         )
         ApprovalStep.objects.create(workflow=workflow, sequence=1, role='manager', required=True)
+        self.grant_approval_authority(manager, 'user_account_creation')
 
         self.client.force_login(self.admin)
         response = self.client.post(

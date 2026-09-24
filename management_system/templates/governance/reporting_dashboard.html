@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Reporting centre{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+  <div>
+    <h2 class="mb-1">Reporting centre</h2>
+    <p class="text-muted mb-0">{{ company.name }} · operational, financial, and governance visibility</p>
+  </div>
+  <a class="btn btn-outline-primary" href="{% url 'governance:reporting_export' %}?days={{ range_days }}{% if module_filter %}&module={{ module_filter|urlencode }}{% endif %}"><i class="fas fa-download me-1"></i>Export CSV</a>
+</div>
+
+<form method="get" class="card border-0 shadow-sm mb-4">
+  <div class="card-body row g-3 align-items-end">
+    <div class="col-sm-4 col-lg-3">
+      <label class="form-label" for="id_days">Reporting period</label>
+      <select class="form-select" id="id_days" name="days">
+        <option value="30"{% if range_days == '30' %} selected{% endif %}>Last 30 days</option>
+        <option value="90"{% if range_days == '90' %} selected{% endif %}>Last 90 days</option>
+        <option value="365"{% if range_days == '365' %} selected{% endif %}>Last 12 months</option>
+      </select>
+    </div>
+    <div class="col-sm-5 col-lg-4">
+      <label class="form-label" for="id_module">Audit module</label>
+      <select class="form-select" id="id_module" name="module">
+        <option value="">All modules</option>
+        {% for module in module_choices %}<option value="{{ module }}"{% if module == module_filter %} selected{% endif %}>{{ module|title }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-sm-3 col-lg-2"><button class="btn btn-primary w-100" type="submit">Apply filters</button></div>
+    <div class="col-lg-3 small text-muted">{{ since }} to {{ report_date }}</div>
+  </div>
+</form>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><div class="small text-muted text-uppercase">Employees</div><h3 class="mt-2 mb-0">{{ employees_total }}</h3><span class="small text-muted">{{ employees_active }} active</span></div></div></div>
+  <div class="col-6 col-xl-3"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><div class="small text-muted text-uppercase">Projects</div><h3 class="mt-2 mb-0">{{ projects_active }}</h3><span class="small text-muted">{{ projects_overdue }} overdue</span></div></div></div>
+  <div class="col-6 col-xl-3"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><div class="small text-muted text-uppercase">Inventory alerts</div><h3 class="mt-2 mb-0">{{ low_stock_items }}</h3><span class="small text-muted">Items below reorder level</span></div></div></div>
+  <div class="col-6 col-xl-3"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><div class="small text-muted text-uppercase">Revenue credited</div><h3 class="mt-2 mb-0">{{ revenue_total|floatformat:2 }}</h3><span class="small text-muted">Selected period</span></div></div></div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-lg-4"><div class="card h-100 border-0 shadow-sm"><div class="card-header bg-white border-0"><h5 class="mb-0">Commercial</h5></div><div class="card-body"><dl class="row mb-0"><dt class="col-8">Contacts</dt><dd class="col-4 text-end">{{ contacts_total }}</dd><dt class="col-8">Open opportunities</dt><dd class="col-4 text-end">{{ open_opportunities }}</dd><dt class="col-8">Open pipeline value</dt><dd class="col-4 text-end">{{ open_pipeline_value|floatformat:2 }}</dd></dl></div></div></div>
+  <div class="col-lg-4"><div class="card h-100 border-0 shadow-sm"><div class="card-header bg-white border-0"><h5 class="mb-0">Governance</h5></div><div class="card-body"><dl class="row mb-0"><dt class="col-8">Pending approvals</dt><dd class="col-4 text-end">{{ pending_approvals }}</dd><dt class="col-8">Audit events</dt><dd class="col-4 text-end">{{ audit_events|length }}</dd><dt class="col-8">Projects tracked</dt><dd class="col-4 text-end">{{ projects_total }}</dd></dl></div></div></div>
+  <div class="col-lg-4"><div class="card h-100 border-0 shadow-sm"><div class="card-header bg-white border-0"><h5 class="mb-0">Report controls</h5></div><div class="card-body"><p class="text-muted small">All figures are restricted to this company. Audit records are immutable and export access is separately permissioned.</p><a href="{% url 'governance:audit_list' %}" class="btn btn-outline-secondary btn-sm">Open full audit trail</a></div></div></div>
+</div>
+
+<div class="card border-0 shadow-sm"><div class="card-header bg-white border-0"><h5 class="mb-0">Recent audit activity</h5></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th>When</th><th>Actor</th><th>Module</th><th>Action</th><th>Object</th></tr></thead><tbody>{% for event in audit_events %}<tr><td>{{ event.created_at|date:'d M Y H:i' }}</td><td>{% if event.actor %}{{ event.actor.get_full_name|default:event.actor.email }}{% else %}System{% endif %}</td><td>{{ event.module }}</td><td>{{ event.action }}</td><td>{{ event.object_type }}{% if event.object_id %} #{{ event.object_id }}{% endif %}</td></tr>{% empty %}<tr><td colspan="5" class="text-muted">No audit activity in the selected period.</td></tr>{% endfor %}</tbody></table></div></div></div>
+{% endblock %}

@@ -274,6 +274,8 @@ class PayrollPeriod(models.Model):
         related_name='processed_payroll_periods'
     )
     processed_at = models.DateTimeField(null=True, blank=True)
+    posted_to_finance = models.BooleanField(default=False)
+    finance_journal_entry = models.ForeignKey('finance.JournalEntry', on_delete=models.SET_NULL, null=True, blank=True, related_name='payroll_periods')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -322,6 +324,27 @@ class PayrollPeriod(models.Model):
         self.total_net_pay = sum(e.net_pay for e in entries) or 0
         self.status = 'completed'
         self.save(update_fields=['total_earnings', 'total_deductions', 'total_net_pay', 'status'])
+
+    def post_to_finance(self, user):
+        from finance.models import Account, Journal, JournalEntry, JournalEntryLine
+        if self.status != 'completed':
+            raise ValidationError('Only completed payroll periods can be posted to finance.')
+        if self.posted_to_finance:
+            raise ValidationError('This payroll period has already been posted to finance.')
+        expense, _ = Account.objects.get_or_create(company=self.company, name='Payroll Expense', defaults={'account_type': 'expense'})
+        payable, _ = Account.objects.get_or_create(company=self.company, name='Payroll Payable', defaults={'account_type': 'liability'})
+        deductions, _ = Account.objects.get_or_create(company=self.company, name='Payroll Deductions Payable', defaults={'account_type': 'liability'})
+        journal, _ = Journal.objects.get_or_create(company=self.company, name='Payroll Journal', defaults={'journal_type': 'general'})
+        entry = JournalEntry.objects.create(company=self.company, journal=journal, reference=f'PAY-{self.pk}', description=f'Payroll {self.start_date} to {self.end_date}', date=self.end_date, entered_by=user)
+        JournalEntryLine.objects.create(entry=entry, account=expense, description='Payroll gross earnings', debit=self.total_earnings)
+        JournalEntryLine.objects.create(entry=entry, account=payable, description='Net payroll payable', credit=self.total_net_pay)
+        if self.total_deductions:
+            JournalEntryLine.objects.create(entry=entry, account=deductions, description='Payroll deductions payable', credit=self.total_deductions)
+        entry.post()
+        self.posted_to_finance = True
+        self.finance_journal_entry = entry
+        self.save(update_fields=['posted_to_finance', 'finance_journal_entry'])
+        return entry
 
 
 class PayrollEntry(models.Model):
@@ -901,3 +924,127 @@ class AttendanceRecord(models.Model):
             raise ValidationError('This attendance record is already clocked out.')
         self.clock_out = timezone.now()
         self.save(update_fields=['clock_out', 'updated_at'])
+
+
+# ---------------------------------------------------------------------------
+# Employee lifecycle extensions
+# ---------------------------------------------------------------------------
+
+class JobOpening(models.Model):
+    STATUS_CHOICES = [('draft', 'Draft'), ('open', 'Open'), ('paused', 'Paused'), ('closed', 'Closed')]
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, related_name='job_openings')
+    position = models.ForeignKey(Position, on_delete=models.PROTECT, related_name='job_openings')
+    title = models.CharField(max_length=150)
+    description = models.TextField(blank=True)
+    requirements = models.TextField(blank=True)
+    openings = models.PositiveIntegerField(default=1)
+    closing_date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft', db_index=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='created_job_openings')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        if self.position_id and self.position.company_id != self.company_id:
+            raise ValidationError('Position must belong to the opening company.')
+        if self.openings < 1:
+            raise ValidationError('At least one opening is required.')
+
+
+class Applicant(models.Model):
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, related_name='applicants')
+    name = models.CharField(max_length=160)
+    email = models.EmailField()
+    phone = models.CharField(max_length=40, blank=True)
+    resume = models.FileField(upload_to='hr/resumes/', blank=True)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('name',)
+
+
+class JobApplication(models.Model):
+    STATUS_CHOICES = [('applied', 'Applied'), ('screening', 'Screening'), ('interview', 'Interview'), ('offered', 'Offered'), ('hired', 'Hired'), ('rejected', 'Rejected'), ('withdrawn', 'Withdrawn')]
+    opening = models.ForeignKey(JobOpening, on_delete=models.CASCADE, related_name='applications')
+    applicant = models.ForeignKey(Applicant, on_delete=models.CASCADE, related_name='applications')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='applied', db_index=True)
+    interview_date = models.DateTimeField(null=True, blank=True)
+    rating = models.PositiveSmallIntegerField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    applied_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        if self.applicant_id and self.opening_id:
+            if self.applicant.company_id != self.opening.company_id:
+                raise ValidationError('Applicant must belong to the opening company.')
+            if self.opening.company_id != self.applicant.company_id:
+                raise ValidationError('Application records must remain within one company.')
+
+
+class EmployeeDocument(models.Model):
+    DOCUMENT_TYPES = [('identity', 'Identity'), ('contract', 'Contract'), ('certificate', 'Certificate'), ('policy', 'Policy'), ('other', 'Other')]
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, related_name='employee_documents')
+    employee = models.ForeignKey('employees.Employee', on_delete=models.CASCADE, related_name='documents')
+    title = models.CharField(max_length=160)
+    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES, default='other')
+    file = models.FileField(upload_to='hr/employee-documents/')
+    expiry_date = models.DateField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='uploaded_employee_documents')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        if self.employee_id and self.company_id and self.employee.company_id != self.company_id:
+            raise ValidationError('Employee must belong to the document company.')
+
+
+class BenefitPlan(models.Model):
+    PLAN_TYPES = [('medical', 'Medical'), ('insurance', 'Insurance'), ('pension', 'Pension'), ('allowance', 'Allowance'), ('other', 'Other')]
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, related_name='benefit_plans')
+    name = models.CharField(max_length=120)
+    plan_type = models.CharField(max_length=20, choices=PLAN_TYPES)
+    provider = models.CharField(max_length=120, blank=True)
+    employer_contribution = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    employee_contribution = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('company', 'name'), name='unique_benefit_company_name')]
+
+
+class EmployeeBenefit(models.Model):
+    STATUS_CHOICES = [('active', 'Active'), ('suspended', 'Suspended'), ('ended', 'Ended')]
+    employee = models.ForeignKey('employees.Employee', on_delete=models.CASCADE, related_name='benefits')
+    plan = models.ForeignKey(BenefitPlan, on_delete=models.PROTECT, related_name='enrollments')
+    start_date = models.DateField(default=timezone.localdate)
+    end_date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active', db_index=True)
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('employee', 'plan'), name='unique_employee_benefit_plan')]
+
+    def clean(self):
+        if self.employee_id and self.plan_id and self.employee.company_id != self.plan.company_id:
+            raise ValidationError('Employee and benefit plan must belong to the same company.')
+        if self.end_date and self.end_date < self.start_date:
+            raise ValidationError('Benefit end date must follow its start date.')
+
+
+class DisciplinaryCase(models.Model):
+    STATUS_CHOICES = [('open', 'Open'), ('investigating', 'Investigating'), ('resolved', 'Resolved'), ('closed', 'Closed')]
+    SEVERITY_CHOICES = [('low', 'Low'), ('medium', 'Medium'), ('high', 'High'), ('critical', 'Critical')]
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, related_name='disciplinary_cases')
+    employee = models.ForeignKey('employees.Employee', on_delete=models.PROTECT, related_name='disciplinary_cases')
+    title = models.CharField(max_length=160)
+    description = models.TextField()
+    severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES, default='medium')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open', db_index=True)
+    outcome = models.TextField(blank=True)
+    opened_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='opened_disciplinary_cases')
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        if self.employee_id and self.company_id and self.employee.company_id != self.company_id:
+            raise ValidationError('Employee must belong to the disciplinary case company.')

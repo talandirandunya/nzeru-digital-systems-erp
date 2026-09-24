@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block title %}Administration dashboard{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="mb-1">Administration dashboard</h2>
+    <p class="text-muted mb-0">{{ company.name }} · control centre for users, approvals, and business settings</p>
+  </div>
+  <a class="btn btn-primary" href="{% url 'accounts:company_profile' %}">Company profile</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase">Users</div>
+        <h3 class="mt-2 mb-0">{{ user_count }}</h3>
+        <div class="small text-muted">{{ active_user_count }} active</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase">Approval workflows</div>
+        <h3 class="mt-2 mb-0">{{ workflow_count }}</h3>
+        <div class="small text-muted">Configured routes</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase">Pending approvals</div>
+        <h3 class="mt-2 mb-0">{{ pending_approval_count }}</h3>
+        <div class="small text-muted">Waiting for review</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase">Security</div>
+        <h3 class="mt-2 mb-0">{{ recent_events|length }}</h3>
+        <div class="small text-muted">Recent audit records</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">User management</h5>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'governance:user_list' %}">Open</a>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Create accounts, maintain role assignments, and control module access for your company.</p>
+        <div class="d-grid gap-2">
+          <a href="{% url 'governance:user_list' %}" class="btn btn-outline-secondary text-start">Manage users</a>
+          <a href="{% url 'governance:user_create' %}" class="btn btn-outline-secondary text-start">Create new user</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Approval workflows</h5>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'governance:workflow_list' %}">Open</a>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Configure multi-stage approval paths for procurement, finance, and other sensitive transactions.</p>
+        <div class="d-grid gap-2">
+          <a href="{% url 'governance:workflow_list' %}" class="btn btn-outline-secondary text-start">Review workflow routes</a>
+          <a href="{% url 'governance:workflow_create' %}" class="btn btn-outline-secondary text-start">Create workflow</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Company profile</h5>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'accounts:company_profile' %}">Open</a>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Maintain company identity, communication details, payment settings, and email configuration.</p>
+        <div class="d-grid gap-2">
+          <a href="{% url 'accounts:company_profile' %}" class="btn btn-outline-secondary text-start">Edit company details</a>
+          <a href="{% url 'accounts:company_email_settings' %}" class="btn btn-outline-secondary text-start">Email settings</a>
+          <a href="{% url 'accounts:company_payment_settings' %}" class="btn btn-outline-secondary text-start">Payment settings</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Audit trail</h5>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'governance:audit_list' %}">View</a>
+      </div>
+      <div class="card-body p-0">
+        {% if recent_events %}
+        <div class="list-group list-group-flush">
+          {% for event in recent_events %}
+          <div class="list-group-item">
+            <div class="d-flex justify-content-between gap-3">
+              <div>
+                <div class="fw-semibold">{{ event.action }}</div>
+                <div class="small text-muted">{{ event.module }}{% if event.actor %} · {{ event.actor.get_full_name|default:event.actor.email }}{% endif %}</div>
+              </div>
+              <div class="small text-muted text-nowrap">{{ event.created_at|date:'d M Y' }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="card-body text-muted">No audit activity recorded yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-4 border-0 shadow-sm">
+  <div class="card-header bg-white border-0">
+    <h5 class="mb-0">Recent users</h5>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in recent_users %}
+          <tr>
+            <td>{{ user.get_full_name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.get_role_display }}</td>
+            <td>{% if user.is_active %}Active{% else %}Inactive{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="text-muted">No users in this company yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

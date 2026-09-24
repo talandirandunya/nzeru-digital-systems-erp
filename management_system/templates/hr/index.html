@@ -22,6 +22,11 @@
         <li><a class="dropdown-item" href="{% url 'hr:employee_training_list' %}"><i class="fas fa-users me-2"></i>{% trans "Manage Training Enrollments" %}</a></li>
         <li><a class="dropdown-item" href="{% url 'hr:skill_create' %}"><i class="fas fa-star me-2"></i>{% trans "New Skill" %}</a></li>
         <li><a class="dropdown-item" href="{% url 'hr:employee_skill_create' %}"><i class="fas fa-chart-line me-2"></i>{% trans "Add Skill Assessment" %}</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{% url 'hr:job_opening_create' %}"><i class="fas fa-user-plus me-2"></i>{% trans "New Job Opening" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'hr:employee_document_create' %}"><i class="fas fa-file-upload me-2"></i>{% trans "Upload Employee Document" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'hr:benefit_plan_create' %}"><i class="fas fa-heartbeat me-2"></i>{% trans "New Benefit Plan" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'hr:disciplinary_case_create' %}"><i class="fas fa-gavel me-2"></i>{% trans "New Disciplinary Case" %}</a></li>
       </ul>
     </div>
 
@@ -41,6 +46,10 @@
     <a href="{% url 'hr:skill_list' %}" class="btn btn-outline-warning btn-sm">
       <i class="fas fa-star me-1"></i>{% trans "Skills" %}
     </a>
+    <a href="{% url 'hr:job_opening_list' %}" class="btn btn-outline-dark btn-sm"><i class="fas fa-user-plus me-1"></i>{% trans "Recruitment" %}</a>
+    <a href="{% url 'hr:employee_document_list' %}" class="btn btn-outline-dark btn-sm"><i class="fas fa-file-alt me-1"></i>{% trans "Documents" %}</a>
+    <a href="{% url 'hr:benefit_plan_list' %}" class="btn btn-outline-dark btn-sm"><i class="fas fa-heartbeat me-1"></i>{% trans "Benefits" %}</a>
+    <a href="{% url 'hr:disciplinary_case_list' %}" class="btn btn-outline-dark btn-sm"><i class="fas fa-gavel me-1"></i>{% trans "Employee Relations" %}</a>
   </div>
 </div>
 
@@ -143,6 +152,10 @@
       </div>
     </div>
   </div>
+  <div class="col-sm-6 col-xl-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><p class="text-muted small mb-0">Open job openings</p><h3 class="mb-0 fw-bold">{{ open_job_count }}</h3><a href="{% url 'hr:job_opening_list' %}" class="small">View recruitment</a></div></div></div>
+  <div class="col-sm-6 col-xl-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><p class="text-muted small mb-0">Active employees</p><h3 class="mb-0 fw-bold">{{ active_employee_count }}</h3><a href="{% url 'employees:employee_list' %}" class="small">View employees</a></div></div></div>
+  <div class="col-sm-6 col-xl-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><p class="text-muted small mb-0">Documents expiring soon</p><h3 class="mb-0 fw-bold">{{ document_expiry_count }}</h3><a href="{% url 'hr:employee_document_list' %}" class="small">Review documents</a></div></div></div>
+  <div class="col-sm-6 col-xl-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><p class="text-muted small mb-0">Open employee cases</p><h3 class="mb-0 fw-bold">{{ open_disciplinary_count }}</h3><a href="{% url 'hr:disciplinary_case_list' %}" class="small">Review cases</a></div></div></div>
   <div class="col-sm-6 col-xl-3">
     <div class="card border-0 shadow-sm h-100">
       <div class="card-body d-flex align-items-center gap-3">

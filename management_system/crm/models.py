@@ -10,6 +10,7 @@ Models:
 import logging
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -100,6 +101,10 @@ class Note(models.Model):
     class Meta:
         ordering = ['-created_at']
 
+    def clean(self):
+        if self.contact_id and self.company_id and self.contact.company_id != self.company_id:
+            raise ValidationError('Contact must belong to the same company as the note.')
+
     def __str__(self) -> str:
         preview = (self.content[:40] + '...') if len(self.content) > 40 else self.content
         return f'[{self.get_note_type_display()}] {preview}'
@@ -181,6 +186,17 @@ class Opportunity(models.Model):
             models.Index(fields=['company', 'payment_status']),
             models.Index(fields=['follow_up_date']),
         ]
+
+    def clean(self):
+        errors = {}
+        if self.contact_id and self.company_id and self.contact.company_id != self.company_id:
+            errors['contact'] = 'Contact must belong to the same company as the opportunity.'
+        if self.assigned_to_id and self.company_id and self.assigned_to.company_id != self.company_id:
+            errors['assigned_to'] = 'Assigned employee must belong to the same company as the opportunity.'
+        if self.revenue_transaction_id and self.company_id and self.revenue_transaction.company_id != self.company_id:
+            errors['revenue_transaction'] = 'Revenue transaction must belong to the same company as the opportunity.'
+        if errors:
+            raise ValidationError(errors)
 
     def __str__(self) -> str:
         return f'{self.title} ({self.contact.name})'

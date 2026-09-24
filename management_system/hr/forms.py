@@ -8,9 +8,89 @@ from .models import (
     PayrollEntry, PayrollEntryComponent,
     PerformanceGoal, PerformanceReview, PerformanceReviewComment,
     TrainingCourse, TrainingSession, EmployeeTraining, Skill, EmployeeSkill,
-    AttendanceRecord,
+    AttendanceRecord, JobOpening, Applicant, JobApplication, EmployeeDocument,
+    BenefitPlan, EmployeeBenefit, DisciplinaryCase,
 )
 from employees.models import Employee
+
+
+class CompanyScopedModelForm(forms.ModelForm):
+    def __init__(self, *args, company=None, **kwargs):
+        self.company = company
+        super().__init__(*args, **kwargs)
+
+
+class JobOpeningForm(CompanyScopedModelForm):
+    class Meta:
+        model = JobOpening
+        fields = ['position', 'title', 'description', 'requirements', 'openings', 'closing_date', 'status']
+        widgets = {'closing_date': forms.DateInput(attrs={'type': 'date'})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.company:
+            self.fields['position'].queryset = Position.objects.filter(company=self.company)
+
+
+class ApplicantForm(forms.ModelForm):
+    class Meta:
+        model = Applicant
+        fields = ['name', 'email', 'phone', 'resume', 'notes']
+
+
+class JobApplicationForm(CompanyScopedModelForm):
+    class Meta:
+        model = JobApplication
+        fields = ['opening', 'applicant', 'status', 'interview_date', 'rating', 'notes']
+        widgets = {'interview_date': forms.DateTimeInput(attrs={'type': 'datetime-local'})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.company:
+            self.fields['opening'].queryset = JobOpening.objects.filter(company=self.company)
+            self.fields['applicant'].queryset = Applicant.objects.filter(company=self.company)
+
+
+class EmployeeDocumentForm(CompanyScopedModelForm):
+    class Meta:
+        model = EmployeeDocument
+        fields = ['employee', 'title', 'document_type', 'file', 'expiry_date', 'notes']
+        widgets = {'expiry_date': forms.DateInput(attrs={'type': 'date'})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.company:
+            self.fields['employee'].queryset = Employee.objects.filter(company=self.company)
+
+
+class BenefitPlanForm(forms.ModelForm):
+    class Meta:
+        model = BenefitPlan
+        fields = ['name', 'plan_type', 'provider', 'employer_contribution', 'employee_contribution', 'is_active']
+
+
+class EmployeeBenefitForm(CompanyScopedModelForm):
+    class Meta:
+        model = EmployeeBenefit
+        fields = ['employee', 'plan', 'start_date', 'end_date', 'status', 'notes']
+        widgets = {'start_date': forms.DateInput(attrs={'type': 'date'}), 'end_date': forms.DateInput(attrs={'type': 'date'})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.company:
+            self.fields['employee'].queryset = Employee.objects.filter(company=self.company)
+            self.fields['plan'].queryset = BenefitPlan.objects.filter(company=self.company, is_active=True)
+
+
+class DisciplinaryCaseForm(CompanyScopedModelForm):
+    class Meta:
+        model = DisciplinaryCase
+        fields = ['employee', 'title', 'description', 'severity', 'status', 'outcome']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.company:
+            self.fields['employee'].queryset = Employee.objects.filter(company=self.company)
 
 
 class PositionForm(forms.ModelForm):

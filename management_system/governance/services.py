@@ -1,4 +1,6 @@
+from datetime import timedelta
 from decimal import Decimal
+from types import SimpleNamespace
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -8,7 +10,7 @@ from django.utils import timezone
 from notifications.models import Notification
 from notifications.utils import create_notification
 
-from .models import ApprovalDecision, ApprovalRequest, ApprovalWorkflow, AuditEvent, UserApprovalAuthority, has_capability
+from .models import ApprovalDecision, ApprovalDelegation, ApprovalRequest, ApprovalWorkflow, AuditEvent, UserApprovalAuthority, has_capability
 
 
 def _target_amount(target):
@@ -29,30 +31,154 @@ def _target_company_id(target):
     return getattr(company, 'pk', None)
 
 
+def _step_matches(step, user, amount, department='', branch=''):
+    if step.role and user.role != step.role:
+        return False
+    if step.department and (user.department != step.department or step.department != department):
+        return False
+    if step.branch and step.branch != branch:
+        return False
+    if step.capability and not has_capability(user, step.capability):
+        return False
+    if amount is not None:
+        if step.min_amount is not None and amount < step.min_amount:
+            return False
+        if step.max_amount is not None and amount > step.max_amount:
+            return False
+        if step.approval_limit is not None and amount > step.approval_limit:
+            return False
+    return True
+
+
 def _user_has_explicit_authority(user, transaction_type, step, amount, target=None):
-    if user.is_superuser or not getattr(user, 'access_controlled', False):
-        return True
+    if not user.is_authenticated or not user.is_active or user.company_id is None:
+        return False
+    required_capability = step.capability or 'approvals.decide'
+    if not has_capability(user, required_capability):
+        return False
     department = getattr(getattr(target, 'department', None), 'name', '') or getattr(target, 'department', '') or ''
+    branch = getattr(getattr(target, 'branch', None), 'name', '') or getattr(target, 'branch', '') or ''
+
     authorities = UserApprovalAuthority.objects.filter(
         company=user.company,
         user=user,
         transaction_type=transaction_type,
         enabled=True,
     )
-    return any(
-        authority.matches(user, amount, department=department)
-        and (not step.capability or authority.capability == step.capability)
+    has_matching_authority = any(
+        authority.matches(user, amount, department=department, branch=branch)
+        and authority.capability == required_capability
+        and (not step.department or authority.department in {'', step.department})
+        and (not step.branch or authority.branch in {'', step.branch})
         for authority in authorities
     )
+    if has_matching_authority:
+        return True
+
+    # Default role capabilities are valid only when there are no approval
+    # authority or delegation records for this transaction type. If a user has a
+    # related approval record, it means the workflow explicitly constrains access.
+    related_authorities = UserApprovalAuthority.objects.filter(
+        company=user.company,
+        user=user,
+        transaction_type=transaction_type,
+    )
+    related_delegations = ApprovalDelegation.objects.filter(
+        company=user.company,
+        delegate=user,
+        transaction_type=transaction_type,
+    )
+    if not related_authorities.exists() and not related_delegations.exists():
+        return True
+
+    now = timezone.now()
+    delegations = ApprovalDelegation.objects.filter(
+        company=user.company,
+        delegate=user,
+        transaction_type=transaction_type,
+        capability=required_capability,
+        enabled=True,
+        starts_at__lte=now,
+        ends_at__gt=now,
+    )
+    for delegation in delegations:
+        if delegation.department and delegation.department != department:
+            continue
+        if delegation.branch and delegation.branch != branch:
+            continue
+        if step.department and delegation.department not in {'', step.department}:
+            continue
+        if step.branch and delegation.branch not in {'', step.branch}:
+            continue
+        delegator_authority = UserApprovalAuthority.objects.filter(
+            company=user.company,
+            user=delegation.delegator,
+            transaction_type=transaction_type,
+            capability=required_capability,
+            enabled=True,
+        )
+        if any(
+            authority.matches(delegation.delegator, amount, department=department, branch=branch)
+            and (not step.department or authority.department in {'', step.department})
+            and (not step.branch or authority.branch in {'', step.branch})
+            for authority in delegator_authority
+        ):
+            return True
+    return False
 
 
 def _eligible_users(company, step, amount, transaction_type, target=None):
     users = company.users.filter(is_active=True).exclude(is_superuser=False, company__isnull=True)
     return [
         user for user in users
-        if step.matches(user, amount)
+        if _step_matches(
+            step,
+            user,
+            amount,
+            department=getattr(getattr(target, 'department', None), 'name', '') or getattr(target, 'department', '') or '',
+            branch=getattr(getattr(target, 'branch', None), 'name', '') or getattr(target, 'branch', '') or '',
+        )
         and _user_has_explicit_authority(user, transaction_type, step, amount, target)
     ]
+
+
+def _snapshot_for_workflow(workflow):
+    return {
+        'transaction_type': workflow.transaction_type,
+        'reminder_after_hours': workflow.reminder_after_hours,
+        'escalation_after_hours': workflow.escalation_after_hours,
+        'allow_self_approval': workflow.allow_self_approval,
+        'steps': [
+            {
+                'sequence': step.sequence,
+                'role': step.role,
+                'capability': step.capability,
+                'department': step.department,
+                'branch': step.branch,
+                'min_amount': str(step.min_amount) if step.min_amount is not None else None,
+                'max_amount': str(step.max_amount) if step.max_amount is not None else None,
+                'approval_limit': str(step.approval_limit) if step.approval_limit is not None else None,
+                'required': step.required,
+            }
+            for step in workflow.steps.order_by('sequence')
+        ],
+    }
+
+
+def _request_steps(approval):
+    snapshot = approval.workflow_snapshot or {}
+    steps = snapshot.get('steps') or _snapshot_for_workflow(approval.workflow)['steps']
+    return [SimpleNamespace(
+        sequence=item['sequence'],
+        role=item.get('role', ''),
+        capability=item.get('capability', ''),
+        department=item.get('department', ''),
+        branch=item.get('branch', ''),
+        min_amount=Decimal(item['min_amount']) if item.get('min_amount') is not None else None,
+        max_amount=Decimal(item['max_amount']) if item.get('max_amount') is not None else None,
+        approval_limit=Decimal(item['approval_limit']) if item.get('approval_limit') is not None else None,
+        required=item.get('required', True),
+    ) for item in steps]
 
 
 def maybe_submit_user_account_approval(*, user, requester, request=None):
@@ -80,7 +206,7 @@ def maybe_submit_user_account_approval(*, user, requester, request=None):
 
 def _move_to_next_actionable_step(approval, target, start_sequence):
     amount = _target_amount(target)
-    steps = approval.workflow.steps.filter(sequence__gte=start_sequence).order_by('sequence')
+    steps = [step for step in _request_steps(approval) if step.sequence >= start_sequence]
     for step in steps:
         eligible = _eligible_users(approval.company, step, amount, approval.workflow.transaction_type, target)
         if eligible:
@@ -112,6 +238,15 @@ def submit_for_approval(*, target, requester, transaction_type, reason='', reque
     workflow = next((item for item in ApprovalWorkflow.objects.filter(company=company, transaction_type=transaction_type, enabled=True).prefetch_related('steps') if item.matches(amount)), None)
     if workflow is None:
         raise ValidationError(f'No approval workflow is configured for {transaction_type}.')
+    existing_pending = ApprovalRequest.objects.filter(
+        company=company,
+        workflow__transaction_type=transaction_type,
+        content_type=ContentType.objects.get_for_model(target),
+        object_id=target.pk,
+        status='pending',
+    ).order_by('-submitted_at').first()
+    if existing_pending is not None:
+        return existing_pending
     content_type = ContentType.objects.get_for_model(target)
     approval = ApprovalRequest.objects.create(
         company=company,
@@ -119,9 +254,10 @@ def submit_for_approval(*, target, requester, transaction_type, reason='', reque
         requester=requester,
         content_type=content_type,
         object_id=target.pk,
+        workflow_snapshot=_snapshot_for_workflow(workflow),
     )
     first_step, eligible = _move_to_next_actionable_step(approval, target, approval.current_step)
-    if first_step is None and not approval.workflow.steps.exists():
+    if first_step is None and not _request_steps(approval):
         raise ValidationError('Approval workflow has no steps.')
     approval.save(update_fields=['current_step', 'status', 'completed_at', 'updated_at'])
     if first_step is not None and not eligible:
@@ -156,8 +292,11 @@ def decide_approval(*, approval, actor, decision, reason='', request=None):
         raise ValidationError('This approval is no longer pending.')
     if _target_company_id(approval.target) != approval.company_id:
         raise ValidationError('Approval target belongs to another company.')
-    step = approval.current_step_config
-    if step is None or not step.matches(actor, _target_amount(approval.target)) or not _user_has_explicit_authority(
+    step = next((item for item in _request_steps(approval) if item.sequence == approval.current_step), None)
+    target = approval.target
+    department = getattr(getattr(target, 'department', None), 'name', '') or getattr(target, 'department', '') or ''
+    branch = getattr(getattr(target, 'branch', None), 'name', '') or getattr(target, 'branch', '') or ''
+    if step is None or not _step_matches(step=step, user=actor, amount=_target_amount(target), department=department, branch=branch) or not _user_has_explicit_authority(
         actor,
         approval.workflow.transaction_type,
         step,
@@ -165,12 +304,15 @@ def decide_approval(*, approval, actor, decision, reason='', request=None):
         approval.target,
     ):
         raise ValidationError('You are not authorised for the current approval step.')
-    if actor.pk == approval.requester_id and not approval.workflow.allow_self_approval:
+    allow_self_approval = (approval.workflow_snapshot or {}).get('allow_self_approval', approval.workflow.allow_self_approval)
+    if actor.pk == approval.requester_id and not allow_self_approval:
         raise ValidationError('The requester cannot approve their own work.')
     if decision in ('rejected', 'returned') and not reason.strip():
         raise ValidationError('A reason is required for rejection or return for correction.')
-    ApprovalDecision.objects.create(request=approval, step=step, actor=actor, decision=decision, reason=reason)
-    target = approval.target
+    step_record = approval.workflow.steps.filter(sequence=approval.current_step).first()
+    if step_record is None:
+        raise ValidationError('The original approval step is unavailable.')
+    ApprovalDecision.objects.create(request=approval, step=step_record, actor=actor, decision=decision, reason=reason)
     if decision == 'approved':
         next_step, eligible = _move_to_next_actionable_step(approval, target, approval.current_step + 1)
         if next_step:
@@ -221,14 +363,98 @@ def actionable_approvals_for_user(user):
     ).select_related('requester', 'workflow').prefetch_related('workflow__steps')
     return [
         item for item in pending
-        if item.current_step_config
-        and item.current_step_config.matches(user, _target_amount(item.target))
+        if next((step for step in _request_steps(item) if step.sequence == item.current_step), None)
+        and _step_matches(
+            next((step for step in _request_steps(item) if step.sequence == item.current_step), None),
+            user,
+            _target_amount(item.target),
+            department=getattr(getattr(item.target, 'department', None), 'name', '') or getattr(item.target, 'department', '') or '',
+            branch=getattr(getattr(item.target, 'branch', None), 'name', '') or getattr(item.target, 'branch', '') or '',
+        )
         and _user_has_explicit_authority(
             user,
-            item.workflow.transaction_type,
-            item.current_step_config,
+            (item.workflow_snapshot or {}).get('transaction_type', item.workflow.transaction_type),
+            next((step for step in _request_steps(item) if step.sequence == item.current_step), None),
             _target_amount(item.target),
             item.target,
         )
-        and not (item.requester_id == user.pk and not item.workflow.allow_self_approval)
+        and not (item.requester_id == user.pk and not (item.workflow_snapshot or {}).get('allow_self_approval', item.workflow.allow_self_approval))
     ]
+
+
+@transaction.atomic
+def process_overdue_approvals(*, company=None, now=None):
+    """Send due reminders and escalation notices for pending approvals.
+
+    This operation is safe to run repeatedly. Existing unread approval
+    notifications in the current reminder window suppress duplicates.
+    """
+    now = now or timezone.now()
+    queryset = ApprovalRequest.objects.filter(status='pending').select_related('company', 'workflow', 'requester')
+    if company is not None:
+        queryset = queryset.filter(company=company)
+
+    processed = {'reminded': 0, 'escalated': 0}
+    for approval in queryset:
+        age_hours = (now - approval.submitted_at).total_seconds() / 3600
+        workflow = approval.workflow
+        snapshot = approval.workflow_snapshot or {}
+        reminder_after_hours = snapshot.get('reminder_after_hours', workflow.reminder_after_hours)
+        escalation_after_hours = snapshot.get('escalation_after_hours', workflow.escalation_after_hours)
+        transaction_type = snapshot.get('transaction_type', workflow.transaction_type)
+        if age_hours < reminder_after_hours:
+            continue
+        target = approval.target
+        step = next((item for item in _request_steps(approval) if item.sequence == approval.current_step), None)
+        if step is None:
+            continue
+        amount = _target_amount(target)
+        eligible = [
+            user for user in approval.company.users.filter(is_active=True)
+            if _step_matches(
+                step,
+                user,
+                amount,
+                department=getattr(getattr(target, 'department', None), 'name', '') or getattr(target, 'department', '') or '',
+                branch=getattr(getattr(target, 'branch', None), 'name', '') or getattr(target, 'branch', '') or '',
+            ) and _user_has_explicit_authority(user, transaction_type, step, amount, target)
+        ]
+        if not eligible:
+            continue
+        notification_type = 'approval_required'
+        escalation = age_hours >= escalation_after_hours
+        title = 'Approval escalation' if escalation else 'Approval reminder'
+        message = (
+            f'Approval APR-{approval.pk} has been pending for {int(age_hours)} hours. '
+            f'Please review step {step.sequence}.'
+        )
+        cutoff = now - timedelta(hours=max(reminder_after_hours, 1))
+        for user in eligible:
+            already_notified = Notification.objects.filter(
+                user=user,
+                notification_type=notification_type,
+                related_object_id=target.pk,
+                related_object_type=f'{target._meta.app_label}.{target._meta.model_name}',
+                created_at__gte=cutoff,
+                data__approval_id=approval.pk,
+            ).exists()
+            if not already_notified:
+                create_notification(
+                    user=user,
+                    notification_type=notification_type,
+                    title=title,
+                    message=message,
+                    data={'approval_id': approval.pk, 'escalated': escalation},
+                    related_object=target,
+                )
+                processed['escalated' if escalation else 'reminded'] += 1
+        AuditEvent.record(
+            actor=None,
+            company=approval.company,
+            module='approvals',
+            action='escalated' if escalation else 'reminder_sent',
+            obj=target,
+            after={'approval_id': approval.pk, 'current_step': step.sequence},
+            reason='Scheduled approval follow-up.',
+        )
+    return processed

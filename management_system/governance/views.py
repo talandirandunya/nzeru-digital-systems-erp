@@ -1,8 +1,13 @@
+import csv
+from datetime import timedelta
+
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
+from django.db.models import F, Sum
+from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_http_methods, require_POST
 
 from .decorators import capability_required
@@ -12,6 +17,11 @@ from .models import ApprovalStep, ApprovalWorkflow, ApprovalRequest
 from .services import actionable_approvals_for_user, _target_amount, decide_approval, maybe_submit_user_account_approval
 from .workflow_forms import ApprovalStepForm, ApprovalWorkflowForm
 from .models import AuditEvent, UserApprovalAuthority, UserCapability, effective_capabilities
+from employees.models import Employee
+from finance.models import Transaction
+from inventory.models import Stock
+from projects.models import Project
+from crm.models import Contact, Opportunity
 
 
 User = get_user_model()
@@ -167,6 +177,109 @@ def audit_list(request):
     return render(request, 'governance/audit_list.html', {'events': events[:200]})
 
 
+def _reporting_context(request):
+    company = request.user.company
+    today = timezone.localdate()
+    range_days = request.GET.get('days', '30')
+    if range_days not in {'30', '90', '365'}:
+        range_days = '30'
+    since = today - timedelta(days=int(range_days))
+    module_filter = request.GET.get('module', '').strip()
+
+    employees = Employee.objects.filter(company=company)
+    projects = Project.objects.filter(company=company)
+    opportunities = Opportunity.objects.filter(company=company)
+    audit_events = AuditEvent.objects.filter(company=company, created_at__date__gte=since)
+    if module_filter:
+        audit_events = audit_events.filter(module=module_filter)
+
+    revenue = Transaction.objects.filter(
+        company=company,
+        account__account_type='revenue',
+        transaction_type='credit',
+        date__gte=since,
+        date__lte=today,
+    ).aggregate(total=Sum('amount'))['total'] or 0
+
+    return {
+        'company': company,
+        'report_date': today,
+        'since': since,
+        'range_days': range_days,
+        'module_filter': module_filter,
+        'module_choices': AuditEvent.objects.filter(company=company).values_list('module', flat=True).distinct().order_by('module'),
+        'employees_total': employees.count(),
+        'employees_active': employees.filter(status='active').count(),
+        'projects_total': projects.count(),
+        'projects_active': projects.filter(status='in_progress').count(),
+        'projects_overdue': projects.filter(end_date__lt=today, status__in=['planning', 'in_progress']).count(),
+        'low_stock_items': Stock.objects.filter(company=company, quantity__lte=F('reorder_level')).count(),
+        'contacts_total': Contact.objects.filter(company=company).count(),
+        'open_opportunities': opportunities.exclude(stage__in=['won', 'lost']).count(),
+        'open_pipeline_value': opportunities.exclude(stage__in=['won', 'lost']).aggregate(total=Sum('value'))['total'] or 0,
+        'revenue_total': revenue,
+        'pending_approvals': ApprovalRequest.objects.filter(company=company, status='pending').count(),
+        'audit_events': audit_events.select_related('actor').order_by('-created_at')[:100],
+    }
+
+
+@capability_required('reporting.view')
+def reporting_dashboard(request):
+    context = _reporting_context(request)
+    return render(request, 'governance/reporting_dashboard.html', context)
+
+
+@capability_required('reporting.export')
+def reporting_export(request):
+    context = _reporting_context(request)
+    response = HttpResponse(content_type='text/csv')
+    period_suffix = f"{context['since']} to {context['report_date']}"
+    module_label = context['module_filter'] or 'all_modules'
+    company_slug = ''.join(ch if ch.isalnum() else '_' for ch in context['company'].name.lower())
+    filename = f"erp_reporting_{company_slug}_{module_label}_{context['range_days']}.csv"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    writer = csv.writer(response)
+    writer.writerow(['Company', 'Module filter', 'Period', 'Metric', 'Value'])
+    writer.writerow([context['company'].name, module_label, period_suffix, 'Scope', 'Company-scoped'])
+    for label, value in (
+        ('Employees', context['employees_total']),
+        ('Active employees', context['employees_active']),
+        ('Projects', context['projects_total']),
+        ('Active projects', context['projects_active']),
+        ('Overdue projects', context['projects_overdue']),
+        ('Low-stock items', context['low_stock_items']),
+        ('Contacts', context['contacts_total']),
+        ('Open opportunities', context['open_opportunities']),
+        ('Open pipeline value', context['open_pipeline_value']),
+        ('Revenue credited', context['revenue_total']),
+        ('Pending approvals', context['pending_approvals']),
+        ('Audit events', len(context['audit_events'])),
+    ):
+        writer.writerow([context['company'].name, module_label, period_suffix, label, value])
+    return response
+
+
+@capability_required('admin.manage_organisation')
+def admin_dashboard(request):
+    company = request.user.company
+    user_count = User.objects.filter(company=company).count()
+    active_user_count = User.objects.filter(company=company, is_active=True).count()
+    workflow_count = ApprovalWorkflow.objects.filter(company=company).count()
+    pending_approval_count = ApprovalRequest.objects.filter(company=company, status='pending').count()
+    recent_users = User.objects.filter(company=company).order_by('-last_login', '-date_joined')[:5]
+    recent_events = AuditEvent.objects.filter(company=company).select_related('actor').order_by('-created_at')[:8]
+
+    return render(request, 'governance/admin_dashboard.html', {
+        'company': company,
+        'user_count': user_count,
+        'active_user_count': active_user_count,
+        'workflow_count': workflow_count,
+        'pending_approval_count': pending_approval_count,
+        'recent_users': recent_users,
+        'recent_events': recent_events,
+    })
+
+
 @capability_required('admin.manage_organisation')
 def workflow_list(request):
     workflows = ApprovalWorkflow.objects.filter(company=request.user.company).prefetch_related('steps')
@@ -188,16 +301,72 @@ def workflow_create(request):
 
 @capability_required('admin.manage_organisation')
 @require_http_methods(['GET', 'POST'])
+def workflow_edit(request, pk):
+    workflow = get_object_or_404(ApprovalWorkflow, pk=pk, company=request.user.company)
+    has_pending = workflow.requests.filter(status='pending').exists()
+    if request.method == 'POST':
+        form = ApprovalWorkflowForm(request.POST, instance=workflow)
+        if form.is_valid():
+            if has_pending and any(
+                form.cleaned_data[field] != getattr(workflow, field)
+                for field in ('transaction_type', 'applies_from', 'applies_to', 'allow_self_approval')
+            ):
+                form.add_error(None, 'Transaction scope cannot change while requests are pending.')
+            else:
+                form.save()
+                AuditEvent.record(actor=request.user, company=request.user.company, module='approvals', action='workflow_updated', obj=workflow, request=request)
+                messages.success(request, 'Approval workflow updated.')
+                return redirect('governance:workflow_detail', pk=workflow.pk)
+    else:
+        form = ApprovalWorkflowForm(instance=workflow)
+    return render(request, 'governance/workflow_form.html', {'form': form, 'title': 'Edit approval workflow', 'workflow': workflow})
+
+
+@capability_required('admin.manage_organisation')
+@require_http_methods(['GET', 'POST'])
 def workflow_detail(request, pk):
     workflow = get_object_or_404(ApprovalWorkflow, pk=pk, company=request.user.company)
     form = ApprovalStepForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        step = form.save(commit=False)
-        step.workflow = workflow
-        step.save()
-        AuditEvent.record(actor=request.user, company=request.user.company, module='approvals', action='workflow_step_created', obj=step, request=request)
-        return redirect('governance:workflow_detail', pk=workflow.pk)
+        if workflow.requests.filter(status='pending').exists():
+            form.add_error(None, 'Workflow steps cannot change while requests are pending.')
+        else:
+            step = form.save(commit=False)
+            step.workflow = workflow
+            step.save()
+            AuditEvent.record(actor=request.user, company=request.user.company, module='approvals', action='workflow_step_created', obj=step, request=request)
+            return redirect('governance:workflow_detail', pk=workflow.pk)
     return render(request, 'governance/workflow_detail.html', {'workflow': workflow, 'steps': workflow.steps.all(), 'form': form})
+
+
+@capability_required('admin.manage_organisation')
+@require_http_methods(['GET', 'POST'])
+def workflow_step_edit(request, pk):
+    step = get_object_or_404(ApprovalStep, pk=pk, workflow__company=request.user.company)
+    if step.workflow.requests.filter(status='pending').exists():
+        messages.error(request, 'Workflow steps cannot be changed while requests are pending.')
+        return redirect('governance:workflow_detail', pk=step.workflow_id)
+    form = ApprovalStepForm(request.POST or None, instance=step)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        AuditEvent.record(actor=request.user, company=request.user.company, module='approvals', action='workflow_step_updated', obj=step, request=request)
+        messages.success(request, 'Approval step updated.')
+        return redirect('governance:workflow_detail', pk=step.workflow_id)
+    return render(request, 'governance/workflow_form.html', {'form': form, 'title': 'Edit approval step', 'workflow': step.workflow})
+
+
+@capability_required('admin.manage_organisation')
+@require_POST
+def workflow_step_delete(request, pk):
+    step = get_object_or_404(ApprovalStep, pk=pk, workflow__company=request.user.company)
+    workflow_id = step.workflow_id
+    if step.workflow.requests.filter(status='pending').exists():
+        messages.error(request, 'Workflow steps cannot be deleted while requests are pending.')
+    else:
+        step.delete()
+        AuditEvent.record(actor=request.user, company=request.user.company, module='approvals', action='workflow_step_deleted', object_id=str(pk), request=request)
+        messages.success(request, 'Approval step deleted.')
+    return redirect('governance:workflow_detail', pk=workflow_id)
 
 
 @capability_required('approvals.decide')
@@ -213,6 +382,33 @@ def approval_decide(request, pk):
         messages.success(request, 'Approval decision saved.')
     except Exception as exc:
         messages.error(request, str(exc))
+    return redirect('governance:my_work')
+
+
+@login_required
+@require_POST
+def approval_cancel(request, pk):
+    approval = get_object_or_404(
+        ApprovalRequest,
+        pk=pk,
+        company=request.user.company,
+        requester=request.user,
+        status='pending',
+    )
+    approval.status = 'cancelled'
+    approval.completed_at = timezone.now()
+    approval.save(update_fields=['status', 'completed_at', 'updated_at'])
+    AuditEvent.record(
+        actor=request.user,
+        company=request.user.company,
+        module='approvals',
+        action='cancelled',
+        obj=approval.target,
+        after={'approval_id': approval.pk, 'status': approval.status},
+        reason='Approval cancelled by requester.',
+        request=request,
+    )
+    messages.success(request, 'Approval request cancelled.')
     return redirect('governance:my_work')
 
 

@@ -28,7 +28,11 @@ urlpatterns = [
     path('categories/create/', views.category_create, name='category_create'),
     path('categories/<int:pk>/edit/', views.category_edit, name='category_edit'),
     path('categories/<int:pk>/delete/', views.category_delete, name='category_delete'),
-    
+
+    # Warehouses
+    path('warehouses/', views.warehouse_list, name='warehouse_list'),
+    path('warehouses/create/', views.warehouse_create, name='warehouse_create'),
+
     # Reports
     path('reports/low-stock/', views.low_stock_report, name='low_stock_report'),
     path('reports/valuation/', views.stock_valuation_report, name='stock_valuation_report'),

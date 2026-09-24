@@ -28,6 +28,8 @@ class ContactForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        company = kwargs.pop('company', None)
+        self.company = company
         super().__init__(*args, **kwargs)
         self.fields['link_marketplace_email'].widget.attrs['class'] = 'form-control'
         # Pre-fill if already linked
@@ -39,9 +41,12 @@ class ContactForm(forms.ModelForm):
         email = self.cleaned_data.get('link_marketplace_email', '').strip()
         if email:
             try:
-                contact.marketplace_client = Client.objects.get(email=email)
+                client_qs = Client.objects.filter(email=email)
+                if self.company is not None and hasattr(Client, 'company_id'):
+                    client_qs = client_qs.filter(company=self.company)
+                contact.marketplace_client = client_qs.get()
             except Client.DoesNotExist:
-                pass  # silently ignore — form validation would catch if needed
+                contact.marketplace_client = None
         else:
             contact.marketplace_client = None
         if commit:

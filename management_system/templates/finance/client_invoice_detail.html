@@ -14,6 +14,7 @@
     <h2 class="mb-0"><i class="fas fa-file-invoice-dollar text-primary me-2"></i>{{ invoice.invoice_number }}</h2>
   </div>
   <div class="d-flex gap-2">
+    {% if invoice.status == 'draft' %}<form method="post" action="{% url 'finance:client_invoice_action' invoice.pk 'validate' %}">{% csrf_token %}<button class="btn btn-outline-success btn-sm">Validate</button></form>{% elif invoice.status == 'validated' %}<form method="post" action="{% url 'finance:client_invoice_action' invoice.pk 'send' %}">{% csrf_token %}<button class="btn btn-outline-primary btn-sm">Send</button></form>{% elif invoice.status == 'sent' %}<form method="post" action="{% url 'finance:client_invoice_action' invoice.pk 'pay' %}">{% csrf_token %}<button class="btn btn-success btn-sm">Mark paid</button></form>{% endif %}
     <a href="{% url 'finance:client_invoice_print' invoice.pk %}?type=proforma" target="_blank" class="btn btn-outline-info btn-sm">
       <i class="fas fa-file-invoice me-1"></i>{% trans "Print Proforma" %}
     </a>

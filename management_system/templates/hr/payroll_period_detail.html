@@ -25,6 +25,10 @@
                             <a href="{% url 'hr:payroll_period_process' period.pk %}" class="btn btn-success">
                                 <i class="fas fa-play"></i> {% trans "Process Payroll" %}
                             </a>
+                        {% elif period.status == 'completed' and not period.posted_to_finance %}
+                            <form method="post" action="{% url 'hr:payroll_period_post_to_finance' period.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-primary"><i class="fas fa-book"></i> {% trans "Post to Finance" %}</button></form>
+                        {% elif period.posted_to_finance %}
+                            <span class="badge bg-success">{% trans "Posted to Finance" %}</span>
                         {% endif %}
                     </div>
                 </div>
