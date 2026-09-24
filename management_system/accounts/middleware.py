@@ -74,6 +74,7 @@ class RequireLoginMiddleware(MiddlewareMixin):
         public_exact_paths = (
             '/',
             '/login/',
+            '/accounts/login/',
             '/health/',
         )
 

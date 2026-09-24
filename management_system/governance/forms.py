@@ -2,7 +2,8 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.db import transaction
 
-from employees.models import Employee
+from employees.models import Department, Employee
+from hr.models import Position
 from .access_catalog import CAPABILITY_LABELS, MODULE_ACCESS_CATALOG
 from .models import CAPABILITIES, ApprovalWorkflow, UserApprovalAuthority, UserCapability
 
@@ -17,6 +18,32 @@ class ManagedUserForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email', 'phone', 'department', 'position', 'role', 'is_active', 'is_company_admin', 'access_controlled']
         widgets = {'email': forms.EmailInput(attrs={'readonly': True})}
+
+    def __init__(self, *args, company=None, **kwargs):
+        self.company = company
+        super().__init__(*args, **kwargs)
+        department_names = sorted({
+            value for value in Department.objects.filter(company=company).values_list('name', flat=True)
+            if value
+        }) if company else []
+        position_titles = sorted({
+            value for value in Position.objects.filter(company=company).values_list('title', flat=True)
+            if value
+        }) if company else []
+        self.fields['department'].widget = forms.TextInput(attrs={
+            'class': 'form-control',
+            'list': 'department-suggestions',
+            'placeholder': 'Select or type department',
+        })
+        self.fields['position'].widget = forms.TextInput(attrs={
+            'class': 'form-control',
+            'list': 'position-suggestions',
+            'placeholder': 'Select or type position',
+        })
+        self.fields['department'].help_text = 'Use a department already in this company or add a new one.'
+        self.fields['position'].help_text = 'Use a position already in this company or add a new one.'
+        self.department_options = department_names
+        self.position_options = position_titles
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -50,6 +77,28 @@ class CreateManagedUserForm(forms.ModelForm):
     def __init__(self, *args, company=None, **kwargs):
         self.company = company
         super().__init__(*args, **kwargs)
+        department_names = sorted({
+            value for value in Department.objects.filter(company=company).values_list('name', flat=True)
+            if value
+        }) if company else []
+        position_titles = sorted({
+            value for value in Position.objects.filter(company=company).values_list('title', flat=True)
+            if value
+        }) if company else []
+        self.fields['department'].widget = forms.TextInput(attrs={
+            'class': 'form-control',
+            'list': 'department-suggestions',
+            'placeholder': 'Select or type department',
+        })
+        self.fields['position'].widget = forms.TextInput(attrs={
+            'class': 'form-control',
+            'list': 'position-suggestions',
+            'placeholder': 'Select or type position',
+        })
+        self.fields['department'].help_text = 'Use a department already in this company or add a new one.'
+        self.fields['position'].help_text = 'Use a position already in this company or add a new one.'
+        self.department_options = department_names
+        self.position_options = position_titles
         self.fields['employee'].queryset = (
             Employee.objects.filter(company=company, user__isnull=True).order_by('first_name', 'last_name', 'employee_id')
             if company else Employee.objects.none()
@@ -149,20 +198,50 @@ class CapabilityOverrideForm(forms.Form):
 
 
 class ApprovalAuthorityForm(forms.ModelForm):
+    module = forms.ChoiceField(
+        required=False,
+        choices=[('', 'Any module')] + [(module['key'], module['label']) for module in MODULE_ACCESS_CATALOG],
+        label='Module',
+        help_text='Choose the business module this approval belongs to.',
+    )
+    capability = forms.ChoiceField(
+        choices=[(capability, CAPABILITY_LABELS.get(capability, capability)) for capability in sorted(CAPABILITY_LABELS)],
+        initial='approvals.decide',
+        label='Capability',
+        help_text='This comes from the same capability catalog used in access assignments.',
+    )
+    transaction_type = forms.CharField(
+        max_length=100,
+        label='Transaction type',
+        help_text='Use an existing workflow type or type a new one.',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. purchase_requisition', 'list': 'known_transaction_types'}),
+    )
+
     class Meta:
         model = UserApprovalAuthority
         fields = ['transaction_type', 'module', 'capability', 'min_amount', 'max_amount', 'department', 'branch', 'enabled']
         widgets = {
-            'transaction_type': forms.TextInput(attrs={'placeholder': 'e.g. purchase_requisition'}),
-            'module': forms.TextInput(attrs={'placeholder': 'e.g. procurement'}),
-            'min_amount': forms.NumberInput(attrs={'step': '0.01'}),
-            'max_amount': forms.NumberInput(attrs={'step': '0.01'}),
+            'min_amount': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
+            'max_amount': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
+            'department': forms.TextInput(attrs={'class': 'form-control'}),
+            'branch': forms.TextInput(attrs={'class': 'form-control'}),
+            'enabled': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, company=None, user=None, **kwargs):
         self.company = company
         self.user = user
         super().__init__(*args, **kwargs)
+        self.fields['transaction_type'].widget.attrs.setdefault('class', 'form-control')
+        self.fields['module'].widget.attrs.setdefault('class', 'form-select')
+        self.fields['capability'].widget.attrs.setdefault('class', 'form-select')
+        self.fields['min_amount'].widget.attrs.setdefault('class', 'form-control')
+        self.fields['max_amount'].widget.attrs.setdefault('class', 'form-control')
+        self.fields['department'].widget.attrs.setdefault('class', 'form-control')
+        self.fields['branch'].widget.attrs.setdefault('class', 'form-control')
+        self.fields['enabled'].widget.attrs.setdefault('class', 'form-check-input')
+        if not self.initial.get('capability'):
+            self.initial['capability'] = 'approvals.decide'
 
     def save(self, commit=True, granted_by=None):
         authority = super().save(commit=False)

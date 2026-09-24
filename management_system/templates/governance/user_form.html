@@ -5,14 +5,78 @@
 {% endblock %}
 
 {% block content %}
-    <h2>{% if managed_user %}Edit {{ managed_user.get_full_name }}{% else %}Create user{% endif %}</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn btn-primary">Save</button>
-    </form>
-    {% if not managed_user %}
-    <script>
+<div class="container-fluid py-4">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-transparent border-0 py-3 px-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <div class="small text-uppercase text-muted mb-1">Users</div>
+                    <h2 class="h4 mb-0">{% if managed_user %}Edit {{ managed_user.get_full_name }}{% else %}Create user{% endif %}</h2>
+                </div>
+                <a class="btn btn-outline-secondary rounded-pill px-3" href="{% url 'governance:user_list' %}">Back to users</a>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <form method="post" class="row g-3 align-items-start">
+                {% csrf_token %}
+
+                <datalist id="department-suggestions">
+                    {% for option in department_options %}<option value="{{ option }}">{% endfor %}
+                </datalist>
+                <datalist id="position-suggestions">
+                    {% for option in position_options %}<option value="{{ option }}">{% endfor %}
+                </datalist>
+
+                {% for field in form %}
+                    {% if field.name == 'password' %}
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                            {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                    {% elif field.name == 'is_active' or field.name == 'is_company_admin' or field.name == 'access_controlled' %}
+                        <div class="col-12">
+                            <div class="form-check form-switch mt-2">
+                                {{ field }}
+                                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                            </div>
+                        </div>
+                    {% elif field.name == 'employee_search' %}
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                            {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                    {% elif field.name == 'employee' %}
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                            {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                    {% else %}
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                            {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <div class="col-12 d-flex justify-content-end pt-3">
+                    <button class="btn btn-primary rounded-pill px-4">Save user</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if not managed_user %}
+<script>
     document.addEventListener('DOMContentLoaded', function () {
         const search = document.querySelector('[data-employee-search]');
         const employee = document.getElementById('id_employee');
@@ -24,6 +88,6 @@
             });
         });
     });
-    </script>
-    {% endif %}
+</script>
+{% endif %}
 {% endblock %}

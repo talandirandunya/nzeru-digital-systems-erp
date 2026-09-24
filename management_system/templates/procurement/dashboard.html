@@ -1,26 +1,148 @@
 {% extends 'base.html' %}
 {% block title %}Procurement Dashboard{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <div><h2>Procurement Dashboard</h2><p class="text-muted mb-0">Plan, source, receive, verify, and monitor purchasing.</p></div>
-  <div class="btn-group"><a class="btn btn-primary" href="{% url 'procurement:requisition_create' %}">New requisition</a><a class="btn btn-outline-primary" href="{% url 'procurement:rfq_create' %}">New RFQ</a></div>
-</div>
-<div class="row g-3 mb-4">
-  <div class="col-md-3"><div class="card h-100"><div class="card-body"><small class="text-muted">Open requisitions</small><h3>{{ open_requisitions }}</h3></div></div></div>
-  <div class="col-md-3"><div class="card h-100"><div class="card-body"><small class="text-muted">POs awaiting approval</small><h3>{{ orders_pending_approval }}</h3></div></div></div>
-  <div class="col-md-3"><div class="card h-100"><div class="card-body"><small class="text-muted">Open RFQs</small><h3>{{ open_rfqs }}</h3></div></div></div>
-  <div class="col-md-3"><div class="card h-100"><div class="card-body"><small class="text-muted">Invoice exceptions</small><h3 class="{% if invoice_exceptions %}text-danger{% else %}text-success{% endif %}">{{ invoice_exceptions }}</h3></div></div></div>
-  <div class="col-md-3"><div class="card h-100"><div class="card-body"><small class="text-muted">Committed spend</small><h3>{{ committed_spend|floatformat:2 }}</h3></div></div></div>
-</div>
-<div class="row g-4">
-  <div class="col-lg-7"><div class="card"><div class="card-header d-flex justify-content-between"><strong>Procurement workspace</strong><a href="{% url 'procurement:order_list' %}">Purchase orders</a></div><div class="list-group list-group-flush">
-    <a class="list-group-item list-group-item-action" href="{% url 'procurement:requisition_list' %}">Requisitions <span class="float-end">Plan demand and request approval</span></a>
-    <a class="list-group-item list-group-item-action" href="{% url 'procurement:rfq_list' %}">Requests for quotation <span class="float-end">Compare supplier offers</span></a>
-    <a class="list-group-item list-group-item-action" href="{% url 'procurement:quotation_list' %}">Supplier quotations <span class="float-end">Review price and lead time</span></a>
-    <a class="list-group-item list-group-item-action" href="{% url 'procurement:contract_list' %}">Supplier contracts <span class="float-end">Track term and value</span></a>
-    <a class="list-group-item list-group-item-action" href="{% url 'procurement:invoice_match_list' %}">Invoice verification <span class="float-end">Match invoice to PO</span></a>
-    <a class="list-group-item list-group-item-action" href="{% url 'procurement:risk_list' %}">Supplier risks <span class="float-end">Track mitigation</span></a>
-  </div></div></div>
-  <div class="col-lg-5"><div class="card"><div class="card-header"><strong>Supplier performance and risk</strong></div><div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Supplier</th><th>Orders</th><th>Received</th><th>Risks</th></tr></thead><tbody>{% for supplier in suppliers %}<tr><td>{{ supplier.name }}</td><td>{{ supplier.order_count }}</td><td>{{ supplier.received_count }}</td><td>{% if supplier.risk_count %}<span class="text-danger">{{ supplier.risk_count }}</span>{% else %}0{% endif %}</td></tr>{% empty %}<tr><td colspan="4">No suppliers yet.</td></tr>{% endfor %}</tbody></table></div></div></div>
+<div class="container-fluid py-4">
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div>
+      <div class="small text-uppercase text-muted mb-2">Procurement</div>
+      <h2 class="mb-1">Procurement Dashboard</h2>
+      <p class="text-muted mb-0">Plan, source, receive, verify, and monitor purchasing.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-primary rounded-pill px-3" href="{% url 'procurement:requisition_create' %}">New requisition</a>
+      <a class="btn btn-outline-primary rounded-pill px-3" href="{% url 'procurement:rfq_create' %}">New RFQ</a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card h-100 border-0 shadow-sm rounded-4">
+        <div class="card-body">
+          <div class="text-muted small mb-2">Open requisitions</div>
+          <h3 class="mb-0">{{ open_requisitions }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card h-100 border-0 shadow-sm rounded-4">
+        <div class="card-body">
+          <div class="text-muted small mb-2">POs awaiting approval</div>
+          <h3 class="mb-0">{{ orders_pending_approval }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card h-100 border-0 shadow-sm rounded-4">
+        <div class="card-body">
+          <div class="text-muted small mb-2">Open RFQs</div>
+          <h3 class="mb-0">{{ open_rfqs }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card h-100 border-0 shadow-sm rounded-4">
+        <div class="card-body">
+          <div class="text-muted small mb-2">Invoice exceptions</div>
+          <h3 class="mb-0 {% if invoice_exceptions %}text-danger{% else %}text-success{% endif %}">{{ invoice_exceptions }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card h-100 border-0 shadow-sm rounded-4">
+        <div class="card-body">
+          <div class="text-muted small mb-2">Committed spend</div>
+          <h3 class="mb-0">{{ committed_spend|floatformat:2 }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center py-3 px-4">
+          <strong>Procurement workspace</strong>
+          <a href="{% url 'procurement:order_list' %}" class="small text-decoration-none">Purchase orders</a>
+        </div>
+        <div class="list-group list-group-flush">
+          <a class="list-group-item list-group-item-action px-4 py-3" href="{% url 'procurement:requisition_list' %}">
+            <div class="d-flex justify-content-between align-items-center gap-3">
+              <span>Requisitions</span>
+              <span class="small text-muted">Plan demand and request approval</span>
+            </div>
+          </a>
+          <a class="list-group-item list-group-item-action px-4 py-3" href="{% url 'procurement:rfq_list' %}">
+            <div class="d-flex justify-content-between align-items-center gap-3">
+              <span>Requests for quotation</span>
+              <span class="small text-muted">Compare supplier offers</span>
+            </div>
+          </a>
+          <a class="list-group-item list-group-item-action px-4 py-3" href="{% url 'procurement:quotation_list' %}">
+            <div class="d-flex justify-content-between align-items-center gap-3">
+              <span>Supplier quotations</span>
+              <span class="small text-muted">Review price and lead time</span>
+            </div>
+          </a>
+          <a class="list-group-item list-group-item-action px-4 py-3" href="{% url 'procurement:contract_list' %}">
+            <div class="d-flex justify-content-between align-items-center gap-3">
+              <span>Supplier contracts</span>
+              <span class="small text-muted">Track term and value</span>
+            </div>
+          </a>
+          <a class="list-group-item list-group-item-action px-4 py-3" href="{% url 'procurement:invoice_match_list' %}">
+            <div class="d-flex justify-content-between align-items-center gap-3">
+              <span>Invoice verification</span>
+              <span class="small text-muted">Match invoice to PO</span>
+            </div>
+          </a>
+          <a class="list-group-item list-group-item-action px-4 py-3" href="{% url 'procurement:risk_list' %}">
+            <div class="d-flex justify-content-between align-items-center gap-3">
+              <span>Supplier risks</span>
+              <span class="small text-muted">Track mitigation</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-transparent border-0 py-3 px-4">
+          <strong>Supplier performance and risk</strong>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm mb-0 align-middle">
+            <thead>
+              <tr>
+                <th>Supplier</th>
+                <th>Orders</th>
+                <th>Received</th>
+                <th>Risks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for supplier in suppliers %}
+              <tr>
+                <td>{{ supplier.name }}</td>
+                <td>{{ supplier.order_count }}</td>
+                <td>{{ supplier.received_count }}</td>
+                <td>
+                  {% if supplier.risk_count %}
+                    <span class="badge bg-danger-subtle text-danger rounded-pill">{{ supplier.risk_count }}</span>
+                  {% else %}
+                    <span class="text-muted">0</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" class="text-muted">No suppliers yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
+

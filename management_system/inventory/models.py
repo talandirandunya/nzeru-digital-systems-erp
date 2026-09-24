@@ -79,7 +79,7 @@ class Stock(models.Model):
         ordering = ['-created_at']
 
     def clean(self):
-        if self.category_id and self.category.company_id != self.company_id:
+        if self.company_id and self.category_id and self.category.company_id != self.company_id:
             raise ValidationError({'category': 'Category must belong to the same company as the stock.'})
 
     def save(self, *args, **kwargs):

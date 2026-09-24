@@ -17,6 +17,10 @@ class PurchaseRequisitionForm(forms.ModelForm):
     class Meta:
         model = PurchaseRequisition
         fields = ['number', 'budget_amount']
+        widgets = {
+            'number': forms.TextInput(attrs={'placeholder': 'PR-2026-001', 'class': 'form-control'}),
+            'budget_amount': forms.NumberInput(attrs={'placeholder': '0.00', 'step': '0.01', 'min': '0', 'class': 'form-control'}),
+        }
 
 
 class PurchaseOrderForm(forms.ModelForm):

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -140,25 +142,50 @@ def risk_list(request):
 def requisition_create(request):
     company = request.user.company
     form = PurchaseRequisitionForm(request.POST or None)
-    line_forms = []
     if request.method == 'POST' and form.is_valid():
         stock_ids = request.POST.getlist('stock_id')
         quantities = request.POST.getlist('quantity')
-        if not stock_ids or len(stock_ids) != len(quantities):
+        line_budgets = request.POST.getlist('line_budget')
+
+        if not stock_ids:
             form.add_error(None, 'Add at least one stock line.')
         else:
-            with transaction.atomic():
-                requisition = form.save(commit=False)
-                requisition.company = company
-                requisition.requested_by = request.user
-                requisition.save()
-                for stock_id, quantity in zip(stock_ids, quantities):
-                    stock = get_object_or_404(Stock, pk=stock_id, company=company)
-                    PurchaseRequisitionLine.objects.create(requisition=requisition, stock=stock, quantity=quantity)
-            AuditEvent.record(actor=request.user, company=company, module='procurement', action='requisition_created', obj=requisition, request=request)
-            return redirect('procurement:requisition_list')
+            selected_lines = {}
+            for stock_id, quantity, line_budget in zip(stock_ids, quantities, line_budgets + ['0'] * max(0, len(stock_ids) - len(line_budgets))):
+                if not stock_id or not quantity:
+                    continue
+                stock = get_object_or_404(Stock, pk=stock_id, company=company)
+                qty = int(quantity)
+                if qty <= 0:
+                    continue
+                budget = Decimal(line_budget or '0') if line_budget else Decimal(str(stock.selling_price)) * qty
+                if stock.pk in selected_lines:
+                    selected_lines[stock.pk]['quantity'] += qty
+                    selected_lines[stock.pk]['budget'] += budget
+                else:
+                    selected_lines[stock.pk] = {'stock': stock, 'quantity': qty, 'budget': budget}
+
+            if not selected_lines:
+                form.add_error(None, 'Select at least one valid item and enter a quantity.')
+            else:
+                with transaction.atomic():
+                    requisition = form.save(commit=False)
+                    requisition.company = company
+                    requisition.requested_by = request.user
+                    requisition.budget_amount = sum((entry['budget'] for entry in selected_lines.values()), Decimal('0'))
+                    requisition.save()
+
+                    for entry in selected_lines.values():
+                        PurchaseRequisitionLine.objects.create(
+                            requisition=requisition,
+                            stock=entry['stock'],
+                            quantity=entry['quantity'],
+                        )
+                AuditEvent.record(actor=request.user, company=company, module='procurement', action='requisition_created', obj=requisition, request=request)
+                return redirect('procurement:requisition_list')
     stocks = Stock.objects.filter(company=company).order_by('name')
-    return render(request, 'procurement/requisition_form.html', {'form': form, 'stocks': stocks})
+    stock_catalog = list(stocks.values('id', 'item_code', 'name', 'unit', 'quantity', 'selling_price', 'category__name'))
+    return render(request, 'procurement/requisition_form.html', {'form': form, 'stocks': stocks, 'stock_catalog': stock_catalog})
 
 
 @capability_required('procurement.view')

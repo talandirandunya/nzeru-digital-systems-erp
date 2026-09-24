@@ -1,8 +1,10 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.urls import reverse
 from decimal import Decimal
 
 from accounts.models import Company
+from governance.models import ApprovalStep, ApprovalWorkflow
 from inventory.models import Stock
 from .models import (
     PurchaseOrder, PurchaseOrderLine, PurchaseRequisition, PurchaseRequisitionLine,
@@ -18,6 +20,40 @@ class ProcurementWorkflowTests(TestCase):
         self.approver = self.company.users.create(email='approver@example.com', role='admin', is_company_admin=True, is_active=True)
         self.stock = Stock.objects.create(company=self.company, item_code='SKU-1', name='Solar panel', quantity=2, unit='pcs', cost_price=Decimal('10'), selling_price=Decimal('15'), reorder_level=1, supplier_name='')
         self.supplier = Supplier.objects.create(company=self.company, name='Supplier One')
+
+    def test_requisition_create_aggregates_duplicate_stock_selection_and_budget(self):
+        self.client.force_login(self.approver)
+        response = self.client.post(reverse('procurement:requisition_create'), {
+            'number': 'REQ-DUP-1',
+            'budget_amount': '200.00',
+            'stock_id': [str(self.stock.pk), str(self.stock.pk)],
+            'quantity': ['2', '3'],
+            'line_budget': ['120.00', '80.00'],
+        })
+
+        self.assertEqual(response.status_code, 302)
+        requisition = PurchaseRequisition.objects.get(number='REQ-DUP-1', company=self.company)
+        self.assertEqual(requisition.lines.count(), 1)
+        self.assertEqual(requisition.lines.get().quantity, 5)
+        self.assertEqual(str(requisition.budget_amount), '200.00')
+
+    def test_requisition_can_be_submitted_when_approval_workflow_exists(self):
+        workflow = ApprovalWorkflow.objects.create(
+            company=self.company,
+            name='Procurement approval',
+            transaction_type='purchase_requisition',
+            enabled=True,
+        )
+        ApprovalStep.objects.create(workflow=workflow, sequence=1, role='admin')
+        requisition = PurchaseRequisition.objects.create(company=self.company, requested_by=self.approver, number='REQ-submit-1')
+        PurchaseRequisitionLine.objects.create(requisition=requisition, stock=self.stock, quantity=3)
+
+        self.client.force_login(self.approver)
+        response = self.client.post(reverse('procurement:requisition_submit', kwargs={'pk': requisition.pk}))
+
+        requisition.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(requisition.status, 'submitted')
 
     def test_partial_receipt_updates_main_stock_and_order_status(self):
         requisition = PurchaseRequisition.objects.create(company=self.company, requested_by=self.requester, number='REQ-1')

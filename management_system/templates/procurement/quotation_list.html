@@ -1,1 +1,58 @@
-{% extends 'base.html' %}{% block title %}Supplier quotations{% endblock %}{% block content %}<div class="d-flex justify-content-between mb-3"><h2>Supplier quotations</h2><a class="btn btn-primary" href="{% url 'procurement:quotation_create' %}">Record quotation</a></div><table class="table table-striped"><thead><tr><th>RFQ</th><th>Supplier</th><th>Quote</th><th>Total</th><th>Lead time</th><th>Status</th></tr></thead><tbody>{% for quote in quotations %}<tr><td>{{ quote.rfq.number }}</td><td>{{ quote.supplier.name }}</td><td>{{ quote.quote_number }}</td><td>{{ quote.quoted_total }}</td><td>{{ quote.lead_time_days }} days</td><td>{{ quote.get_status_display }}</td></tr>{% empty %}<tr><td colspan="6">No quotations recorded.</td></tr>{% endfor %}</tbody></table>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Supplier quotations{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center py-3 px-4">
+      <div>
+        <div class="small text-uppercase text-muted mb-1">Procurement</div>
+        <h2 class="h4 mb-0">Supplier quotations</h2>
+      </div>
+      <a class="btn btn-primary rounded-pill px-3" href="{% url 'procurement:quotation_create' %}">Record quotation</a>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>RFQ</th>
+              <th>Supplier</th>
+              <th>Quote</th>
+              <th>Total</th>
+              <th>Lead time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for quote in quotations %}
+            <tr>
+              <td><strong>{{ quote.rfq.number }}</strong></td>
+              <td>{{ quote.supplier.name }}</td>
+              <td>{{ quote.quote_number }}</td>
+              <td>{{ quote.quoted_total }}</td>
+              <td>{{ quote.lead_time_days }} days</td>
+              <td>
+                {% if quote.status == 'accepted' %}
+                  <span class="badge bg-success-subtle text-success rounded-pill">{{ quote.get_status_display }}</span>
+                {% elif quote.status == 'shortlisted' %}
+                  <span class="badge bg-info-subtle text-info rounded-pill">{{ quote.get_status_display }}</span>
+                {% elif quote.status == 'rejected' %}
+                  <span class="badge bg-danger-subtle text-danger rounded-pill">{{ quote.get_status_display }}</span>
+                {% else %}
+                  <span class="badge bg-secondary-subtle text-secondary rounded-pill">{{ quote.get_status_display }}</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">No quotations recorded.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

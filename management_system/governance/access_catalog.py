@@ -54,7 +54,13 @@ MODULE_ACCESS_CATALOG = (
     {
         'key': 'governance',
         'label': 'Governance and Administration',
-        'capabilities': (('governance.view', 'View governance'), ('admin.manage_users', 'Manage users'), ('admin.manage_roles', 'Assign permissions'), ('admin.manage_organisation', 'Manage workflows')),
+        'capabilities': (
+            ('governance.view', 'View governance'),
+            ('admin.manage_users', 'Manage users'),
+            ('admin.manage_roles', 'Assign permissions'),
+            ('admin.manage_organisation', 'Manage workflows'),
+            ('approvals.decide', 'Decide approvals'),
+        ),
     },
     {
         'key': 'reports',

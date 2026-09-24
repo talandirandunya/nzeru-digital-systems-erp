@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from accounts.models import Company
 from notifications.models import Notification
+from .forms import StockForm
 from .models import (
     InventoryBatch,
     Stock,
@@ -62,6 +63,26 @@ class InventoryWarehouseAndMovementTests(TestCase):
         self.assertEqual(movement.company, self.company)
         self.assertEqual(movement.warehouse, self.warehouse)
         self.assertEqual(tx.stock, self.stock)
+
+    def test_stock_form_accepts_company_scoped_category_before_save(self):
+        form = StockForm(data={
+            'item_code': 'SKU-101',
+            'name': 'QA Laptop Stand',
+            'category': str(self.category.pk),
+            'description': 'Used for QA testing',
+            'quantity': '12',
+            'unit': 'pcs',
+            'cost_price': '40.00',
+            'selling_price': '65.00',
+            'reorder_level': '5',
+            'supplier_name': 'QA Supplier',
+            'supplier_contact': '123456',
+            'location': 'A-01',
+            'last_restocked': '2026-09-24',
+            'is_marketplace_visible': 'on',
+        }, company=self.company)
+
+        self.assertTrue(form.is_valid(), form.errors)
 
     def test_cross_company_warehouse_rejected(self):
         other_company = Company.objects.create(name='OtherCo', domain='otherco', contact_email='other@example.com')

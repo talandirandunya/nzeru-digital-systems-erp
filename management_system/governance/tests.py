@@ -6,9 +6,10 @@ from django.utils import timezone
 from datetime import timedelta
 
 from accounts.models import Company, User
-from employees.models import Employee
+from employees.models import Department, Employee
+from hr.models import Position
 from notifications.models import Notification
-from .forms import CreateManagedUserForm
+from .forms import ApprovalAuthorityForm, CreateManagedUserForm
 from .models import AuditEvent, UserApprovalAuthority, UserCapability, has_capability
 from .models import ApprovalDelegation, ApprovalRequest, ApprovalStep, ApprovalWorkflow
 from .services import decide_approval, latest_approval_for, process_overdue_approvals, submit_for_approval
@@ -215,6 +216,19 @@ class GovernanceTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(approval.status, 'cancelled')
         self.assertTrue(AuditEvent.objects.filter(action='cancelled', object_id=str(self.company.pk)).exists())
+
+    def test_managed_user_uses_company_department_and_position_catalog(self):
+        Department.objects.create(company=self.company, name='Finance')
+        Department.objects.create(company=self.company, name='Operations')
+        Position.objects.create(company=self.company, title='Accountant', salary_grade=3)
+        Position.objects.create(company=self.company, title='Operations Lead', salary_grade=5)
+
+        form = CreateManagedUserForm(company=self.company)
+
+        self.assertIn('Finance', form.department_options)
+        self.assertIn('Operations', form.department_options)
+        self.assertIn('Accountant', form.position_options)
+        self.assertIn('Operations Lead', form.position_options)
 
     def test_managed_user_can_link_existing_employee_without_duplicate(self):
         employee = Employee.objects.create(
@@ -533,6 +547,12 @@ class GovernanceTests(TestCase):
         decide_approval(approval=approval, actor=manager, decision='approved')
         approval.refresh_from_db()
         self.assertEqual(approval.status, 'approved')
+
+    def test_approval_authority_form_uses_catalog_choices(self):
+        form = ApprovalAuthorityForm(company=self.company, user=self.admin)
+        self.assertIn(('procurement', 'Procurement'), form.fields['module'].choices)
+        self.assertIn(('approvals.decide', 'Decide approvals'), form.fields['capability'].choices)
+        self.assertIn('form-control', form.fields['transaction_type'].widget.attrs.get('class', ''))
 
     def test_admin_bulk_assignment_records_audit_event(self):
         user = self.company.users.create(

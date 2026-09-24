@@ -1,1 +1,58 @@
-{% extends 'base.html' %}{% block title %}Requests for quotation{% endblock %}{% block content %}<div class="d-flex justify-content-between mb-3"><h2>Requests for quotation</h2><a class="btn btn-primary" href="{% url 'procurement:rfq_create' %}">New RFQ</a></div><table class="table table-striped"><thead><tr><th>Number</th><th>Requisition</th><th>Deadline</th><th>Status</th><th>Quotes</th></tr></thead><tbody>{% for rfq in rfqs %}<tr><td>{{ rfq.number }}</td><td>{{ rfq.requisition.number }}</td><td>{{ rfq.deadline|default:'-' }}</td><td>{{ rfq.get_status_display }}</td><td>{{ rfq.quotations.count }}</td></tr>{% empty %}<tr><td colspan="5">No RFQs recorded.</td></tr>{% endfor %}</tbody></table>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Requests for quotation{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center py-3 px-4">
+      <div>
+        <div class="small text-uppercase text-muted mb-1">Procurement</div>
+        <h2 class="h4 mb-0">Requests for quotation</h2>
+      </div>
+      <a class="btn btn-primary rounded-pill px-3" href="{% url 'procurement:rfq_create' %}">New RFQ</a>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Number</th>
+              <th>Requisition</th>
+              <th>Deadline</th>
+              <th>Status</th>
+              <th>Quotes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for rfq in rfqs %}
+            <tr>
+              <td><strong>{{ rfq.number }}</strong></td>
+              <td>{{ rfq.requisition.number }}</td>
+              <td>{{ rfq.deadline|default:'-' }}</td>
+              <td>
+                {% if rfq.status == 'open' %}
+                  <span class="badge bg-primary-subtle text-primary rounded-pill">{{ rfq.get_status_display }}</span>
+                {% elif rfq.status == 'closed' %}
+                  <span class="badge bg-secondary-subtle text-secondary rounded-pill">{{ rfq.get_status_display }}</span>
+                {% elif rfq.status == 'awarded' %}
+                  <span class="badge bg-success-subtle text-success rounded-pill">{{ rfq.get_status_display }}</span>
+                {% else %}
+                  <span class="badge bg-warning-subtle text-warning rounded-pill">{{ rfq.get_status_display }}</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge bg-dark-subtle text-dark rounded-pill">{{ rfq.quotations.count }}</span>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">No RFQs recorded.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

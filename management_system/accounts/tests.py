@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from accounts.forms import InvitationAcceptForm
+from accounts.models import Company, User
 
 
 class InvitationAcceptanceTests(TestCase):
@@ -14,3 +15,36 @@ class InvitationAcceptanceTests(TestCase):
         })
 
         self.assertTrue(form.is_valid(), form.errors)
+
+
+class CompanyLoginCompatibilityTests(TestCase):
+    def test_legacy_accounts_login_route_authenticates_company_user(self):
+        company = Company.objects.create(
+            name='Nzeru Digital Systems',
+            domain='nzeru-digital-systems',
+            contact_email='hello@nzeru.io',
+        )
+        user = User.objects.create_user(
+            email='ndegejoel2000@gmail.com',
+            password='Ndegejoel2000..',
+            company=company,
+            first_name='Joel',
+            last_name='Ndege',
+            is_company_admin=True,
+            role='admin',
+            is_active=True,
+        )
+
+        response = self.client.post(
+            '/accounts/login/',
+            {
+                'company_domain': 'nzeru-digital-systems',
+                'username': 'ndegejoel2000@gmail.com',
+                'password': 'Ndegejoel2000..',
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertNotIn('/login/?next=/accounts/login/', response.url)
+        self.assertTrue(response.wsgi_request.user.is_authenticated)
+        self.assertEqual(response.wsgi_request.user.email, user.email)

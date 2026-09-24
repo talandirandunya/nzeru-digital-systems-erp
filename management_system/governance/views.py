@@ -17,8 +17,9 @@ from .models import ApprovalStep, ApprovalWorkflow, ApprovalRequest
 from .services import actionable_approvals_for_user, _target_amount, decide_approval, maybe_submit_user_account_approval
 from .workflow_forms import ApprovalStepForm, ApprovalWorkflowForm
 from .models import AuditEvent, UserApprovalAuthority, UserCapability, effective_capabilities
-from employees.models import Employee
+from employees.models import Department, Employee
 from finance.models import Transaction
+from hr.models import Position
 from inventory.models import Stock
 from projects.models import Project
 from crm.models import Contact, Opportunity
@@ -52,7 +53,22 @@ def user_create(request):
         if employee:
             AuditEvent.record(actor=request.user, company=request.user.company, module='accounts', action='employee_user_linked', obj=user, after={'employee_id': employee.pk}, request=request)
         return redirect('governance:user_list')
-    return render(request, 'governance/user_form.html', {'form': form, 'managed_user': None})
+    department_options = sorted(
+        set(Department.objects.filter(company=request.user.company).values_list('name', flat=True))
+        | set(User.objects.filter(company=request.user.company).exclude(department='').values_list('department', flat=True))
+        | set(Employee.objects.filter(company=request.user.company).exclude(department__isnull=True).values_list('department__name', flat=True))
+    )
+    position_options = sorted(
+        set(Position.objects.filter(company=request.user.company).values_list('title', flat=True))
+        | set(User.objects.filter(company=request.user.company).exclude(position='').values_list('position', flat=True))
+        | set(Employee.objects.filter(company=request.user.company).exclude(position__isnull=True).values_list('position__title', flat=True))
+    )
+    return render(request, 'governance/user_form.html', {
+        'form': form,
+        'managed_user': None,
+        'department_options': department_options,
+        'position_options': position_options,
+    })
 
 
 @capability_required('admin.manage_users')
@@ -61,7 +77,7 @@ def user_edit(request, pk):
     user = get_object_or_404(User, pk=pk, company=request.user.company)
     before = {'role': user.role, 'is_active': user.is_active, 'is_company_admin': user.is_company_admin}
     if request.method == 'POST':
-        form = ManagedUserForm(request.POST, instance=user)
+        form = ManagedUserForm(request.POST, instance=user, company=request.user.company)
         if form.is_valid():
             user = form.save()
             AuditEvent.record(
@@ -73,8 +89,23 @@ def user_edit(request, pk):
             messages.success(request, 'User updated.')
             return redirect('governance:user_list')
     else:
-        form = ManagedUserForm(instance=user)
-    return render(request, 'governance/user_form.html', {'form': form, 'managed_user': user})
+        form = ManagedUserForm(instance=user, company=request.user.company)
+    department_options = sorted(
+        set(Department.objects.filter(company=request.user.company).values_list('name', flat=True))
+        | set(User.objects.filter(company=request.user.company).exclude(department='').values_list('department', flat=True))
+        | set(Employee.objects.filter(company=request.user.company).exclude(department__isnull=True).values_list('department__name', flat=True))
+    )
+    position_options = sorted(
+        set(Position.objects.filter(company=request.user.company).values_list('title', flat=True))
+        | set(User.objects.filter(company=request.user.company).exclude(position='').values_list('position', flat=True))
+        | set(Employee.objects.filter(company=request.user.company).exclude(position__isnull=True).values_list('position__title', flat=True))
+    )
+    return render(request, 'governance/user_form.html', {
+        'form': form,
+        'managed_user': user,
+        'department_options': department_options,
+        'position_options': position_options,
+    })
 
 
 @capability_required('admin.manage_users')
@@ -138,6 +169,9 @@ def user_capabilities(request, pk):
     else:
         form = CapabilityOverrideForm(company=request.user.company, user=user)
         authority_form = ApprovalAuthorityForm(company=request.user.company, user=user)
+    known_transaction_types = list(
+        ApprovalWorkflow.objects.filter(company=request.user.company).values_list('transaction_type', flat=True).distinct().order_by('transaction_type')
+    )
     return render(request, 'governance/user_capabilities.html', {
         'managed_user': user,
         'form': form,
@@ -153,6 +187,7 @@ def user_capabilities(request, pk):
         'authority_form': authority_form,
         'authorities': UserApprovalAuthority.objects.filter(user=user, company=request.user.company).order_by('transaction_type', 'module'),
         'module_access_catalog': MODULE_ACCESS_CATALOG,
+        'known_transaction_types': known_transaction_types,
     })
 
 
