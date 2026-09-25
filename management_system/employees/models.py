@@ -104,6 +104,14 @@ class Employee(models.Model):
         validators=[MinValueValidator(0)],
         default=0,
     )
+    bank_name = models.CharField(max_length=120, blank=True)
+    bank_account_name = models.CharField(max_length=120, blank=True)
+    bank_account_number = models.CharField(max_length=64, blank=True)
+    tax_identification_number = models.CharField(max_length=64, blank=True)
+    next_of_kin_name = models.CharField(max_length=120, blank=True)
+    next_of_kin_relationship = models.CharField(max_length=80, blank=True)
+    next_of_kin_phone = models.CharField(max_length=40, blank=True)
+    medical_notes = models.TextField(blank=True)
     photo = models.ImageField(upload_to='employees/photos/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

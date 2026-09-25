@@ -131,11 +131,41 @@ class BudgetForm(forms.ModelForm):
     class Meta:
         model = Budget
         fields = ['name', 'account', 'start_date', 'end_date', 'amount', 'status']
-        widgets = {'start_date': forms.DateInput(attrs={'type': 'date'}), 'end_date': forms.DateInput(attrs={'type': 'date'})}
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g. Q4 Marketing Budget',
+                'autocomplete': 'off',
+            }),
+            'account': forms.Select(attrs={'class': 'form-select'}),
+            'start_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+            }),
+            'end_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+            }),
+            'amount': forms.NumberInput(attrs={
+                'class': 'form-control form-control-lg',
+                'min': '0',
+                'step': '0.01',
+                'placeholder': '0.00',
+                'inputmode': 'decimal',
+            }),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }
+        help_texts = {
+            'name': 'Give this budget a name your team will recognize quickly.',
+            'account': 'Only expense accounts from your company are available.',
+            'amount': 'Enter the approved spending limit for this budget period.',
+        }
 
     def __init__(self, *args, company=None, **kwargs):
+        self.company = company
         super().__init__(*args, **kwargs)
         if company:
+            self.instance.company = company
             self.fields['account'].queryset = Account.objects.filter(company=company, account_type='expense').order_by('code', 'name')
 
 

@@ -28,12 +28,17 @@ class EmployeeForm(forms.ModelForm):
         model = Employee
         fields = [
             'employee_id', 'department', 'role', 'position', 'status',
-            'date_of_birth', 'date_joined', 'salary', 'photo',
+            'date_of_birth', 'date_joined', 'salary',
+            'bank_name', 'bank_account_name', 'bank_account_number',
+            'tax_identification_number', 'next_of_kin_name',
+            'next_of_kin_relationship', 'next_of_kin_phone', 'medical_notes',
+            'photo',
         ]
         widgets = {
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
             'date_joined': forms.DateInput(attrs={'type': 'date'}),
             'salary': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
+            'medical_notes': forms.Textarea(attrs={'rows': 3}),
         }
         help_texts = {
             'employee_id': 'Unique employee ID within your company (e.g. EMP-001).',

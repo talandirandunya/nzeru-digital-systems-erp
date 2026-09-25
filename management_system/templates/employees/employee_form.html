@@ -44,6 +44,28 @@
                         <div class="col-md-6">{{ form.photo|as_crispy_field }}</div>
                     </div>
 
+                    <h5 class="border-bottom pb-2 mb-3">
+                        <i class="fas fa-university me-1 text-primary" aria-hidden="true"></i>
+                        {% trans "Payroll and Compliance" %}
+                    </h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">{{ form.bank_name|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.bank_account_name|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.bank_account_number|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.tax_identification_number|as_crispy_field }}</div>
+                    </div>
+
+                    <h5 class="border-bottom pb-2 mb-3">
+                        <i class="fas fa-phone-alt me-1 text-primary" aria-hidden="true"></i>
+                        {% trans "Emergency Contact and Medical Notes" %}
+                    </h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">{{ form.next_of_kin_name|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.next_of_kin_relationship|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.next_of_kin_phone|as_crispy_field }}</div>
+                        <div class="col-12">{{ form.medical_notes|as_crispy_field }}</div>
+                    </div>
+
                     <div class="alert alert-info d-flex align-items-start mt-2" role="note">
                         <i class="fas fa-info-circle me-2 mt-1 flex-shrink-0" aria-hidden="true"></i>
                         <div>

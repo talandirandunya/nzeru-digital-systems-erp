@@ -982,7 +982,7 @@ class JobApplication(models.Model):
 
 
 class EmployeeDocument(models.Model):
-    DOCUMENT_TYPES = [('identity', 'Identity'), ('contract', 'Contract'), ('certificate', 'Certificate'), ('policy', 'Policy'), ('other', 'Other')]
+    DOCUMENT_TYPES = [('identity', 'Identity'), ('contract', 'Contract'), ('certificate', 'Certificate'), ('policy', 'Policy'), ('medical', 'Medical'), ('other', 'Other')]
     company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, related_name='employee_documents')
     employee = models.ForeignKey('employees.Employee', on_delete=models.CASCADE, related_name='documents')
     title = models.CharField(max_length=160)

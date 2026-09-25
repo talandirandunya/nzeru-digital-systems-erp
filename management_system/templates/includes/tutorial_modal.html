@@ -10,7 +10,7 @@
                     <span class="badge bg-white text-primary fw-bold uppercase px-3 py-1" id="tutorialStepBadge">{% trans "Step 1 of 6" %}</span>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="skipTutorialBtn"></button>
                 </div>
-                <h4 class="modal-title fw-bold" id="onboardingTutorialLabel">{% trans "Welcome to Zentral ERP!" %}</h4>
+                <h4 class="modal-title fw-bold" id="onboardingTutorialLabel">{% trans "Welcome to Nzeru ERP!" %}</h4>
                 <p class="mb-0 text-white-50 small" id="tutorialStepSubtitle">{% trans "Let's take a quick tour to explore your workspace." %}</p>
 
                 <div class="progress mt-3" style="height: 6px; background-color: rgba(255,255,255,0.25);">
@@ -28,7 +28,7 @@
                         </div>
                         <h5 class="fw-bold mb-2">{% trans "Welcome to Your Enterprise Command Center" %}</h5>
                         <p class="text-muted col-lg-10 mx-auto">
-                            {% trans "Zentral ERP connects all departments of your business — Inventory, Orders, Finance, CRM, Projects, and HR — into one real-time dashboard." %}
+                            {% trans "Nzeru ERP connects all departments of your business — Inventory, Orders, Finance, CRM, Projects, and HR — into one real-time dashboard." %}
                         </p>
                         <div class="row g-3 mt-3 text-start">
                             <div class="col-md-4">
@@ -251,6 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevBtn = document.getElementById('tutorialPrevBtn');
     const nextBtn = document.getElementById('tutorialNextBtn');
     const finishBtn = document.getElementById('tutorialFinishBtn');
+    {% trans "You're Ready to Roll!" as ready_title %}
 
     const stepTitles = [
         '{% trans "Welcome to Your Enterprise Command Center" %}',
@@ -258,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function() {
         '{% trans "Quick In-Store Sales (POS)" %}',
         '{% trans "Marketplace Accounting Mapping" %}',
         '{% trans "Customer Payment Contacts" %}',
-        '{% trans "You\'re Ready to Roll!" %}'
+        '{{ ready_title|escapejs }}'
     ];
 
     function showStep(step) {

@@ -96,6 +96,36 @@
                                 </dl>
                             </div>
 
+                            {% if can_see_private %}
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2 text-uppercase text-muted small">{% trans "Payroll and Compliance" %}</h6>
+                                <dl class="row small mb-0">
+                                    <dt class="col-5 text-muted fw-normal">{% trans "Bank" %}</dt>
+                                    <dd class="col-7">{{ employee.bank_name|default:"—" }}</dd>
+                                    <dt class="col-5 text-muted fw-normal">{% trans "Account Name" %}</dt>
+                                    <dd class="col-7">{{ employee.bank_account_name|default:"—" }}</dd>
+                                    <dt class="col-5 text-muted fw-normal">{% trans "Account Number" %}</dt>
+                                    <dd class="col-7">{{ employee.bank_account_number|default:"—" }}</dd>
+                                    <dt class="col-5 text-muted fw-normal">{% trans "Tax ID" %}</dt>
+                                    <dd class="col-7">{{ employee.tax_identification_number|default:"—" }}</dd>
+                                </dl>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2 text-uppercase text-muted small">{% trans "Emergency and Medical" %}</h6>
+                                <dl class="row small mb-0">
+                                    <dt class="col-5 text-muted fw-normal">{% trans "Next of Kin" %}</dt>
+                                    <dd class="col-7">{{ employee.next_of_kin_name|default:"—" }}</dd>
+                                    <dt class="col-5 text-muted fw-normal">{% trans "Relationship" %}</dt>
+                                    <dd class="col-7">{{ employee.next_of_kin_relationship|default:"—" }}</dd>
+                                    <dt class="col-5 text-muted fw-normal">{% trans "Phone" %}</dt>
+                                    <dd class="col-7">{{ employee.next_of_kin_phone|default:"—" }}</dd>
+                                    <dt class="col-5 text-muted fw-normal">{% trans "Medical Notes" %}</dt>
+                                    <dd class="col-7">{{ employee.medical_notes|default:"—" }}</dd>
+                                </dl>
+                            </div>
+                            {% endif %}
+
                             <div class="col-md-6">
                                 <h6 class="border-bottom pb-2 text-uppercase text-muted small">{% trans "Company" %}</h6>
                                 <dl class="row small mb-0">

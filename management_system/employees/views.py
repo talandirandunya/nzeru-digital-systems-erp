@@ -145,9 +145,15 @@ def employee_detail(request, pk):
         or request.user.role in ('admin', 'hr_manager', 'manager', 'accountant')
         or (hasattr(request.user, 'employee_profile') and request.user.employee_profile.pk == employee.pk)
     )
+    can_see_private = (
+        request.user.is_superuser
+        or request.user.role in ('admin', 'hr_manager')
+        or (hasattr(request.user, 'employee_profile') and request.user.employee_profile.pk == employee.pk)
+    )
     return render(request, 'employees/employee_detail.html', {
         'employee': employee,
         'can_see_salary': can_see_salary,
+        'can_see_private': can_see_private,
     })
 
 
