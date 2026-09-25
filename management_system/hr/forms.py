@@ -287,7 +287,10 @@ class PerformanceGoalForm(forms.ModelForm):
 
     class Meta:
         model = PerformanceGoal
-        fields = ['employee', 'title', 'description', 'start_date', 'end_date', 'status', 'progress']
+        fields = [
+            'employee', 'title', 'description', 'start_date', 'end_date', 'status',
+            'target_value', 'achieved_value', 'unit', 'evidence', 'achievement_notes',
+        ]
         widgets = {
             'employee': forms.Select(attrs={'class': 'form-select'}),
             'title': forms.TextInput(attrs={'class': 'form-control'}),
@@ -295,7 +298,11 @@ class PerformanceGoalForm(forms.ModelForm):
             'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
-            'progress': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 100}),
+            'target_value': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': '0.01', 'placeholder': 'e.g. 20'}),
+            'achieved_value': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': '0.01', 'placeholder': 'e.g. 12'}),
+            'unit': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. members, installations, MWK'}),
+            'evidence': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'achievement_notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Explain the result or attach supporting evidence.'}),
         }
 
     def __init__(self, *args, **kwargs):

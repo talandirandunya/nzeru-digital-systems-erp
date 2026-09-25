@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}Company Assets{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <p class="text-uppercase small text-muted fw-bold mb-1">{% trans "People and equipment" %}</p>
+        <h2 class="mb-1"><i class="fas fa-laptop me-2 text-primary"></i>{% trans "Company Assets" %}</h2>
+        <p class="text-muted mb-0">{% trans "Track company-owned laptops, phones, vehicles, and equipment." %}</p>
+    </div>
+    <a href="{% url 'employees:asset_create' %}" class="btn btn-primary"><i class="fas fa-plus me-2"></i>{% trans "Add asset" %}</a>
+</div>
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead><tr><th>{% trans "Asset" %}</th><th>{% trans "Type" %}</th><th>{% trans "Serial number" %}</th><th>{% trans "Assignee" %}</th><th>{% trans "Status" %}</th><th class="text-end">{% trans "Actions" %}</th></tr></thead>
+            <tbody>
+            {% for asset in assets %}
+            <tr>
+                <td><strong>{{ asset.name }}</strong><div class="small text-muted">{{ asset.asset_tag }}</div></td>
+                <td>{{ asset.get_asset_type_display }}</td>
+                <td>{{ asset.serial_number|default:"-" }}</td>
+                <td>{{ asset.assignee_name|default:"Unassigned" }}</td>
+                <td><span class="badge {% if asset.status == 'assigned' %}bg-primary{% elif asset.status == 'available' %}bg-success{% elif asset.status == 'lost' %}bg-danger{% else %}bg-secondary{% endif %}">{{ asset.get_status_display }}</span></td>
+                <td class="text-end">
+                    <a href="{% url 'employees:asset_edit' asset.pk %}" class="btn btn-sm btn-outline-primary" title="Edit asset"><i class="fas fa-edit"></i></a>
+                    {% if asset.status == 'assigned' %}
+                    <form method="post" action="{% url 'employees:asset_release' asset.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-outline-warning" title="Release asset"><i class="fas fa-undo"></i></button></form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center text-muted py-5">{% trans "No company assets have been registered yet." %}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

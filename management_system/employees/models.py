@@ -5,6 +5,7 @@ employees/models.py — Department and Employee models, scoped per company tenan
 import logging
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -213,3 +214,71 @@ class Employee(models.Model):
 # Employee records are created explicitly via the employee workflow, and
 # user-to-employee linking is performed only through the authorized governance
 # flow or a controlled explicit link operation.
+
+
+class CompanyAsset(models.Model):
+    """Company-owned equipment that can be assigned to a user or employee."""
+
+    ASSET_TYPES = [
+        ('laptop', 'Laptop'),
+        ('desktop', 'Desktop'),
+        ('phone', 'Phone'),
+        ('tablet', 'Tablet'),
+        ('vehicle', 'Vehicle'),
+        ('equipment', 'Equipment'),
+        ('other', 'Other'),
+    ]
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('assigned', 'Assigned'),
+        ('maintenance', 'In maintenance'),
+        ('retired', 'Retired'),
+        ('lost', 'Lost'),
+    ]
+
+    company = models.ForeignKey('accounts.Company', on_delete=models.CASCADE, related_name='company_assets')
+    asset_tag = models.CharField(max_length=50)
+    name = models.CharField(max_length=160)
+    asset_type = models.CharField(max_length=20, choices=ASSET_TYPES, default='other')
+    serial_number = models.CharField(max_length=120, blank=True)
+    description = models.TextField(blank=True)
+    purchase_date = models.DateField(null=True, blank=True)
+    purchase_cost = models.DecimalField(max_digits=14, decimal_places=2, default=0, validators=[MinValueValidator(0)])
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available', db_index=True)
+    assigned_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_company_assets')
+    assigned_employee = models.ForeignKey('Employee', on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_company_assets')
+    assigned_at = models.DateTimeField(null=True, blank=True)
+    assigned_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='asset_assignments_made')
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('company', 'asset_tag'), name='unique_company_asset_tag'),
+        ]
+        ordering = ['name', 'asset_tag']
+        indexes = [models.Index(fields=['company', 'status'])]
+
+    def __str__(self):
+        return f'{self.asset_tag} - {self.name}'
+
+    @property
+    def assignee_name(self):
+        if self.assigned_employee_id:
+            return self.assigned_employee.full_name
+        if self.assigned_user_id:
+            return self.assigned_user.get_full_name() or self.assigned_user.email
+        return ''
+
+    def clean(self):
+        if self.assigned_user_id and self.assigned_user.company_id != self.company_id:
+            raise ValidationError('Assigned user must belong to the same company.')
+        if self.assigned_employee_id and self.assigned_employee.company_id != self.company_id:
+            raise ValidationError('Assigned employee must belong to the same company.')
+        if self.assigned_user_id and self.assigned_employee_id:
+            raise ValidationError('Assign an asset to either a user or an employee, not both.')
+        if self.status == 'assigned' and not (self.assigned_user_id or self.assigned_employee_id):
+            raise ValidationError('Assigned assets must have a user or employee assignee.')
+        if self.status != 'assigned' and (self.assigned_user_id or self.assigned_employee_id):
+            raise ValidationError('Only assigned assets can have an assignee.')

@@ -11,6 +11,12 @@ urlpatterns = [
     path('<int:pk>/', views.employee_detail, name='employee_detail'),
     path('<int:pk>/edit/', views.employee_edit, name='employee_edit'),
     path('<int:pk>/delete/', views.employee_delete, name='employee_delete'),
+
+    # Company asset register
+    path('assets/', views.asset_list, name='asset_list'),
+    path('assets/new/', views.asset_create, name='asset_create'),
+    path('assets/<int:pk>/edit/', views.asset_edit, name='asset_edit'),
+    path('assets/<int:pk>/release/', views.asset_release, name='asset_release'),
     
     # Department management
     path('departments/', views.department_list, name='department_list'),

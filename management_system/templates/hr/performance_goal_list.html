@@ -41,7 +41,7 @@
           <th>{% trans "Goal" %}</th>
           <th>{% trans "Employee" %}</th>
           <th>{% trans "Status" %}</th>
-          <th>{% trans "Progress" %}</th>
+          <th>{% trans "Result" %}</th>
           <th>{% trans "End Date" %}</th>
           <th class="text-end">{% trans "Actions" %}</th>
         </tr>
@@ -52,7 +52,7 @@
           <td>{{ goal.title }}</td>
           <td>{{ goal.employee.full_name }}</td>
           <td>{{ goal.get_status_display }}</td>
-          <td>{{ goal.progress }}%</td>
+          <td><strong>{{ goal.achieved_value|floatformat:2 }} / {{ goal.target_value|floatformat:2 }}</strong>{% if goal.unit %} {{ goal.unit }}{% endif %}<div class="progress mt-1" style="height: 5px; min-width: 100px;"><div class="progress-bar" style="width: {{ goal.progress }}%"></div></div><small class="text-muted">{{ goal.progress }}%</small></td>
           <td>{{ goal.end_date }}</td>
           <td class="text-end">
             <a href="{% url 'hr:performance_goal_edit' goal.pk %}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></a>

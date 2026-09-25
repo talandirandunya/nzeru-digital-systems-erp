@@ -1071,7 +1071,7 @@ def performance_goal_delete(request, pk):
 def performance_review_list(request):
     company = request.user.company
     reviews = PerformanceReview.objects.filter(company=company).select_related(
-        'employee__user', 'reviewer__user'
+        'employee__user', 'reviewer'
     ).order_by('-review_date')
 
     status_filter = request.GET.get('status', '').strip()
@@ -1083,8 +1083,8 @@ def performance_review_list(request):
         reviews = reviews.filter(
             Q(employee__user__first_name__icontains=query) |
             Q(employee__user__last_name__icontains=query) |
-            Q(reviewer__user__first_name__icontains=query) |
-            Q(reviewer__user__last_name__icontains=query)
+            Q(reviewer__first_name__icontains=query) |
+            Q(reviewer__last_name__icontains=query)
         )
 
     paginator = Paginator(reviews, 25)

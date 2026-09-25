@@ -1,8 +1,9 @@
 from django.test import TestCase
+from django.core.exceptions import ValidationError
 
 from accounts.models import Company, User
-from employees.forms import EmployeeForm
-from employees.models import Department, Employee
+from employees.forms import CompanyAssetForm, EmployeeForm
+from employees.models import CompanyAsset, Department, Employee
 from governance.models import ApprovalRequest
 
 
@@ -166,3 +167,52 @@ class EmployeeFormTests(TestCase):
         self.assertTrue(form.is_valid(), form.errors)
         updated = form.save()
         self.assertEqual(updated.status, 'active')
+
+    def test_company_asset_can_be_assigned_to_employee(self):
+        employee = Employee.objects.create(
+            company=self.company,
+            first_name='Amina',
+            last_name='Banda',
+            employee_id='EMP-ASSET-001',
+            role='developer',
+            status='active',
+            date_joined='2026-09-20',
+        )
+        form = CompanyAssetForm(
+            data={
+                'asset_tag': 'NDS-LAP-001',
+                'name': 'Lenovo ThinkPad T14',
+                'asset_type': 'laptop',
+                'serial_number': 'SN-001',
+                'purchase_date': '2026-09-20',
+                'purchase_cost': '1500000',
+                'status': 'assigned',
+                'assigned_employee': str(employee.pk),
+            },
+            company=self.company,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        asset = form.save()
+        self.assertEqual(asset.assigned_employee, employee)
+        self.assertEqual(asset.status, 'assigned')
+
+    def test_company_asset_rejects_cross_company_assignee(self):
+        other_company = Company.objects.create(name='Other Company', domain='othercompany')
+        employee = Employee.objects.create(
+            company=other_company,
+            first_name='Other',
+            last_name='Employee',
+            employee_id='OTHER-001',
+            date_joined='2026-09-20',
+        )
+        asset = CompanyAsset(
+            company=self.company,
+            asset_tag='NDS-LAP-002',
+            name='Company Laptop',
+            assigned_employee=employee,
+            status='assigned',
+        )
+
+        with self.assertRaisesMessage(ValidationError, 'Assigned employee must belong to the same company.'):
+            asset.full_clean()

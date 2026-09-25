@@ -8,7 +8,7 @@ from governance.models import ApprovalRequest, ApprovalStep, ApprovalWorkflow
 from governance.services import decide_approval, submit_for_approval
 from .models import (
     Applicant, BenefitPlan, DisciplinaryCase, EmployeeBenefit, JobApplication,
-    JobOpening, PayrollPeriod, Position, LeaveRequest,
+    JobOpening, PayrollPeriod, PerformanceGoal, Position, LeaveRequest,
 )
 
 
@@ -51,6 +51,23 @@ class HRModelTests(TestCase):
         self.assertEqual(lr.status, 'approved')
         lr.deny()
         self.assertEqual(lr.status, 'denied')
+
+    def test_performance_goal_calculates_progress_from_achievement(self):
+        goal = PerformanceGoal.objects.create(
+            company=self.company,
+            employee=self.employee,
+            title='Bring new members',
+            start_date=date(2026, 1, 1),
+            end_date=date(2026, 3, 31),
+            target_value=20,
+            achieved_value=12,
+            unit='members',
+        )
+        self.assertEqual(goal.progress, 60)
+
+        goal.achieved_value = 25
+        goal.save()
+        self.assertEqual(goal.progress, 100)
 
     def test_leave_approval_uses_governance_and_updates_leave(self):
         manager = self.company.users.create(

@@ -6,7 +6,7 @@
 <div class="card shadow-sm">
   <div class="card-body">
     <h2 class="mb-4">{{ title }}</h2>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       {{ form.non_field_errors }}
       <div class="row g-3">
@@ -15,8 +15,13 @@
         <div class="col-md-6">{{ form.start_date.label_tag }} {{ form.start_date }}</div>
         <div class="col-md-6">{{ form.end_date.label_tag }} {{ form.end_date }}</div>
         <div class="col-md-6">{{ form.title.label_tag }} {{ form.title }}</div>
-        <div class="col-md-6">{{ form.progress.label_tag }} {{ form.progress }}</div>
+        <div class="col-md-6">{{ form.unit.label_tag }} {{ form.unit }}</div>
+        <div class="col-md-4">{{ form.target_value.label_tag }} {{ form.target_value }}</div>
+        <div class="col-md-4">{{ form.achieved_value.label_tag }} {{ form.achieved_value }}</div>
+        <div class="col-md-4"><label class="form-label">{% trans "Calculated progress" %}</label><div class="form-control-plaintext fw-bold text-primary">{% if form.instance.progress %}{{ form.instance.progress }}%{% else %}0%{% endif %}</div><small class="text-muted">{% trans "Calculated from achieved value divided by target." %}</small></div>
         <div class="col-12">{{ form.description.label_tag }} {{ form.description }}</div>
+        <div class="col-md-6">{{ form.evidence.label_tag }} {{ form.evidence }}</div>
+        <div class="col-md-6">{{ form.achievement_notes.label_tag }} {{ form.achievement_notes }}</div>
       </div>
       <div class="mt-4">
         <button type="submit" class="btn btn-primary">{% trans "Save Goal" %}</button>

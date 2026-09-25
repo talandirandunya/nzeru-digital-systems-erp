@@ -1,20 +1,35 @@
 {% load i18n %}
 
+<style>
+    #onboardingTutorialModal .modal-content { background: var(--surface, #161b22); color: var(--text, #f0f6fc); border: 1px solid var(--border, #30363d) !important; border-radius: 14px !important; }
+    #onboardingTutorialModal .nzeru-tutorial-header { background: linear-gradient(135deg, var(--sidebar-bg, #080d12), var(--surface, #161b22)); border-bottom: 2px solid var(--accent, #12808d); }
+    #onboardingTutorialModal .nzeru-tutorial-badge { background: var(--accent, #12808d); color: #07110d; }
+    #onboardingTutorialModal .nzeru-tutorial-progress { background: rgba(18, 128, 141, .2); }
+    #onboardingTutorialModal .nzeru-tutorial-progress .progress-bar { background: var(--accent, #12808d); }
+    #onboardingTutorialModal .nzeru-tutorial-icon { background: var(--accent-dim, rgba(18, 128, 141, .16)); color: var(--accent, #12808d); }
+    #onboardingTutorialModal .nzeru-tutorial-card { background: var(--surface2, #1d242d); border: 1px solid var(--border, #30363d); color: var(--text, #f0f6fc); }
+    #onboardingTutorialModal .nzeru-tutorial-card small { color: var(--muted, #a6b0bd) !important; }
+    #onboardingTutorialModal .nzeru-tutorial-next { background: var(--accent, #12808d); border-color: var(--accent, #12808d); color: #07110d; font-weight: 700; }
+    #onboardingTutorialModal .nzeru-tutorial-next:hover { filter: brightness(1.1); }
+    #onboardingTutorialModal .nzeru-tutorial-finish { background: var(--red, #97171d); border-color: var(--red, #97171d); color: #fff; font-weight: 700; }
+    #onboardingTutorialModal .modal-footer { background: var(--surface2, #1d242d) !important; border-top: 1px solid var(--border, #30363d); }
+</style>
+
 <!-- First Login Interactive Onboarding Tutorial Modal -->
 <div class="modal fade" id="onboardingTutorialModal" tabindex="-1" aria-labelledby="onboardingTutorialLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem; overflow: hidden;">
             <!-- Modal Header with Progress Bar -->
-            <div class="bg-primary text-white p-4 position-relative">
+            <div class="nzeru-tutorial-header text-white p-4 position-relative">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge bg-white text-primary fw-bold uppercase px-3 py-1" id="tutorialStepBadge">{% trans "Step 1 of 6" %}</span>
+                    <span class="badge nzeru-tutorial-badge fw-bold uppercase px-3 py-1" id="tutorialStepBadge">{% trans "Step 1 of 6" %}</span>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="skipTutorialBtn"></button>
                 </div>
                 <h4 class="modal-title fw-bold" id="onboardingTutorialLabel">{% trans "Welcome to Nzeru ERP!" %}</h4>
                 <p class="mb-0 text-white-50 small" id="tutorialStepSubtitle">{% trans "Let's take a quick tour to explore your workspace." %}</p>
 
-                <div class="progress mt-3" style="height: 6px; background-color: rgba(255,255,255,0.25);">
-                    <div class="progress-bar bg-warning" role="progressbar" id="tutorialProgressBar" style="width: 16.6%;" aria-valuenow="16.6" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress nzeru-tutorial-progress mt-3" style="height: 6px;">
+                    <div class="progress-bar" role="progressbar" id="tutorialProgressBar" style="width: 16.6%;" aria-valuenow="16.6" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
             </div>
 
@@ -23,7 +38,7 @@
                 <!-- Step 1: Welcome -->
                 <div class="tutorial-slide" id="tutorial-slide-1">
                     <div class="text-center py-3">
-                        <div class="avatar-lg bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <div class="avatar-lg nzeru-tutorial-icon rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
                             <i class="fas fa-rocket fa-2x"></i>
                         </div>
                         <h5 class="fw-bold mb-2">{% trans "Welcome to Your Enterprise Command Center" %}</h5>
@@ -32,22 +47,22 @@
                         </p>
                         <div class="row g-3 mt-3 text-start">
                             <div class="col-md-4">
-                                <div class="p-3 bg-light rounded border text-center">
-                                    <i class="fas fa-boxes text-primary fa-lg mb-2"></i>
+                                <div class="p-3 nzeru-tutorial-card rounded text-center">
+                                    <i class="fas fa-boxes nzeru-tutorial-icon fa-lg mb-2"></i>
                                     <h6 class="fw-bold mb-1">{% trans "Real-Time Stock" %}</h6>
                                     <small class="text-muted">{% trans "Track inventory levels & low stock alerts" %}</small>
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="p-3 bg-light rounded border text-center">
-                                    <i class="fas fa-shopping-cart text-success fa-lg mb-2"></i>
+                                <div class="p-3 nzeru-tutorial-card rounded text-center">
+                                    <i class="fas fa-shopping-cart nzeru-tutorial-icon fa-lg mb-2"></i>
                                     <h6 class="fw-bold mb-1">{% trans "Manage Orders" %}</h6>
                                     <small class="text-muted">{% trans "Process online & quick in-store sales" %}</small>
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="p-3 bg-light rounded border text-center">
-                                    <i class="fas fa-file-invoice-dollar text-warning fa-lg mb-2"></i>
+                                <div class="p-3 nzeru-tutorial-card rounded text-center">
+                                    <i class="fas fa-file-invoice-dollar nzeru-tutorial-icon fa-lg mb-2"></i>
                                     <h6 class="fw-bold mb-1">{% trans "Automated Finance" %}</h6>
                                     <small class="text-muted">{% trans "Automatic General Ledger entries" %}</small>
                                 </div>
@@ -224,10 +239,10 @@
                     <i class="fas fa-chevron-left me-1"></i>{% trans "Previous" %}
                 </button>
                 <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-primary px-4 fw-bold" id="tutorialNextBtn">
+                    <button type="button" class="btn nzeru-tutorial-next px-4 fw-bold" id="tutorialNextBtn">
                         {% trans "Next" %}<i class="fas fa-chevron-right ms-1"></i>
                     </button>
-                    <button type="button" class="btn btn-success px-4 fw-bold d-none" id="tutorialFinishBtn" data-bs-dismiss="modal">
+                    <button type="button" class="btn nzeru-tutorial-finish px-4 fw-bold d-none" id="tutorialFinishBtn" data-bs-dismiss="modal">
                         <i class="fas fa-check me-1"></i>{% trans "Get Started" %}
                     </button>
                 </div>

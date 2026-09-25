@@ -508,7 +508,12 @@ class PerformanceGoal(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='planned', db_index=True)
-    progress = models.PositiveIntegerField(default=0)
+    target_value = models.DecimalField(max_digits=14, decimal_places=2, default=0, validators=[MinValueValidator(0)])
+    achieved_value = models.DecimalField(max_digits=14, decimal_places=2, default=0, validators=[MinValueValidator(0)])
+    unit = models.CharField(max_length=80, blank=True, help_text='Examples: members, installations, projects, MWK')
+    progress = models.PositiveIntegerField(default=0, editable=False)
+    evidence = models.FileField(upload_to='hr/performance-evidence/', blank=True)
+    achievement_notes = models.TextField(blank=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -532,6 +537,15 @@ class PerformanceGoal(models.Model):
     def clean(self):
         if self.start_date and self.end_date and self.end_date < self.start_date:
             raise ValidationError({'end_date': 'End date must be on or after the start date.'})
+        if self.achieved_value > self.target_value and self.target_value:
+            self.progress = 100
+
+    def save(self, *args, **kwargs):
+        if self.target_value:
+            self.progress = min(int((self.achieved_value / self.target_value) * 100), 100)
+        else:
+            self.progress = 0
+        super().save(*args, **kwargs)
 
     @property
     def is_overdue(self) -> bool:

@@ -28,8 +28,8 @@ from accounts.permissions import (
     EMPLOYEE_WRITE_ROLES,
     role_required,
 )
-from .forms import DepartmentForm, EmployeeForm
-from .models import Department, Employee
+from .forms import CompanyAssetForm, DepartmentForm, EmployeeForm
+from .models import CompanyAsset, Department, Employee
 from governance.models import ApprovalStep, ApprovalWorkflow, AuditEvent
 from governance.services import submit_for_approval
 
@@ -213,6 +213,77 @@ def employee_delete(request, pk):
 
 
 # ---------------------------------------------------------------------------
+# Company assets
+
+@role_required(*EMPLOYEE_WRITE_ROLES)
+def asset_list(request):
+    company = request.user.company
+    assets = CompanyAsset.objects.filter(company=company).select_related(
+        'assigned_user', 'assigned_employee'
+    )
+    return render(request, 'employees/asset_list.html', {
+        'assets': assets,
+        'title': 'Company Assets',
+    })
+
+
+@role_required(*EMPLOYEE_WRITE_ROLES)
+@require_http_methods(['GET', 'POST'])
+def asset_create(request):
+    company = request.user.company
+    if request.method == 'POST':
+        form = CompanyAssetForm(request.POST, company=company)
+        if form.is_valid():
+            asset = form.save(commit=False)
+            asset.company = company
+            asset.assigned_by = request.user if asset.status == 'assigned' else None
+            asset.assigned_at = timezone.now() if asset.status == 'assigned' else None
+            asset.save()
+            messages.success(request, f'{asset.name} added to company assets.')
+            return redirect('employees:asset_list')
+    else:
+        form = CompanyAssetForm(company=company)
+    return render(request, 'employees/asset_form.html', {'form': form, 'title': 'Add Company Asset'})
+
+
+@role_required(*EMPLOYEE_WRITE_ROLES)
+@require_http_methods(['GET', 'POST'])
+def asset_edit(request, pk):
+    asset = get_object_or_404(CompanyAsset, pk=pk, company=request.user.company)
+    was_assigned = asset.status == 'assigned'
+    if request.method == 'POST':
+        form = CompanyAssetForm(request.POST, instance=asset, company=request.user.company)
+        if form.is_valid():
+            asset = form.save(commit=False)
+            is_assigned = asset.status == 'assigned'
+            if is_assigned and not was_assigned:
+                asset.assigned_at = timezone.now()
+                asset.assigned_by = request.user
+            elif not is_assigned:
+                asset.assigned_at = None
+                asset.assigned_by = None
+            asset.save()
+            messages.success(request, f'{asset.name} updated.')
+            return redirect('employees:asset_list')
+    else:
+        form = CompanyAssetForm(instance=asset, company=request.user.company)
+    return render(request, 'employees/asset_form.html', {'form': form, 'asset': asset, 'title': 'Edit Company Asset'})
+
+
+@role_required(*EMPLOYEE_WRITE_ROLES)
+@require_http_methods(['POST'])
+def asset_release(request, pk):
+    asset = get_object_or_404(CompanyAsset, pk=pk, company=request.user.company)
+    asset.assigned_user = None
+    asset.assigned_employee = None
+    asset.status = 'available'
+    asset.assigned_at = None
+    asset.assigned_by = None
+    asset.save(update_fields=['assigned_user', 'assigned_employee', 'status', 'assigned_at', 'assigned_by', 'updated_at'])
+    messages.success(request, f'{asset.name} is now available.')
+    return redirect('employees:asset_list')
+
+
 # Departments
 # ---------------------------------------------------------------------------
 
